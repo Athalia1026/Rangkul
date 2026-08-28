@@ -104,7 +104,7 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Kredensial tidak valid.'
+                'message' => 'Email atau password salah.'
             ], 401);
         }
 
@@ -115,12 +115,38 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $token = $user->createToken('rangkul-auth-token')->plainTextToken;
+        if ($user->account_type === 'donatur') {
+            $user->load('donor');
+        } elseif ($user->account_type === 'organisasi') {
+            $user->load('organization');
+        } elseif ($user->account_type === 'admin') {
+            $user->load('admin');
+        }
+
+        $token = $user->createToken('rangkul-login-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login berhasil',
             'user' => $user,
             'token' => $token
+        ], 200);
+    }
+
+    public function me(Request $request)
+    {
+        $user = $request->user();
+
+        // Load data relasi pendukung
+        if ($user->account_type === 'donatur') {
+            $user->load('donor');
+        } elseif ($user->account_type === 'organisasi') {
+            $user->load('organization');
+        } elseif ($user->account_type === 'admin') {
+            $user->load('admin');
+        }
+
+        return response()->json([
+            'user' => $user
         ], 200);
     }
 
@@ -131,13 +157,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Logout berhasil'
-        ], 200);
-    }
-
-    public function me(Request $request)
-    {
-        return response()->json([
-            'user' => $request->user()
         ], 200);
     }
 }
