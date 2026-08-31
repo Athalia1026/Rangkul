@@ -14,7 +14,7 @@ class ProfileController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data profil berhasil diambil',
-            'data'    => $request->user()
+            'data' => $request->user()
         ], 200);
     }
 
@@ -24,16 +24,32 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name'  => 'sometimes|string|max:255',
+            'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
         ]);
 
+        $validatedDonor = $request->validate([
+            'phone_number' => 'sometimes|string|max:20',
+            'city' => 'sometimes|string|max:255',
+        ]);
+
+        if (!empty($validatedUser)) {
+            $user->update($validatedUser);
+        }
+
+        if (!empty($validatedDonor)) {
+        $user->donor()->updateOrCreate(
+            ['user_id' => $user->id], // Kunci pencarian relasi
+            $validatedDonor
+        );
+    }
+        $user->load('donor');
         $user->update($validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Profil berhasil diperbarui',
-            'data'    => $user
+            'data' => $user
         ], 200);
     }
 
