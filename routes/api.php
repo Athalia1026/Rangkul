@@ -4,10 +4,14 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ResetPasswordController;
+use App\Http\Controllers\Api\PasswordController;
 
 Route::post('/register/donor', [AuthController::class, 'registerDonor']);
 Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
 
 // Endpoint Terproteksi (Wajib Token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
@@ -16,4 +20,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
+    Route::put('/profile/change-password', [PasswordController::class, 'update']);
 });
