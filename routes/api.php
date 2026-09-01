@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\PasswordController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Admin\OrganizationVerificationController;
 
 Route::post('/register/donor', [AuthController::class, 'registerDonor']);
 Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
@@ -21,4 +22,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
     Route::put('/profile/change-password', [PasswordController::class, 'update']);
+    Route::prefix('admin/verifications')->group(function () {
+    Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
+    Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
+    Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
+});
 });
