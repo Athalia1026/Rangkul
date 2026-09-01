@@ -37,6 +37,11 @@ class RegisterOrganizationRequest extends FormRequest
             'link_maps' => 'nullable|string|max:500',
             'jumlah_anak' => 'nullable|integer',
             'tahun_berdiri' => 'nullable|integer',
+
+            'sk_operasional' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'ktp_pj' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'foto_bangunan' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
+            'foto_kegiatan' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
         ];
     }
 }

@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->string('link_maps', 500)->nullable();
             $table->integer('jumlah_anak')->nullable();
             $table->integer('tahun_berdiri')->nullable();
-            $table->text('verification_status');
+            $table->enum('verification_status', ['menunggu', 'disetujui', 'ditolak'])->default('menunggu');
             $table->timestamp('verified_at')->nullable();
             $table->string('alasan_penolakan')->nullable();
             $table->timestamps();

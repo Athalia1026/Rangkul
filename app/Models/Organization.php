@@ -33,6 +33,11 @@ class Organization extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class);
+    }
+    public function documents()
+    {
+        // Parameter ke-2 adalah Foreign Key ('id_organisasi') di tabel organization_documents
+        return $this->hasMany(OrganizationDocument::class, 'id_organisasi', 'id');
     }
 }

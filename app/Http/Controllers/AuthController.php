@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
+use App\Models\OrganizationDocument;
 
 class AuthController extends Controller
 {
@@ -54,16 +55,22 @@ class AuthController extends Controller
     public function registerOrganization(RegisterOrganizationRequest $request)
     {
         $result = DB::transaction(function () use ($request) {
-            // Step A: Buat User
+            // Step 1: Simpan Foto Profil User (jika ada)
+            $photoPath = $request->hasFile('profile_photo')
+                ? $request->file('profile_photo')->store('profiles', 'public')
+                : null;
+
+            // Step 2: Buat User
             $user = User::create([
                 'nama' => $request->nama,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'profile_photo' => $photoPath,
                 'account_type' => 'organisasi',
                 'status' => 'aktif',
             ]);
 
-            // Step B: Buat Record Organization
+            // Step 3: Buat Record Organization
             $organization = Organization::create([
                 'user_id' => $user->id,
                 'nama_lembaga' => $request->nama_lembaga,
@@ -75,24 +82,47 @@ class AuthController extends Controller
                 'link_maps' => $request->link_maps,
                 'jumlah_anak' => $request->jumlah_anak,
                 'tahun_berdiri' => $request->tahun_berdiri,
-                'verification_status' => 'menunggu', // Status awal verifikasi
             ]);
 
-            // Step C: Generate Token Sanctum
+            // Step 4: Simpan 4 Dokumen ke Tabel OrganizationDocument
+            $documentTypes = [
+                'sk_operasional' => 'documents/sk',
+                'ktp_pj' => 'documents/ktp',
+                'foto_bangunan' => 'documents/bangunan',
+                'foto_kegiatan' => 'documents/kegiatan',
+            ];
+
+            foreach ($documentTypes as $type => $folder) {
+                if ($request->hasFile($type)) {
+                    $file = $request->file($type);
+                    $path = $file->store($folder, 'public');
+
+                    OrganizationDocument::create([
+                        'id_organisasi' => $organization->id,
+                        'nama_file' => $file->getClientOriginalName(),
+                        'lokasi_file' => $path,
+                        'status' => 'menunggu',
+                        'uploaded_at' => now(),
+                    ]);
+                }
+            }
+
+            // Step 5: Generate Token Sanctum
             $token = $user->createToken('rangkul-org-token')->plainTextToken;
 
             return [
-                'user' => $user->load('organization'),
+                'user' => $user->load('organization.documents'),
                 'token' => $token,
             ];
         });
 
         return response()->json([
-            'message' => 'Registrasi Organisasi berhasil (Menunggu Verifikasi Admin)',
+            'message' => 'Registrasi Organisasi berhasil (Dokumen Menunggu Verifikasi Admin)',
             'data' => $result['user'],
             'token' => $result['token'],
         ], 201);
     }
+
 
     public function login(Request $request)
     {
