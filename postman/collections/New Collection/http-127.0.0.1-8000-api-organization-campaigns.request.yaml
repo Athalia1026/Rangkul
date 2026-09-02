@@ -1,0 +1,49 @@
+$kind: http-request
+name: http://127.0.0.1:8000/api/organization/campaigns
+description: ""
+url: http://127.0.0.1:8000/api/organization/campaigns
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: judul
+      value: Bantuan Sembako Anak Asuh
+      description: ""
+      disabled: false
+    - type: text
+      key: deskripsi
+      value: Penggalangan dana untuk kebutuhan bahan pokok bulan depan.
+      description: ""
+      disabled: false
+    - type: text
+      key: tanggal_mulai
+      value: 2026-09-05 00:00:00
+      description: ""
+      disabled: false
+    - type: text
+      key: tanggal_selesai
+      value: 2026-10-05 00:00:00
+      description: ""
+      disabled: false
+    - type: text
+      key: target_dana
+      value: "10000000"
+      description: ""
+      disabled: false
+    - type: text
+      key: id_categories
+      value: 591ccf16-0a0f-41bf-a5c3-890caf0b1788
+      description: ""
+      disabled: false
+    - type: file
+      key: foto_cover
+      src:
+        - /C:/Users/LENOVO/Downloads/WhatsApp Image 2026-07-14 at 11.01.39 AM.jpeg
+      description: ""
+      disabled: false
+auth:
+  type: bearer
+  credentials:
+    token: 4|yMO8CozaDz8JHmhbwjAG9pofNKtfMeVHcjCcqV390604b992
+order: 832539482013692

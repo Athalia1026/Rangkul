@@ -1,0 +1,90 @@
+$kind: http-request
+name: http://127.0.0.1:8000/api/register/organization
+description: ""
+url: http://127.0.0.1:8000/api/register/organization
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: formdata
+  content:
+    - type: text
+      key: nama
+      value: Andi Pramata
+      description: ""
+      disabled: false
+    - type: text
+      key: email
+      value: dipramata@gmail.com
+      description: ""
+      disabled: false
+    - type: text
+      key: password
+      value: password123
+      description: ""
+      disabled: false
+    - type: text
+      key: nama_lembaga
+      value: Panti Asuhan Kasih Bunda
+      description: ""
+      disabled: false
+    - type: text
+      key: tipe
+      value: Panti Asuhan
+      description: ""
+      disabled: false
+    - type: text
+      key: no_telp
+      value: "085214568956"
+      description: ""
+      disabled: false
+    - type: text
+      key: deskripsi
+      value: Lembaga pengasuhan untuk anak-anak yatim piatu.
+      description: ""
+      disabled: false
+    - type: text
+      key: kota
+      value: Surabaya
+      description: ""
+      disabled: false
+    - type: text
+      key: alamat
+      value: Kali rungkut No.12, Rungkut, Surabaya
+      description: ""
+      disabled: false
+    - type: text
+      key: jumlah_anak
+      value: "25"
+      description: ""
+      disabled: false
+    - type: text
+      key: tahun_berdiri
+      value: "2010"
+      description: ""
+      disabled: false
+    - type: file
+      key: sk_operasional
+      src:
+        - /C:/Users/LENOVO/Downloads/Low Fidelity Admin.png
+      description: ""
+      disabled: false
+    - type: file
+      key: ktp_pj
+      src:
+        - /C:/Users/LENOVO/Downloads/Donatur.png
+      description: ""
+      disabled: false
+    - type: file
+      key: foto_bangunan
+      src:
+        - /C:/Users/LENOVO/OneDrive/Pictures/RO_IMAGE/image2026-08-25-20-20-08.png
+      description: ""
+      disabled: false
+    - type: file
+      key: foto_kegiatan
+      src:
+        - /C:/Users/LENOVO/OneDrive/Pictures/RO_IMAGE/image2026-08-25-20-21-48.png
+      description: ""
+      disabled: false
+order: 1788319877910
