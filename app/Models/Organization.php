@@ -11,6 +11,10 @@ class Organization extends Model
 {
     use HasUuids, SoftDeletes;
 
+    protected $casts = [
+        'is_verified' => 'boolean',
+    ];
+
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
