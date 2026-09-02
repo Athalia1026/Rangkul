@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('admins', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('user_id')->unique();
-            $table->enum('tipe', ['admin', 'manager', 'staff']);
+            $table->enum('tipe', ['super admin', 'manager', 'staff']);
             $table->enum('status_akun', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();
             $table->softDeletes();

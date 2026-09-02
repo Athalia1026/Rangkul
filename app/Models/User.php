@@ -29,6 +29,10 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
     ];
+    public function adminProfile()
+    {
+        return $this->hasOne(Admin::class, 'user_id');
+    }
 
     public function donor(): HasOne
     {
