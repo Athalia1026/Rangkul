@@ -16,6 +16,7 @@ Route::post('/register/organization', [AuthController::class, 'registerOrganizat
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
+Route::post('/registration/resubmit', [AuthController::class, 'resubmit']);
 
 // Endpoint Terproteksi (Wajib Token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
