@@ -1,12 +1,15 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ResetPasswordController;
-use App\Http\Controllers\Api\PasswordController;
-use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Donors\ProfileController;
 use App\Http\Controllers\Admin\OrganizationVerificationController;
+use App\Http\Controllers\Admin\AdminCampaignVerificationController;
+use App\Http\Controllers\Organizations\CampaignController;
+use App\Http\Middleware\CheckIsAdmin;
 
 Route::post('/register/donor', [AuthController::class, 'registerDonor']);
 Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
@@ -27,4 +30,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
     Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
 });
+});
+
+Route::middleware('auth:sanctum')->prefix('organization')->group(function () {
+    Route::post('/campaigns', [CampaignController::class, 'store']);
+});
+Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group(function () {
+    Route::get('/campaigns/pending', [AdminCampaignVerificationController::class, 'index']);
+    Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify']);
 });
