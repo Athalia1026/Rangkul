@@ -6,6 +6,8 @@ use App\Models\Organization;
 use App\Models\OrganizationDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Mail\OrganizationVerificationMail;
+use Illuminate\Support\Facades\Mail;
 
 class OrganizationVerificationController extends Controller
 {
@@ -60,6 +62,8 @@ class OrganizationVerificationController extends Controller
             $allDocuments = OrganizationDocument::where('id_organisasi', $organizationId)->get();
 
             $organization = Organization::findOrFail($organizationId);
+            $previousStatus = $organization->verification_status;
+
 
             // Logic Otomatis Status Organisasi:
             // - Jika ada 1 saja dokumen ditolak -> Status Organisasi = 'ditolak'
@@ -72,6 +76,20 @@ class OrganizationVerificationController extends Controller
             } else {
                 $organization->update(['verification_status' => 'menunggu']);
             }
+
+            $organization->refresh();
+            if (
+            $previousStatus !== $organization->verification_status &&
+            in_array($organization->verification_status, ['disetujui', 'ditolak'])
+        ) {
+            try {
+                Mail::to($organization->user->email)
+                    ->send(new OrganizationVerificationMail($organization));
+            } catch (\Exception $e) {
+                // Catat error ke log tanpa memberhentikan proses API
+                \Log::error('SMTP Mailtrap Timeout: ' . $e->getMessage());
+            }
+        }
 
             return response()->json([
                 'status'  => 'success',
