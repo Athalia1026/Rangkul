@@ -37,46 +37,36 @@ class OrganizationProfileController extends Controller
         ]);
     }
 
-    // 2. Update Informasi Profil & Unggah Dokumen
+    // 2. Update Informasi Profil Organisasi
     public function update(Request $request)
     {
-        $user = $request->user();
+        $organization = $request->user()->organization;
 
-        // Validasi Data Teks dan Berkas
-        $request->validate([
-            'organization_name' => ['required', 'string', 'max:255'],
-            'phone_number' => ['required', 'string', 'max:20'],
-            'address' => ['required', 'string'],
+        if (!$organization) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data organisasi tidak ditemukan.',
+            ], 404);
+        }
 
-            // Dokumen SK & KTP (PDF, JPG, PNG - Max 2MB)
-            'sk_operasional' => [$user->sk_operasional_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-            'ktp_pj' => [$user->ktp_pj_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-
-            // Foto Bangunan & Kegiatan (JPG, PNG, WEBP - Max 3MB)
-            'foto_bangunan' => [$user->foto_bangunan_path ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
-            'foto_kegiatan' => [$user->foto_kegiatan_path ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
+        $validated = $request->validate([
+            'nama_lembaga' => ['sometimes', 'string', 'max:500'],
+            'tipe' => ['sometimes', 'string'],
+            'no_telp' => ['sometimes', 'string', 'max:255'],
+            'deskripsi' => ['sometimes', 'string'],
+            'kota' => ['sometimes', 'string', 'max:255'],
+            'alamat' => ['sometimes', 'string'],
+            'link_maps' => ['sometimes', 'nullable', 'url', 'max:500'],
+            'jumlah_anak' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'tahun_berdiri' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:' . now()->year],
         ]);
 
-        $dataToUpdate = [
-            'organization_name' => $request->organization_name,
-            'phone_number' => $request->phone_number,
-            'address' => $request->address,
-            // Reset status ke pending jika user melakukan submit/update dokumen
-            'verification_status' => 'pending',
-            'rejection_reason' => null,
-        ];
-
-        // Helper Internal untuk Upload & Hapus File Lama
-        $this->uploadDocument($request, 'sk_operasional', 'documents/sk', $user->sk_operasional_path, $dataToUpdate, 'sk_operasional_path');
-        $this->uploadDocument($request, 'ktp_pj', 'documents/ktp', $user->ktp_pj_path, $dataToUpdate, 'ktp_pj_path');
-        $this->uploadDocument($request, 'foto_bangunan', 'documents/bangunan', $user->foto_bangunan_path, $dataToUpdate, 'foto_bangunan_path');
-        $this->uploadDocument($request, 'foto_kegiatan', 'documents/kegiatan', $user->foto_kegiatan_path, $dataToUpdate, 'foto_kegiatan_path');
-
-        $user->update($dataToUpdate);
+        $organization->update($validated);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Profil dan dokumen organisasi berhasil diperbarui. Menunggu verifikasi admin.',
+            'message' => 'Profil organisasi berhasil diperbarui.',
+            'data' => $organization->fresh(),
         ]);
     }
 

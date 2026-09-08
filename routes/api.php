@@ -41,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 });
 
-Route::middleware('auth:sanctum')->prefix('organization')->group(function () {
+Route::middleware('auth:sanctum')->prefix('organizations')->group(function () {
     Route::put('/profile', [OrganizationProfileController::class, 'update']);
     Route::post('/galleries', [OrganizationGalleryController::class, 'store']);
     Route::delete('/galleries/{id}', [OrganizationGalleryController::class, 'destroy']);
