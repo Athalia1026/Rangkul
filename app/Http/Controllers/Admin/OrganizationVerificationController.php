@@ -70,11 +70,20 @@ class OrganizationVerificationController extends Controller
             // - Jika semua dokumen disetujui -> Status Organisasi = 'disetujui'
             // - Jika masih ada yang 'menunggu' -> Status Organisasi = 'menunggu'
             if ($allDocuments->contains('status', 'ditolak')) {
-                $organization->update(['verification_status' => 'ditolak']);
+                $organization->update([
+                    'verification_status' => 'ditolak',
+                    'verified_at' => null,
+                ]);
             } elseif ($allDocuments->every(fn($doc) => $doc->status === 'diterima')) {
-                $organization->update(['verification_status' => 'disetujui']);
+                $organization->update([
+                    'verification_status' => 'disetujui',
+                    'verified_at' => now(),
+                ]);
             } else {
-                $organization->update(['verification_status' => 'menunggu']);
+                $organization->update([
+                    'verification_status' => 'menunggu',
+                    'verified_at' => null,
+                ]);
             }
 
             $organization->refresh();
