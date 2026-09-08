@@ -13,6 +13,7 @@ use App\Http\Controllers\Organizations\CampaignController;
 use App\Http\Middleware\CheckIsAdmin;
 use App\Http\Controllers\Donors\VisitController;
 use App\Http\Controllers\Donors\DonationController;
+use App\Http\Controllers\Organizations\OrganizationGalleryController;
 
 Route::post('/register/donor', [AuthController::class, 'registerDonor']);
 Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
@@ -23,6 +24,7 @@ Route::post('/registration/resubmit', [AuthController::class, 'resubmit']);
 Route::post('/midtrans/callback', [DonationController::class, 'handleCallback']);
 Route::get('/campaigns/{campaignId}/wishes', [DonationController::class, 'getCampaignWishes']);
 Route::get('/organizations/{organizationId}/campaigns', [OrganizationProfileController::class, 'getOrganizationCampaigns']);
+Route::get('/organizations/{organizationId}/profile', [OrganizationProfileController::class, 'showPublicProfile']);
 
 // Endpoint Terproteksi (Wajib Token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
@@ -40,6 +42,9 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('organization')->group(function () {
+    Route::put('/profile', [OrganizationProfileController::class, 'update']);
+    Route::post('/galleries', [OrganizationGalleryController::class, 'store']);
+    Route::delete('/galleries/{id}', [OrganizationGalleryController::class, 'destroy']);
     Route::post('/campaigns', [CampaignController::class, 'store']);
 });
 

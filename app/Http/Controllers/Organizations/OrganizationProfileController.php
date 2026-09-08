@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Organization;
 use App\Models\Campaign;
 use Carbon\Carbon;
+use App\Models\OrganizationGallery;
 
 class OrganizationProfileController extends Controller
 {
@@ -79,6 +80,45 @@ class OrganizationProfileController extends Controller
         ]);
     }
 
+    public function showPublicProfile(string $organizationId)
+    {
+        $organization = Organization::query()
+            ->whereKey($organizationId)
+            ->where('verification_status', 'disetujui')
+            ->with(['galleries' => function ($query) {
+                $query->select('id', 'organization_id', 'file_path', 'display_order');
+            }])
+            ->first();
+
+        if (!$organization) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Organisasi tidak ditemukan.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'id' => $organization->id,
+                'nama_lembaga' => $organization->nama_lembaga,
+                'tipe' => $organization->tipe,
+                'deskripsi' => $organization->deskripsi,
+                'kota' => $organization->kota,
+                'alamat' => $organization->alamat,
+                'no_telp' => $organization->no_telp,
+                'link_maps' => $organization->link_maps,
+                'jumlah_anak' => $organization->jumlah_anak,
+                'tahun_berdiri' => $organization->tahun_berdiri,
+                'galleries' => $organization->galleries->map(fn (OrganizationGallery $gallery) => [
+                    'id' => $gallery->id,
+                    'image_url' => $gallery->image_url,
+                    'display_order' => $gallery->display_order,
+                ])->values(),
+            ],
+        ]);
+    }
+
     private function uploadDocument(Request $request, string $inputKey, string $folder, ?string $oldPath, array &$dataToUpdate, string $columnName): void
     {
         if ($request->hasFile($inputKey)) {
@@ -102,10 +142,9 @@ class OrganizationProfileController extends Controller
                 'message' => 'Organisasi tidak ditemukan.'
             ], 404);
         }
-        $namaOrganisasi = $organization->nama_lembaga;
-
         // 2. Ambil campaign milik organisasi & hitung sum nominal dari relasi donations (hanya yang sudah_bayar)
         $campaigns = Campaign::where('id_organisasi', $organizationId)
+            ->where('status', 'aktif')
             ->withSum([
                 'donations as total_donasi_terkumpul' => function ($query) {
                     $query->where('status', 'sudah_bayar');
@@ -135,9 +174,9 @@ class OrganizationProfileController extends Controller
 
             return [
                 'id' => $campaign->id,
-                'judul' => $campaign->title ?? $campaign->judul,
-                'nama_organisasi' => $organization->nama_lembaga,
-                'image_url' => $campaign->image_url ?? asset('storage/' . $campaign->image),
+                'judul' => $campaign->judul,
+                'nama_organisasi' => $organization->nama_lembaga ?? $campaign->organization->nama_lembaga,
+                'image_url' => $campaign->foto_cover ? asset('storage/' . $campaign->foto_cover) : null,
                 'terkumpul' => $targetTerkumpul,
                 'target' => $targetDana,
                 'persentase' => $persentase,

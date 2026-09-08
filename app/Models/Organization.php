@@ -44,4 +44,10 @@ class Organization extends Model
         // Parameter ke-2 adalah Foreign Key ('id_organisasi') di tabel organization_documents
         return $this->hasMany(OrganizationDocument::class, 'id_organisasi', 'id');
     }
+
+    public function galleries()
+{
+    return $this->hasMany(OrganizationGallery::class, 'organization_id')
+                ->orderBy('display_order', 'asc');
+}
 }
