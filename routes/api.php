@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminCampaignVerificationController;
 use App\Http\Controllers\Organizations\CampaignController;
 use App\Http\Middleware\CheckIsAdmin;
 use App\Http\Controllers\Donors\VisitController;
+use App\Http\Controllers\Donors\DonationController;
 
 Route::post('/register/donor', [AuthController::class, 'registerDonor']);
 Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
@@ -18,6 +19,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
 Route::post('/registration/resubmit', [AuthController::class, 'resubmit']);
+Route::post('/midtrans/callback', [DonationController::class, 'handleCallback']);
 
 // Endpoint Terproteksi (Wajib Token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
@@ -49,4 +51,8 @@ Route::middleware('auth:sanctum')->prefix('visits')->group(function () {
     Route::patch('/{id}/respond', [VisitController::class, 'respondVisit']); // Organisasi confirm/reject
     Route::post('/{id}/documentation', [VisitController::class, 'uploadDocumentation']); // Donatur upload bukti
     Route::put('/{id}', [VisitController::class, 'update']);
+});
+
+Route::middleware('auth:sanctum')->prefix('donations')->group(function () {
+    Route::post('/', [DonationController::class, 'store']);
 });

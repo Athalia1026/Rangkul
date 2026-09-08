@@ -3,6 +3,7 @@ use App\Http\Middleware\CheckIsAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Console\Scheduling\Schedule;
 /*
 |--------------------------------------------------------------------------
 | Create The Application
@@ -20,6 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withSchedule(function (Schedule $schedule) {
+        $schedule->command('donations:sync-midtrans')->everyMinute()->withoutOverlapping();
+    })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'is_admin' => CheckIsAdmin::class,
