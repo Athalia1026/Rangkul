@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Organizations\OrganizationProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ResetPasswordController;
@@ -21,6 +22,7 @@ Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']
 Route::post('/registration/resubmit', [AuthController::class, 'resubmit']);
 Route::post('/midtrans/callback', [DonationController::class, 'handleCallback']);
 Route::get('/campaigns/{campaignId}/wishes', [DonationController::class, 'getCampaignWishes']);
+Route::get('/organizations/{organizationId}/campaigns', [OrganizationProfileController::class, 'getOrganizationCampaigns']);
 
 // Endpoint Terproteksi (Wajib Token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {

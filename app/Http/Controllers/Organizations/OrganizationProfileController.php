@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Organizations;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Organization;
+use App\Models\Campaign;
+use Carbon\Carbon;
 
 class OrganizationProfileController extends Controller
 {
@@ -41,25 +44,25 @@ class OrganizationProfileController extends Controller
         // Validasi Data Teks dan Berkas
         $request->validate([
             'organization_name' => ['required', 'string', 'max:255'],
-            'phone_number'      => ['required', 'string', 'max:20'],
-            'address'           => ['required', 'string'],
-            
+            'phone_number' => ['required', 'string', 'max:20'],
+            'address' => ['required', 'string'],
+
             // Dokumen SK & KTP (PDF, JPG, PNG - Max 2MB)
-            'sk_operasional'    => [$user->sk_operasional_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-            'ktp_pj'            => [$user->ktp_pj_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
-            
+            'sk_operasional' => [$user->sk_operasional_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'ktp_pj' => [$user->ktp_pj_path ? 'nullable' : 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+
             // Foto Bangunan & Kegiatan (JPG, PNG, WEBP - Max 3MB)
-            'foto_bangunan'     => [$user->foto_bangunan_path ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
-            'foto_kegiatan'     => [$user->foto_kegiatan_path ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
+            'foto_bangunan' => [$user->foto_bangunan_path ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
+            'foto_kegiatan' => [$user->foto_kegiatan_path ? 'nullable' : 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
         ]);
 
         $dataToUpdate = [
             'organization_name' => $request->organization_name,
-            'phone_number'      => $request->phone_number,
-            'address'           => $request->address,
+            'phone_number' => $request->phone_number,
+            'address' => $request->address,
             // Reset status ke pending jika user melakukan submit/update dokumen
             'verification_status' => 'pending',
-            'rejection_reason'   => null,
+            'rejection_reason' => null,
         ];
 
         // Helper Internal untuk Upload & Hapus File Lama
@@ -71,7 +74,7 @@ class OrganizationProfileController extends Controller
         $user->update($dataToUpdate);
 
         return response()->json([
-            'status'  => 'success',
+            'status' => 'success',
             'message' => 'Profil dan dokumen organisasi berhasil diperbarui. Menunggu verifikasi admin.',
         ]);
     }
@@ -84,5 +87,68 @@ class OrganizationProfileController extends Controller
             }
             $dataToUpdate[$columnName] = $request->file($inputKey)->store($folder, 'public');
         }
+    }
+
+    public function getOrganizationCampaigns($organizationId)
+    {
+
+    
+        // 1. Cek keberadaan organisasi
+        $organization = Organization::find($organizationId);
+
+        if (!$organization) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Organisasi tidak ditemukan.'
+            ], 404);
+        }
+        $namaOrganisasi = $organization->nama_lembaga;
+
+        // 2. Ambil campaign milik organisasi & hitung sum nominal dari relasi donations (hanya yang sudah_bayar)
+        $campaigns = Campaign::where('id_organisasi', $organizationId)
+            ->withSum([
+                'donations as total_donasi_terkumpul' => function ($query) {
+                    $query->where('status', 'sudah_bayar');
+                }
+            ], 'nominal')
+            ->orderBy('created_at', 'desc')
+            ->paginate(6);
+
+        // 3. Transformasi data agar persis sesuai UI Card
+        $campaigns->getCollection()->transform(function ($campaign) use ($organization) {
+
+            $targetDana = (int) $campaign->target_dana;
+
+            // Ambil total terkumpul dari hasil agregasi query SUM tabel donations
+            // Jika belum ada donasi, berikan nilai default 0
+            $targetTerkumpul = (int) ($campaign->total_donasi_terkumpul ?? $campaign->target_terkumpul ?? 0);
+
+            // Hitung persentase progress bar (max 100%)
+            $persentase = $targetDana > 0
+                ? min(100, round(($targetTerkumpul / $targetDana) * 100, 1))
+                : 0;
+
+            // Hitung sisa hari dari kolom deadline / tanggal_berakhir
+            $sisaHari = $campaign->sisa_hari;
+
+            
+
+            return [
+                'id' => $campaign->id,
+                'judul' => $campaign->title ?? $campaign->judul,
+                'nama_organisasi' => $organization->nama_lembaga,
+                'image_url' => $campaign->image_url ?? asset('storage/' . $campaign->image),
+                'terkumpul' => $targetTerkumpul,
+                'target' => $targetDana,
+                'persentase' => $persentase,
+                'sisa_hari' => $sisaHari,
+                'status' => $campaign->status,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $campaigns
+        ], 200);
     }
 }
