@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Carbon\Carbon;
 
 class DonationController extends Controller
 {
@@ -193,4 +194,37 @@ class DonationController extends Controller
             ], 500);
         }
     }
+
+    public function getCampaignWishes($campaignId)
+{
+    // Set locale Carbon ke Bahasa Indonesia agar diffForHumans menghasilkan "x hari yang lalu"
+    Carbon::setLocale('id');
+
+    $wishes = Donation::with(['donor.user'])
+        ->where('id_campaign', $campaignId)
+        ->where('status', 'sudah_bayar')
+        ->whereNotNull('note') // Hanya ambil yang memiliki catatan/doa
+        ->where('note', '!=', '')
+        ->orderBy('paid_at', 'desc')
+        ->paginate(10); // Gunakan paginasi agar performa tetap cepat
+
+    // Transformasi data response
+    $wishes->getCollection()->transform(function ($donation) {
+        $user = $donation->donor?->user;
+
+        return [
+            'id'           => $donation->id,
+            'nama_donatur' => $donation->anonim ? 'Hamba Allah' : ($user?->name ?? 'Donatur'),
+            'photo_profile'=> $donation->anonim ? null : ($user?->photo_url ?? null),
+            'nominal'      => (int) $donation->nominal,
+            'note'         => $donation->note,
+            'paid_at'      => $donation->paid_at ? Carbon::parse($donation->paid_at)->diffForHumans() : null,
+        ];
+    });
+
+    return response()->json([
+        'status' => 'success',
+        'data'   => $wishes
+    ], 200);
+}
 }

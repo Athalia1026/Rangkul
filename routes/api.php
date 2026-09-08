@@ -20,6 +20,7 @@ Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLinkE
 Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
 Route::post('/registration/resubmit', [AuthController::class, 'resubmit']);
 Route::post('/midtrans/callback', [DonationController::class, 'handleCallback']);
+Route::get('/campaigns/{campaignId}/wishes', [DonationController::class, 'getCampaignWishes']);
 
 // Endpoint Terproteksi (Wajib Token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
