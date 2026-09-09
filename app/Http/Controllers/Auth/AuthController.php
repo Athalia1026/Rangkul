@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\Auth\ResubmitRegistrationRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Models\BankAccount;
 
 class AuthController extends Controller
 {
@@ -58,11 +59,18 @@ class AuthController extends Controller
     // 2. REGISTRASI ORGANISASI
     public function registerOrganization(RegisterOrganizationRequest $request)
     {
-        $result = DB::transaction(function () use ($request) {
+        $uploadedFiles = [];
+
+        try {
+            // Mulai Fase ACID: Isolation & Atomicity
+            DB::beginTransaction();
+
             // Step 1: Simpan Foto Profil User (jika ada)
-            $photoPath = $request->hasFile('profile_photo')
-                ? $request->file('profile_photo')->store('profiles', 'public')
-                : null;
+            $photoPath = null;
+            if ($request->hasFile('profile_photo')) {
+                $photoPath = $request->file('profile_photo')->store('profiles', 'public');
+                $uploadedFiles[] = $photoPath; // Lacak file
+            }
 
             // Step 2: Buat User
             $user = User::create([
@@ -88,7 +96,7 @@ class AuthController extends Controller
                 'tahun_berdiri' => $request->tahun_berdiri,
             ]);
 
-            // Step 4: Simpan 4 Dokumen ke Tabel OrganizationDocument
+            // Step 4: Simpan Dokumen ke Tabel OrganizationDocument
             $documentTypes = [
                 'sk_operasional' => 'documents/sk',
                 'ktp_pj' => 'documents/ktp',
@@ -100,8 +108,11 @@ class AuthController extends Controller
                 if ($request->hasFile($type)) {
                     $file = $request->file($type);
                     $path = $file->store($folder, 'public');
+                    $uploadedFiles[] = $path; // Lacak file
 
                     OrganizationDocument::create([
+                        // Pastikan referensi ID ini sesuai dengan foreign key di database Anda.
+                        // Jika relasi ke user_id, gunakan $user->id
                         'id_organisasi' => $organization->id,
                         'nama_file' => $file->getClientOriginalName(),
                         'lokasi_file' => $path,
@@ -111,20 +122,43 @@ class AuthController extends Controller
                 }
             }
 
-            // Step 5: Generate Token Sanctum
+            // Step 5: Simpan Rekening Bank (DIKELUARKAN DARI LOOP)
+            BankAccount::create([
+                'id_organisasi' => $organization->id,
+                'bank' => $request->bank,
+                'no_rekening' => $request->no_rekening,
+                'pemilik_rekening' => $request->pemilik_rekening,
+                'status_verifikasi' => 'menunggu'
+            ]);
+
+            // Step 6: Generate Token Sanctum
             $token = $user->createToken('rangkul-org-token')->plainTextToken;
 
-            return [
-                'user' => $user->load('organization.documents'),
-                'token' => $token,
-            ];
-        });
+            // Fase ACID: Durability (Simpan permanen ke database)
+            DB::commit();
 
-        return response()->json([
-            'message' => 'Registrasi Organisasi berhasil (Dokumen Menunggu Verifikasi Admin)',
-            'data' => $result['user'],
-            'token' => $result['token'],
-        ], 201);
+            return response()->json([
+                'message' => 'Registrasi Organisasi berhasil (Dokumen Menunggu Verifikasi Admin)',
+                'data' => $user->load('organization.documents', 'organization.bankAccount'),
+                'token' => $token,
+            ], 201);
+
+        } catch (Exception $e) {
+            // Fase ACID: Atomicity Rollback (Batalkan semua perubahan database)
+            DB::rollBack();
+
+            // Membersihkan (Delete) file fisik yang terlanjur terunggah
+            foreach ($uploadedFiles as $file) {
+                if (Storage::disk('public')->exists($file)) {
+                    Storage::disk('public')->delete($file);
+                }
+            }
+
+            return response()->json([
+                'message' => 'Registrasi gagal. Sistem telah membatalkan seluruh proses (termasuk penghapusan file).',
+                'error' => $e->getMessage() // Hapus baris ini di tahap production demi keamanan
+            ], 500);
+        }
     }
 
 

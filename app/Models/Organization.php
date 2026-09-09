@@ -50,4 +50,10 @@ class Organization extends Model
     return $this->hasMany(OrganizationGallery::class, 'organization_id')
                 ->orderBy('display_order', 'asc');
 }
+
+public function bankAccount()
+{
+    return $this->hasOne(BankAccount::class, 'id_organisasi', 'user_id');
+}
+
 }

@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
     Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
     Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
+    Route::put('/bank-accounts/{bankId}', [OrganizationVerificationController::class, 'verifyBankAccount']);
 });
 });
 
