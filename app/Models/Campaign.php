@@ -75,5 +75,8 @@ class Campaign extends Model
     {
         return $this->belongsTo(Admin::class, 'verified_by', 'id');
     }
-
+public function fundDisbursements()
+    {
+        return $this->hasMany(FundDisbursement::class, 'id_campaign', 'id');
+    }
 }

@@ -1,19 +1,22 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminCampaignVerificationController;
+use App\Http\Controllers\Admin\AdminDisbursementVerificationController;
+use App\Http\Controllers\Admin\AdminProofVerificationController;
+use App\Http\Controllers\Admin\OrganizationVerificationController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Donors\DonationController;
+use App\Http\Controllers\Donors\ProfileController;
+use App\Http\Controllers\Donors\VisitController;
+use App\Http\Controllers\Organizations\CampaignController;
+use App\Http\Controllers\Organizations\OrganizationDisbursementController;
+use App\Http\Controllers\Organizations\OrganizationGalleryController;
 use App\Http\Controllers\Organizations\OrganizationProfileController;
+use App\Http\Middleware\CheckIsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Donors\ProfileController;
-use App\Http\Controllers\Admin\OrganizationVerificationController;
-use App\Http\Controllers\Admin\AdminCampaignVerificationController;
-use App\Http\Controllers\Organizations\CampaignController;
-use App\Http\Middleware\CheckIsAdmin;
-use App\Http\Controllers\Donors\VisitController;
-use App\Http\Controllers\Donors\DonationController;
-use App\Http\Controllers\Organizations\OrganizationGalleryController;
 
 Route::post('/register/donor', [AuthController::class, 'registerDonor']);
 Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
@@ -35,11 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
     Route::put('/profile/change-password', [PasswordController::class, 'update']);
     Route::prefix('admin/verifications')->group(function () {
-    Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
-    Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
-    Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
-    Route::put('/bank-accounts/{bankId}', [OrganizationVerificationController::class, 'verifyBankAccount']);
-});
+        Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
+        Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
+        Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
+        Route::put('/bank-accounts/{bankId}', [OrganizationVerificationController::class, 'verifyBankAccount']);
+    });
 });
 
 Route::middleware('auth:sanctum')->prefix('organizations')->group(function () {
@@ -47,11 +50,17 @@ Route::middleware('auth:sanctum')->prefix('organizations')->group(function () {
     Route::post('/galleries', [OrganizationGalleryController::class, 'store']);
     Route::delete('/galleries/{id}', [OrganizationGalleryController::class, 'destroy']);
     Route::post('/campaigns', [CampaignController::class, 'store']);
+    Route::post('/disbursements', [OrganizationDisbursementController::class, 'requestDisbursement']);
+    Route::post('/disbursements/{disbursementId}/proofs', [OrganizationDisbursementController::class, 'uploadProof']);
 });
 
 Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group(function () {
     Route::get('/campaigns/pending', [AdminCampaignVerificationController::class, 'index']);
     Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify']);
+    Route::get('/disbursements/pending', [AdminDisbursementVerificationController::class, 'index']);
+    Route::put('/disbursements/{id}/verify', [AdminDisbursementVerificationController::class, 'verify']);
+    Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer']);
+    Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof']);
 });
 
 Route::middleware('auth:sanctum')->prefix('visits')->group(function () {

@@ -25,4 +25,22 @@ class Admin extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    // Melacak pencairan dana awal yang diverifikasi admin ini
+    public function verifiedDisbursements()
+    {
+        return $this->hasMany(FundDisbursement::class, 'verified_by', 'id');
+    }
+
+    // Melacak verifikasi bukti sebagai Staff
+    public function staffProofVerifications()
+    {
+        return $this->hasMany(ProofVerification::class, 'staff_id', 'id');
+    }
+
+    // Melacak verifikasi bukti sebagai Manager
+    public function managerProofVerifications()
+    {
+        return $this->hasMany(ProofVerification::class, 'manager_id', 'id');
+    }
 }

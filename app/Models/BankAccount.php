@@ -40,4 +40,9 @@ class BankAccount extends Model
     {
         return $this->belongsTo(Organization::class, 'id_organisasi', 'user_id');
     }
+
+    public function fundDisbursements()
+    {
+        return $this->hasMany(FundDisbursement::class, 'id_bank_account', 'id');
+    }
 }
