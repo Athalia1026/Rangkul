@@ -17,6 +17,7 @@ use App\Http\Controllers\Organizations\OrganizationProfileController;
 use App\Http\Middleware\CheckIsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Donors\ActivityHistoryController;
 
 Route::post('/register/donor', [AuthController::class, 'registerDonor']);
 Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
@@ -43,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
         Route::put('/bank-accounts/{bankId}', [OrganizationVerificationController::class, 'verifyBankAccount']);
     });
+    Route::get('/donors/activities', [ActivityHistoryController::class, 'index']);
 });
 
 Route::middleware('auth:sanctum')->prefix('organizations')->group(function () {

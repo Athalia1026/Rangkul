@@ -26,6 +26,11 @@ class Visit extends Model
         static::creating(fn ($model) => $model->id = (string) Str::uuid());
     }
 
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'id_organisasi', 'id');
+    }
+
     public function documents()
     {
         return $this->hasMany(VisitDocument::class, 'id_kunjungan');
