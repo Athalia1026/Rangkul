@@ -18,7 +18,9 @@ use App\Http\Middleware\CheckIsAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Donors\ActivityHistoryController;
+use App\Http\Controllers\Donors\SearchController;
 
+Route::get('/search', [SearchController::class, 'search']);
 Route::post('/register/donor', [AuthController::class, 'registerDonor']);
 Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
 Route::post('/login', [AuthController::class, 'login']);
