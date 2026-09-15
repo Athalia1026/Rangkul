@@ -40,34 +40,50 @@ class ResetPasswordController extends Controller
     // 2. Eksekusi Reset Password Baru
     public function resetPassword(Request $request)
     {
-        $request->validate([
-            'token'                 => 'required|string',
-            'email'                 => 'required|email|exists:users,email',
-            'password'              => 'required|string|min:8|confirmed',
-        ]);
+        $this->validateResetPasswordRequest($request);
 
-        // Proses verifikasi token dan update password di DB
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, string $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->setRememberToken(Str::random(60));
-
-                $user->save();
-
-                event(new PasswordReset($user));
-            }
+            $this->resetUserPasswordCallback()
         );
 
-        return $status === Password::PASSWORD_RESET
-            ? response()->json([
+        return $this->buildResetPasswordResponse($status);
+    }
+
+    private function validateResetPasswordRequest(Request $request): void
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+    }
+
+    private function resetUserPasswordCallback(): callable
+    {
+        return function ($user, string $password) {
+            $user->forceFill([
+                'password' => Hash::make($password),
+            ])->setRememberToken(Str::random(60));
+
+            $user->save();
+
+            event(new PasswordReset($user));
+        };
+    }
+
+    private function buildResetPasswordResponse(string $status)
+    {
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json([
                 'success' => true,
-                'message' => 'Password Anda berhasil diperbarui. Silakan login kembali.'
-            ], 200)
-            : response()->json([
-                'success' => false,
-                'message' => 'Token reset password tidak valid atau sudah kadaluarsa.'
-            ], 400);
+                'message' => 'Password Anda berhasil diperbarui. Silakan login kembali.',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Token reset password tidak valid atau sudah kadaluarsa.',
+        ], 400);
     }
 }

@@ -15,31 +15,39 @@ use App\Http\Controllers\Organizations\OrganizationDisbursementController;
 use App\Http\Controllers\Organizations\OrganizationGalleryController;
 use App\Http\Controllers\Organizations\OrganizationProfileController;
 use App\Http\Middleware\CheckIsAdmin;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Donors\ActivityHistoryController;
 use App\Http\Controllers\Donors\SearchController;
 
 Route::get('/search', [SearchController::class, 'search']);
-Route::post('/register/donor', [AuthController::class, 'registerDonor']);
-Route::post('/register/organization', [AuthController::class, 'registerOrganization']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail']);
-Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
-Route::post('/registration/resubmit', [AuthController::class, 'resubmit']);
-Route::post('/midtrans/callback', [DonationController::class, 'handleCallback']);
+Route::post('/register/donor', [AuthController::class, 'registerDonor'])
+    ->middleware('throttle:5,1');
+Route::post('/register/organization', [AuthController::class, 'registerOrganization'])
+    ->middleware('throttle:3,1');
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:5,1');
+Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail'])
+    ->middleware('throttle:3,1');
+Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])
+    ->middleware('throttle:5,1');
+Route::post('/registration/resubmit', [AuthController::class, 'resubmit'])
+    ->middleware('throttle:3,1');
+Route::post('/midtrans/callback', [DonationController::class, 'handleCallback'])
+    ->middleware('throttle:10,1');
 Route::get('/campaigns/{campaignId}/wishes', [DonationController::class, 'getCampaignWishes']);
 Route::get('/organizations/{organizationId}/campaigns', [OrganizationProfileController::class, 'getOrganizationCampaigns']);
 Route::get('/organizations/{organizationId}/profile', [OrganizationProfileController::class, 'showPublicProfile']);
 
 // Endpoint Terproteksi (Wajib Token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'logout'])
+        ->middleware('throttle:5,1');
     Route::get('/me', [AuthController::class, 'me']); // Untuk mengambil data profil user saat in
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
-    Route::put('/profile/change-password', [PasswordController::class, 'update']);
+    Route::put('/profile/change-password', [PasswordController::class, 'update'])
+        ->middleware('throttle:5,1');
     Route::prefix('admin/verifications')->group(function () {
         Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
         Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
@@ -60,11 +68,15 @@ Route::middleware('auth:sanctum')->prefix('organizations')->group(function () {
 
 Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group(function () {
     Route::get('/campaigns/pending', [AdminCampaignVerificationController::class, 'index']);
-    Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify']);
+    Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify'])
+        ->middleware('throttle:10,1');
     Route::get('/disbursements/pending', [AdminDisbursementVerificationController::class, 'index']);
-    Route::put('/disbursements/{id}/verify', [AdminDisbursementVerificationController::class, 'verify']);
-    Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer']);
-    Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof']);
+    Route::put('/disbursements/{id}/verify', [AdminDisbursementVerificationController::class, 'verify'])
+        ->middleware('throttle:10,1');
+    Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer'])
+        ->middleware('throttle:10,1');
+    Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof'])
+        ->middleware('throttle:10,1');
 });
 
 Route::middleware('auth:sanctum')->prefix('visits')->group(function () {

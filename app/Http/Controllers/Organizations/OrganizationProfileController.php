@@ -2,12 +2,10 @@
 namespace App\Http\Controllers\Organizations;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use App\Models\Organization;
 use App\Models\Campaign;
-use Carbon\Carbon;
+use App\Models\Organization;
 use App\Models\OrganizationGallery;
+use Illuminate\Http\Request;
 
 class OrganizationProfileController extends Controller
 {
@@ -107,16 +105,6 @@ class OrganizationProfileController extends Controller
                 ])->values(),
             ],
         ]);
-    }
-
-    private function uploadDocument(Request $request, string $inputKey, string $folder, ?string $oldPath, array &$dataToUpdate, string $columnName): void
-    {
-        if ($request->hasFile($inputKey)) {
-            if ($oldPath && Storage::disk('public')->exists($oldPath)) {
-                Storage::disk('public')->delete($oldPath);
-            }
-            $dataToUpdate[$columnName] = $request->file($inputKey)->store($folder, 'public');
-        }
     }
 
     public function getOrganizationCampaigns($organizationId)

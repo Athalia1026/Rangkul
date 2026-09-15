@@ -10,12 +10,12 @@ body:
   content:
     - type: text
       key: nama
-      value: Andi Pramata
+      value: elios
       description: ""
       disabled: false
     - type: text
       key: email
-      value: dipramata@gmail.com
+      value: elios@gmail.com
       description: ""
       disabled: false
     - type: text
@@ -25,22 +25,22 @@ body:
       disabled: false
     - type: text
       key: nama_lembaga
-      value: Panti Asuhan Kasih Bunda
+      value: Sekolah Menengah Atas Ngadiluwih 1
       description: ""
       disabled: false
     - type: text
       key: tipe
-      value: Panti Asuhan
+      value: Sekolah
       description: ""
       disabled: false
     - type: text
       key: no_telp
-      value: "085214568956"
+      value: "0852145689101"
       description: ""
       disabled: false
     - type: text
       key: deskripsi
-      value: Lembaga pengasuhan untuk anak-anak yatim piatu.
+      value: Lembaga mengajar untuk anak-anak.
       description: ""
       disabled: false
     - type: text
@@ -50,17 +50,17 @@ body:
       disabled: false
     - type: text
       key: alamat
-      value: Kali rungkut No.12, Rungkut, Surabaya
+      value: Rungkut Madya no.11, Medokan Ayu, Rungkut, Surabaya
       description: ""
       disabled: false
     - type: text
       key: jumlah_anak
-      value: "25"
+      value: "120"
       description: ""
       disabled: false
     - type: text
       key: tahun_berdiri
-      value: "2010"
+      value: "2015"
       description: ""
       disabled: false
     - type: file
@@ -85,6 +85,21 @@ body:
       key: foto_kegiatan
       src:
         - /C:/Users/LENOVO/OneDrive/Pictures/RO_IMAGE/image2026-08-25-20-21-48.png
+      description: ""
+      disabled: false
+    - type: text
+      key: bank
+      value: BCA
+      description: ""
+      disabled: false
+    - type: text
+      key: no_rekening
+      value: "1278910293819"
+      description: ""
+      disabled: false
+    - type: text
+      key: pemilik_rekening
+      value: Zerlina
       description: ""
       disabled: false
 order: 1788319877910
