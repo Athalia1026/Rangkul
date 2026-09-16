@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Login - Rangkul</title>
+  <title>Login</title>
 
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
@@ -32,16 +32,16 @@
 
     
     .left-side {
-      width: 50%;
+      width: 45%;
       min-height: 100vh;
       position: relative;
 
       background:
         linear-gradient(
-          rgba(0, 0, 0, 0.1),
-          rgba(0, 0, 0, 0.1)
+          rgba(255, 255, 255, 0.5),
+          rgba(255, 255, 255, 0.5)
         ),
-        url("MASUKKAN-URL-GAMBAR-DI-SINI");
+        url("/images/background-login.jpg");
 
       background-size: cover;
       background-position: center;
@@ -55,7 +55,7 @@
     }
 
     .logo img {
-      width: 130px;
+      width: 150px;
       height: auto;
     }
 
@@ -82,7 +82,7 @@
 
 
     .right-side {
-      width: 50%;
+      width: 55%;
       min-height: 100vh;
 
       display: flex;
@@ -95,13 +95,13 @@
 
     .login-container {
       width: 100%;
-      max-width: 400px;
+      max-width: 600px;
     }
 
     .welcome-label {
       margin-bottom: 10px;
 
-      font-size: 12px;
+      font-size: 25px;
       font-weight: 600;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -110,7 +110,7 @@
     }
 
     .login-container h1 {
-      font-size: 30px;
+      font-size: 35px;
       line-height: 1.2;
       font-weight: 600;
       letter-spacing: -0.03em;
@@ -121,7 +121,7 @@
       margin-top: 16px;
       margin-bottom: 32px;
 
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.7;
       color: #6b7280;
       text-align: center;
@@ -135,7 +135,7 @@
       display: block;
       margin-bottom: 8px;
 
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 600;
       color: #272727;
     }
@@ -151,8 +151,8 @@
 
       background: white;
 
-      font-family: inherit;
-      font-size: 14px;
+      font-family: Plus Jakarta Sans;
+      font-size: 15px;
 
       outline: none;
     }
@@ -173,7 +173,7 @@
     }
 
     .forgot-password {
-      font-size: 12px;
+      font-size: 10px;
       color: #6b7280;
       text-decoration: none;
     }
@@ -195,8 +195,8 @@
       background: #066939;
       color: white;
 
-      font-family: inherit;
-      font-size: 14px;
+      font-family: Plus Jakarta Sans;
+      font-size: 15px;
       font-weight: 600;
 
       cursor: pointer;
@@ -227,8 +227,6 @@
     .register a:hover {
       text-decoration: underline;
     }
-
-    /* MOBILE */
 
     @media (max-width: 900px) {
       .left-side {
@@ -266,7 +264,7 @@
 
       <div class="logo">
         <img
-          src="MASUKKAN-LOGO-DI-SINI"
+          src="/images/logo.png"
           alt="Rangkul"
         >
       </div>
@@ -274,13 +272,11 @@
       <div class="brand-content">
 
         <h2>
-          Bersama, memberi ruang untuk tumbuh.
+
         </h2>
 
         <p>
-          Mari menjadi bagian dari perjalanan untuk
-          memberikan dukungan dan kesempatan yang
-          lebih baik bagi mereka yang membutuhkan.
+
         </p>
 
       </div>
