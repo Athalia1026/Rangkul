@@ -251,7 +251,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-gray-500 text-sm border-b text-center">
+                        <tr class="text-gray-800 text-sm border-b text-center">
                             <th class="px-6 py-4 font-semibold">No.</th>
                             <th class="px-6 py-4 font-semibold">Nama Organisasi</th>
                             <th class="px-6 py-4 font-semibold">Nominal Dana</th>

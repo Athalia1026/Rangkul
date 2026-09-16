@@ -205,7 +205,7 @@
             </thead>
 
             <tbody class="text-sm">
-                    <tr  class="py-32 text-gray-800 text-sm px-20">
+                    <tr class="py-32 text-gray-800 text-sm px-20 border-b border-gray-200">
                             <td class="px-4 py-4 text-center">1.</td>
                             <td class="px-4 py-2 text-center">19/02/2025</td>
                             <td class="px-4 py-4">Komunitas Anak Surabaya</td>
@@ -218,7 +218,7 @@
                             </td>
                         </tr>
                         
-                        <tr class="py-32 text-gray-800 text-sm px-20">
+                        <tr class="py-32 text-gray-800 text-sm px-20 border-b border-gray-200">
                             <td class="px-4 py-4 text-center">2.</td>
                             <td class="px-4 py-2 text-center">08/11/2025</td>
                             <td class="px-4 py-4">Himpunan Mahasiswa Sistem Informasi</td>
