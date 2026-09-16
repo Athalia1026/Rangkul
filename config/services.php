@@ -37,4 +37,9 @@ return [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
     ],
 
+    'premium' => [
+        'price' => env('PREMIUM_PRICE', 1000000),
+        'duration_months' => env('PREMIUM_DURATION_MONTHS', 12),
+    ],
+
 ];

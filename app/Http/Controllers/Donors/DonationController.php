@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Donors;
 
 use App\Http\Controllers\Controller;
 use App\Services\DonationService;
+use App\Services\PremiumService;
 use Illuminate\Http\Request;
 
 class DonationController extends Controller
 {
     public function __construct(
-        protected DonationService $donationService
+        protected DonationService $donationService,
+        protected PremiumService $premiumService
     ) {
     }
 
@@ -32,6 +34,12 @@ class DonationController extends Controller
 
     public function handleCallback(Request $request)
     {
+        if (str_starts_with((string) $request->input('order_id'), 'PREM-')) {
+            $result = $this->premiumService->handleCallback($request->all());
+
+            return response()->json($result['response'], $result['statusCode']);
+        }
+
         $result = $this->donationService->handleCallback($request->all());
 
         return response()->json($result['response'], $result['statusCode']);

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Concerns\HasUuids; // Wajib untuk UUID
 
@@ -47,5 +48,17 @@ class User extends Authenticatable
     public function admin(): HasOne
     {
         return $this->hasOne(Admin::class, 'user_id', 'id');
+    }
+
+    public function companyPremium(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            CompanyPremium::class,
+            Donor::class,
+            'user_id',
+            'id_donatur',
+            'id',
+            'id'
+        );
     }
 }

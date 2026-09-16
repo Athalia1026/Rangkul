@@ -26,4 +26,9 @@ class Donor extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public function companyPremium()
+    {
+        return $this->hasOne(CompanyPremium::class, 'id_donatur');
+    }
 }

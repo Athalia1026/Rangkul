@@ -18,6 +18,9 @@ use App\Http\Middleware\CheckIsAdmin;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Donors\ActivityHistoryController;
 use App\Http\Controllers\Donors\SearchController;
+use App\Http\Controllers\Donors\PremiumController;
+use App\Http\Controllers\Donors\PremiumDashboardController;
+use App\Http\Middleware\CheckPremium;
 
 Route::get('/search', [SearchController::class, 'search']);
 Route::post('/register/donor', [AuthController::class, 'registerDonor'])
@@ -55,6 +58,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/bank-accounts/{bankId}', [OrganizationVerificationController::class, 'verifyBankAccount']);
     });
     Route::get('/donors/activities', [ActivityHistoryController::class, 'index']);
+    Route::prefix('premium')->group(function () {
+        Route::post('/register', [PremiumController::class, 'register']);
+        Route::get('/status', [PremiumController::class, 'status']);
+    });
+    Route::middleware(CheckPremium::class)->prefix('premium/dashboard')->group(function () {
+        Route::get('/', [PremiumDashboardController::class, 'index']);
+        Route::get('/export', [PremiumDashboardController::class, 'export']);
+    });
 });
 
 Route::middleware('auth:sanctum')->prefix('organizations')->group(function () {

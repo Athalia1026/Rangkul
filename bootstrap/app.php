@@ -1,5 +1,6 @@
 <?php
 use App\Http\Middleware\CheckIsAdmin;
+use App\Http\Middleware\CheckPremium;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,10 +24,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('donations:sync-midtrans')->everyMinute()->withoutOverlapping();
+        $schedule->command('premium:send-expiry-reminders')->dailyAt('09:00')->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'is_admin' => CheckIsAdmin::class,
+            'premium' => CheckPremium::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

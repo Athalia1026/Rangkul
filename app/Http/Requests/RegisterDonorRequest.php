@@ -27,7 +27,7 @@ class RegisterDonorRequest extends FormRequest
             'password' => 'required|string|min:8',
 
             // Data Profil Donatur (Table: donors)
-            'tipe' => 'required|in:individu,komunitas,organisasi',
+            'tipe' => 'required|in:individu,komunitas,perusahaan',
             'no_telp' => 'required|string|max:255',
             'kota' => 'required|string|max:255',
         ];
