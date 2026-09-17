@@ -59,7 +59,7 @@
 
         <a
             href="/manager/daftaruser"
-            class="text-rangkul-green border-b-2 border-rangkul-green pb-1"
+            class="text-rangkul-green border-b-2 border-rangkul-green/20% pb-1"
         >
             Daftar Pengguna
         </a>
