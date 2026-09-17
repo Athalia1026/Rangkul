@@ -6,6 +6,10 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+Route::get('masuk', function () {
+    return view('auth.login');
+});
+
 Route::get('/manager/home', function () {
     return view('manager.home');
 });

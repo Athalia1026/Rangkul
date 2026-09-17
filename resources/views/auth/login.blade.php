@@ -355,10 +355,11 @@
 
 
           <button
-            type="submit"
-            class="login-button"
+              type="button"
+              class="login-button"
+              onclick="window.location.href='/manager/home'"
           >
-            Masuk
+              Masuk
           </button>
 
         </form>
