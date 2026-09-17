@@ -10,6 +10,13 @@ Route::get('masuk', function () {
     return view('auth.login');
 });
 
+Route::get('/manager/daftaruser', function () {
+    return view('manager.daftaruser');
+});
+Route::get('/manager/detailtransaksi', function () {
+    return view('manager.detailtransaksi');
+});
+
 Route::get('/manager/home', function () {
     return view('manager.home');
 });

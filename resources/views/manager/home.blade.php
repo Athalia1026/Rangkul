@@ -32,28 +32,26 @@
 
     <!-- MENU NAVBAR -->
     <div class="flex gap-12 font-semibold text-sm">
-
         <a
-            href="#"
+            href="/manager/home"
             class="text-rangkul-green border-b-2 border-rangkul-green pb-1"
         >
             Beranda
         </a>
 
         <a
-            href="#"
+            href="/manager/daftaruser"
             class="hover:text-green-700"
         >
             Daftar Pengguna
         </a>
 
         <a
-            href="#"
+            href="/manager/detailtransaksi"
             class="hover:text-green-700"
         >
             Laporan Transaksi
         </a>
-
     </div>
 
 
