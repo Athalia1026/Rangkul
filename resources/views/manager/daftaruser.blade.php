@@ -52,14 +52,14 @@
     <div class="flex gap-12 font-semibold text-sm">
         <a
             href="/manager/home"
-            class="text-rangkul-green border-b-2 border-rangkul-green pb-1"
+            class="hover:text-green-700"
         >
             Beranda
         </a>
 
         <a
             href="/manager/daftaruser"
-            class="hover:text-green-700"
+            class="text-rangkul-green border-b-2 border-rangkul-green pb-1"
         >
             Daftar Pengguna
         </a>
