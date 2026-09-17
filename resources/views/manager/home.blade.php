@@ -73,9 +73,13 @@
     <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
 
         <!-- TREN DONASI SECTION -->
-        <section class="w-[1050px] h-[520px] mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-[25px] font-bold">Tren Donasi</h2>
+        <section class="h-[520px] bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+            <div class="flex justify-between items-start mb-10">
+
+                <h2 class="text-[25px] font-bold">
+                    Tren Donasi
+                </h2>
                 <div class="flex items-center gap-2">
                     <input
                         type="date"
@@ -94,8 +98,8 @@
             </div>
             
             <div class="h-[300px]">
-                <canvas id="trenDonasiChart"></canvas>
-            </div>
+            <canvas id="trenDonasiChart"></canvas>
+        </div>
 
             <div class="flex justify-between mt-8 px-12">
                 <div class="text-center">
@@ -110,7 +114,7 @@
         </section>
 
        <!-- TWO COLUMNS STATS -->
-<div class="w-[1050px] mx-auto grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-2 gap-6">
 
     <!-- TOTAL DONASI -->
     <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -243,7 +247,7 @@
         </div>
 
         <!-- DAFTAR PENCAIRAN DANA TABLE -->
-        <section class="w-[1050px] mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="bg-rangkul-green text-white px-6 py-4 flex items-center gap-2">
                  <span>📒</span>
                 <h2 class="font-bold">Daftar Pencairan Dana</h2>
@@ -261,25 +265,35 @@
                         </tr>
                     </thead>
                     <tbody class="text-sm">
-                        <!-- Example Row -->
-                        <tr class="border-b hover:bg-gray-50 transition">
+                            <tr class="border-b hover:bg-gray-50 transition">
                             <td class="px-6 py-4 text-center">1.</td>
                             <td class="px-6 py-4">Panti Asuhan Kasih Bunda</td>
                             <td class="px-6 py-4">Rp 500.000</td>
                             <td class="px-6 py-4 text-center">Staff 2</td>
                             <td class="px-6 py-4 text-center">18/02/2025</td>
-                            <td class="px-6 py-4">
-                                <button class="bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90">Detail</button>
+                            <td class="px-6 py-4 text-center">
+                                <a
+                                    href="/manager/detail"
+                                    class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
+                                >
+                                    Detail
+                                </a>                            
                             </td>
                         </tr>
-                        <!-- Repeat Rows (Simplified for code) -->
                         <tr class="border-b hover:bg-gray-50">
                             <td class="px-6 py-4 text-center">2.</td>
                             <td class="px-6 py-4">SD Harapan Bangsa</td>
                             <td class="px-6 py-4">Rp 10.000.000</td>
                             <td class="px-6 py-4 text-center">Staff 2</td>
                             <td class="px-6 py-4 text-center">07/05/2025</td>
-                            <td class="px-6 py-4"><button class="bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Detail</button></td>
+                            <td class="px-6 py-4 text-center">
+                                <a
+                                    href="/manager/detail"
+                                    class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
+                                >
+                                    Detail
+                            </a>                            
+                        </td>
                         </tr>
                         <tr class="border-b hover:bg-gray-50">
                             <td class="px-6 py-4 text-center">3.</td>
@@ -287,9 +301,15 @@
                             <td class="px-6 py-4">Rp 850.000</td>
                             <td class="px-6 py-4 text-center">Staff 1</td>
                             <td class="px-6 py-4 text-center">29/08/2025</td>
-                            <td class="px-6 py-4"><button class="bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Detail</button></td>
+                            <td class="px-6 py-4 text-center">
+                                <a
+                                    href="/manager/detail"
+                                    class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
+                                >
+                                    Detail
+                                </a>
+                            </td>
                         </tr>
-                        <!-- ... More rows can be added here ... -->
                     </tbody>
                 </table>
             </div>

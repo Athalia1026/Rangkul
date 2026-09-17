@@ -25,3 +25,7 @@ Route::get('/manager/detailuser', function () {
 Route::get('/manager/detailtransaksi', function () {
     return view('manager.detailtransaksi');
 });
+
+Route::get('/manager/detail', function () {
+    return view('manager.detail');
+});
