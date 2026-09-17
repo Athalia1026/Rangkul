@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminCampaignVerificationController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminDisbursementVerificationController;
 use App\Http\Controllers\Admin\AdminProofVerificationController;
 use App\Http\Controllers\Admin\OrganizationVerificationController;
@@ -78,6 +79,7 @@ Route::middleware('auth:sanctum')->prefix('organizations')->group(function () {
 });
 
 Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index']);
     Route::get('/campaigns/pending', [AdminCampaignVerificationController::class, 'index']);
     Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify'])
         ->middleware('throttle:10,1');

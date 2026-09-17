@@ -127,6 +127,18 @@
       text-align: center;
     }
 
+    .login-error {
+      display: none;
+      margin-bottom: 20px;
+      padding: 12px 16px;
+      border: 1px solid #f1b8b8;
+      border-radius: 8px;
+      background: #fff3f3;
+      color: #b42318;
+      font-size: 13px;
+      text-align: center;
+    }
+
     .form-group {
       margin-bottom: 20px;
     }
@@ -300,8 +312,9 @@
           Masuk ke akun Anda dan terus berikan dukungan terbaik bagi panti asuhan yang membutuhkan.
         </p>
 
+        <div id="login-error" class="login-error" role="alert"></div>
 
-        <form>
+        <form id="login-form" action="/api/login" method="POST">
 
           <div class="form-group">
 
@@ -376,6 +389,53 @@
     </section>
 
   </main>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const button = this.querySelector('.login-button');
+      const errorMessage = document.getElementById('login-error');
+      const originalText = button.textContent;
+      errorMessage.style.display = 'none';
+      button.disabled = true;
+      button.textContent = 'Memproses...';
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || 'Login gagal. Silakan periksa kembali data Anda.');
+        }
+
+        const authToken = result.access_token || result.token;
+        if (!authToken) {
+          throw new Error('Token login tidak diterima dari server.');
+        }
+
+        localStorage.setItem('auth_token', authToken);
+        localStorage.setItem('auth_user', JSON.stringify(result.user));
+        window.location.href = '/manager/home';
+      } catch (error) {
+        errorMessage.textContent = error.message;
+        errorMessage.style.display = 'block';
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    });
+  </script>
 
 </body>
 </html>
