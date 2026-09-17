@@ -75,7 +75,7 @@
         <div id="dashboard-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
 
         <!-- TREN DONASI SECTION -->
-        <section class="w-[1050px] h-[520px] mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <section class="w-[1200px] h-[520px] mx-auto bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-[25px] font-bold">Tren Donasi</h2>
                 <div class="flex items-center gap-2">
@@ -112,7 +112,7 @@
         </section>
 
        <!-- TWO COLUMNS STATS -->
-<div class="w-[1050px] mx-auto grid grid-cols-2 gap-6">
+<div class="w-[1200px] mx-auto grid grid-cols-2 gap-6">
 
     <!-- TOTAL DONASI -->
     <section class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -245,13 +245,13 @@
         </div>
 
         <!-- DAFTAR PENCAIRAN DANA TABLE -->
-        <section class="w-[1050px] mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <section class="w-[1200px] mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="bg-rangkul-green text-white px-6 py-4 flex items-center gap-2">
                  <span>📒</span>
                 <h2 class="font-bold">Daftar Pencairan Dana</h2>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-center border-collapse">
                     <thead>
                         <tr class="text-gray-500 text-sm border-b text-center">
                             <th class="px-6 py-4 font-semibold">No.</th>
