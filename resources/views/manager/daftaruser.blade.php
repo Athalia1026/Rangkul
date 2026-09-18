@@ -50,6 +50,7 @@
     </div>
 
     <div class="flex gap-12 font-semibold text-sm">
+
         <a
             href="/manager/home"
             class="hover:text-green-700"
@@ -59,17 +60,18 @@
 
         <a
             href="/manager/daftaruser"
-            class="text-rangkul-green border-b-2 border-rangkul-green/20% pb-1"
+            class="text-rangkul-green border-b-2 border-rangkul-gray-200 pb-1"
         >
             Daftar Pengguna
         </a>
 
         <a
-            href="/manager/detailtransaksi"
+            href="#"
             class="hover:text-green-700"
         >
             Laporan Transaksi
         </a>
+
     </div>
 
     <div class="flex items-center justify-end w-1/3">

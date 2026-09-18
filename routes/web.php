@@ -13,8 +13,8 @@ Route::get('masuk', function () {
 Route::get('/manager/daftaruser', function () {
     return view('manager.daftaruser');
 });
-Route::get('/manager/detailtransaksi', function () {
-    return view('manager.detailtransaksi');
+Route::get('/manager/laporantransaksi', function () {
+    return view('manager.laporantransaksi');
 });
 
 Route::get('/manager/home', function () {
@@ -31,10 +31,6 @@ Route::get('/manager/daftaruser', function () {
 
 Route::get('/manager/detailuser', function () {
     return view('manager.detailuser');
-});
-
-Route::get('/manager/detailtransaksi', function () {
-    return view('manager.detailtransaksi');
 });
 
 Route::get('/manager/detail', function () {
