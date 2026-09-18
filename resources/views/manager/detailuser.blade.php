@@ -88,7 +88,7 @@
         <!-- TOMBOL KEMBALI -->
         <div>
             <a
-                href="/manager/home"
+                href="/manager/daftaruser"
                 class="inline-flex items-center gap-2 bg-[#d1e7dd] hover:bg-green-200 text-gray-800 px-6 py-2 rounded-lg shadow-sm font-bold text-sm transition active:scale-95"
             >
                 <i class="fa-solid fa-arrow-left text-xs"></i>
