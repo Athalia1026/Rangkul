@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', function () {
@@ -13,6 +14,8 @@ Route::get('/', function () {
 
     return view('company-profile');
 });
+
+Route::get('/beranda', [HomeController::class, 'index']);
 
 Route::get('/manager/home', function () {
     return view('manager.home');

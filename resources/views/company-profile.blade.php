@@ -12,6 +12,7 @@
 
 
 @section('content')
+    <div class="bg-[#F5F7F4]">
     <!-- HERO & STATS -->
     <section id="beranda" class="w-full max-w-[1200px] mx-auto ">
         <div class="relative w-full min-h-[500px] flex items-center overflow-hidden bg-[#1f2937]">
@@ -238,4 +239,5 @@
             </div>
         </div>
     </section>
+    </div>
 @endsection
