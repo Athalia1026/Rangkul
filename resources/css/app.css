@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+	.testimonial-track {
+		animation: testimonial-loop 28s linear infinite;
+		will-change: transform;
+	}
+
+	.testimonial-track:hover {
+		animation-play-state: paused;
+	}
+}
+
+@keyframes testimonial-loop {
+	from {
+		transform: translateX(0);
+	}
+
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.testimonial-track {
+		animation: none;
+	}
+}

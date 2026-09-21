@@ -2,8 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/login', function () {
     return view('auth.login');
+})->name('login');
+
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect('/manager/home');
+    }
+
+    return view('company-profile');
 });
 
 Route::get('/manager/home', function () {
