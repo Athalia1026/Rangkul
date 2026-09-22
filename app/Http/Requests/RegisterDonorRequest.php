@@ -24,7 +24,13 @@ class RegisterDonorRequest extends FormRequest
         return [
             'nama' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[A-Za-z])(?=.*[0-9]).+$/',
+            ],
 
             // Data Profil Donatur (Table: donors)
             'tipe' => 'required|in:individu,komunitas,perusahaan',

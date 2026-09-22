@@ -8,6 +8,7 @@ use App\Http\Requests\RegisterDonorRequest;
 use App\Http\Requests\RegisterOrganizationRequest;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 
 class AuthController extends Controller
@@ -25,6 +26,13 @@ class AuthController extends Controller
             'data' => $result['user'],
             'token' => $result['token'],
         ], 201);
+    }
+
+    public function registerWeb(RegisterDonorRequest $request)
+    {
+        $this->authService->registerDonor($request->validated());
+
+        return Redirect::route('login')->with('success', 'Registrasi berhasil. Silakan masuk dengan akun Anda.');
     }
 
     public function registerOrganization(RegisterOrganizationRequest $request)
