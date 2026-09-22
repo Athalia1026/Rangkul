@@ -59,6 +59,13 @@
                     <div class="flex items-center gap-3 mb-6">
                         <span class="w-1.5 h-7 bg-[#9a7313] rounded-full inline-block"></span>
                         <h2 class="text-[24px] font-bold text-[#05522d]">Visi Kami</h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.8" class="w-7 h-7 text-[#207466] shrink-0"
+                            aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
                     </div>
                     <p class="text-[16px] sm:text-[17px] text-gray-700 leading-relaxed">
                         Menjadi jembatan kebaikan yang paling dipercaya dan memudahkan jutaan orang untuk saling membantu,
@@ -72,6 +79,12 @@
                     <div class="flex items-center gap-3 mb-6">
                         <span class="w-1.5 h-7 bg-[#9a7313] rounded-full inline-block"></span>
                         <h2 class="text-[24px] font-bold text-[#05522d]">Misi Kami</h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 24" fill="none"
+                            stroke="currentColor" stroke-width="1.8" class="w-8 h-8 text-[#207466] shrink-0"
+                            aria-hidden="true">
+                            <path fill="currentColor" stroke="none"
+                                d="M12 20.25s-7-4.35-7-10.05C5 7.72 6.7 6 9.15 6c1.25 0 2.35.55 2.85 1.55C12.5 6.55 13.6 6 14.85 6 17.3 6 19 7.72 19 10.2c0 5.7-7 10.05-7 10.05Z" />
+                        </svg>
                     </div>
                     <ul class="space-y-3 text-[15px] sm:text-[16px] text-gray-700">
                         <li class="flex items-start gap-3">
@@ -172,8 +185,15 @@
                     <div class="space-y-4 pt-2">
                         <div class="flex items-start gap-4">
                             <div
-                                class="w-6 h-6 rounded-full bg-[#05522d] text-white flex items-center justify-center shrink-0 mt-1">
-                                ✓</div>
+                                class="w-8 h-8 rounded-full bg-[#05522d] text-white flex items-center justify-center shrink-0 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2.0" class="w-6 h-6" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 10.5c0 7.14-7.5 10.5-7.5 10.5S4.5 17.64 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                </svg>
+                            </div>
                             <div>
                                 <h3 class="text-[17px] font-bold text-gray-900">Lacak Status Donasi</h3>
                                 <p class="text-[14px] text-gray-700 mt-1">Pantau status donasi dari pembayaran hingga
@@ -182,10 +202,16 @@
                         </div>
                         <div class="flex items-start gap-4">
                             <div
-                                class="w-6 h-6 rounded-full bg-[#05522d] text-white flex items-center justify-center shrink-0 mt-1">
-                                ✓</div>
+                                class="w-8 h-8 rounded-full bg-[#05522d] text-white flex items-center justify-center shrink-0 mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2.0" class="w-6 h-6" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6.75 3.75h7.5L19.5 9v11.25H6.75V3.75Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 3.75V9h5.25M9 14l1.5 1.5L14 12" />
+                                </svg>
+                            </div>
                             <div>
-                                <h3 class="text-[17px] font-bold text-gray-900">Akses Laporan Penyaluran</h3>
+                                <h3 class="text-[17px] font-bold text-gray-900">Akses Laporan Premium</h3>
                                 <p class="text-[14px] text-gray-700 mt-1">Lihat laporan dan bukti penyaluran donasi secara
                                     transparan</p>
                             </div>

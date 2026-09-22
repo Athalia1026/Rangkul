@@ -121,7 +121,7 @@
             Rekomendasi Donasi
         </h2>
 
-        <div class="w-full bg-[#207466] rounded-[24px] overflow-hidden shadow-xl grid grid-cols-1 md:grid-cols-12 items-stretch">
+        <div class="w-full bg-gradient-to-r from-[#175b4f] via-[#207466] to-[#48ab7e] rounded-[24px] overflow-hidden shadow-xl grid grid-cols-1 md:grid-cols-12 items-stretch">
             <div class="md:col-span-7 p-7 sm:p-10 lg:p-12 flex flex-col justify-center text-white space-y-4">
                 <h3 class="text-[22px] sm:text-[26px] lg:text-[28px] font-bold leading-[1.25] text-white">
                     {{ $featuredCampaign?->judul ?? 'Belum ada rekomendasi donasi' }}
