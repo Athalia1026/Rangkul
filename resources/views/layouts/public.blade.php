@@ -46,7 +46,7 @@
                         {{-- Tampilan jika pengunjung BELUM login --}}
                         <a href="{{ route('login') }}"
                             class="px-6 py-2 rounded-lg bg-[#05522d] hover:bg-[#044023] text-white font-semibold text-[15px] transition-colors">Masuk</a>
-                        <a href="{{ route('register-donors') }}"
+                        <a href="{{ route('register') }}"
                             class="px-6 py-2 rounded-lg bg-[#d8f0e2] hover:bg-[#c4ebd3] text-[#05522d] font-semibold text-[15px] transition-colors">Daftar</a>
                     @endguest
 

@@ -25,7 +25,13 @@ class RegisterOrganizationRequest extends FormRequest
             // Data Akun Utama (Table: users)
             'nama' => 'required|string|max:255', // Nama penanggung jawab / akun
             'email' => 'required|string|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[A-Za-z])(?=.*[0-9]).+$/',
+            ],
 
             // Data Profil Organisasi (Table: organizations)
             'nama_lembaga' => 'required|string|max:500',
@@ -37,6 +43,11 @@ class RegisterOrganizationRequest extends FormRequest
             'link_maps' => 'nullable|string|max:500',
             'jumlah_anak' => 'nullable|integer',
             'tahun_berdiri' => 'nullable|integer',
+
+            // Data Rekening Organisasi (Table: bank_accounts)
+            'bank' => 'required|string|max:255',
+            'no_rekening' => 'required|string|max:255',
+            'pemilik_rekening' => 'required|string|max:255',
 
             'sk_operasional' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'ktp_pj' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],

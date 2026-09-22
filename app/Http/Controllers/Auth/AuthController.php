@@ -35,6 +35,13 @@ class AuthController extends Controller
         return Redirect::route('login')->with('success', 'Registrasi berhasil. Silakan masuk dengan akun Anda.');
     }
 
+    public function registerOrganizationWeb(RegisterOrganizationRequest $request)
+    {
+        $this->authService->registerOrganization($request);
+
+        return Redirect::route('login')->with('success', 'Registrasi organisasi berhasil. Silakan masuk setelah verifikasi data.');
+    }
+
     public function registerOrganization(RegisterOrganizationRequest $request)
     {
         try {

@@ -379,7 +379,7 @@
 
         <div class="register">
           Belum memiliki akun?
-          <a href="#">
+          <a href="{{ route('register') }}">
             Daftar sekarang
           </a>
         </div>

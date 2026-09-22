@@ -8,6 +8,10 @@ Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
+Route::get('/register', function () {
+    return view('auth.pick-role');
+})->name('register');
+
 Route::get('/register-donors', function () {
     return view('auth.register-donors');
 })->name('register-donors');
@@ -15,6 +19,14 @@ Route::get('/register-donors', function () {
 Route::post('/register-donors', [AuthController::class, 'registerWeb'])
     ->middleware('throttle:5,1')
     ->name('register.store');
+
+Route::get('/register-organizations', function () {
+    return view('auth.register-organizations');
+})->name('register-organizations');
+
+Route::post('/register-organizations', [AuthController::class, 'registerOrganizationWeb'])
+    ->middleware('throttle:3,1')
+    ->name('register.organization.store');
 
 Route::get('/', function () {
     if (auth()->check()) {
