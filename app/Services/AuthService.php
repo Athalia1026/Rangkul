@@ -330,6 +330,7 @@ class AuthService
 
         $organization = $this->resolveRejectedOrganization($user);
         $this->updateRejectedOrganizationProfile($organization, $validated);
+        $this->updateRejectedOrganizationBankAccount($organization, $validated);
 
         $existingDocuments = $this->getOrganizationDocumentsByOrganizationId($organization->id);
         $this->resubmitOrganizationDocuments($request, $organization, $existingDocuments);
@@ -393,6 +394,16 @@ class AuthService
         return OrganizationDocument::where('id_organisasi', $organizationId)
             ->orderBy('created_at', 'asc')
             ->get();
+    }
+
+    private function updateRejectedOrganizationBankAccount(Organization $organization, array $validated): void
+    {
+        BankAccount::where('id_organisasi', $organization->id)->update([
+            'bank' => $validated['bank'],
+            'no_rekening' => $validated['no_rekening'],
+            'pemilik_rekening' => $validated['pemilik_rekening'],
+            'status_verifikasi' => 'menunggu',
+        ]);
     }
 
     private function resubmitOrganizationDocuments(Request $request, Organization $organization, $existingDocuments): void

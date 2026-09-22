@@ -7,6 +7,9 @@ use App\Http\Requests\Auth\ResubmitRegistrationRequest;
 use App\Http\Requests\RegisterDonorRequest;
 use App\Http\Requests\RegisterOrganizationRequest;
 use App\Services\AuthService;
+use App\Models\OrganizationDocument;
+use App\Models\BankAccount;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
@@ -39,7 +42,63 @@ class AuthController extends Controller
     {
         $this->authService->registerOrganization($request);
 
-        return Redirect::route('login')->with('success', 'Registrasi organisasi berhasil. Silakan masuk setelah verifikasi data.');
+        return Redirect::route('organization.pending');
+    }
+
+    public function showOrganizationRejected(Request $request)
+    {
+        $user = User::with('organization')
+            ->where('email', $request->query('email'))
+            ->firstOrFail();
+
+        abort_unless($user->organization?->verification_status === 'ditolak', 404);
+
+        $documents = OrganizationDocument::where('id_organisasi', $user->organization->id)
+            ->get()
+            ->keyBy(function ($document) {
+                foreach (['sk', 'ktp', 'bangunan', 'kegiatan'] as $keyword) {
+                    if (str_contains(strtolower($document->lokasi_file), $keyword)) {
+                        return $keyword;
+                    }
+                }
+
+                return $document->id;
+            });
+
+        $bankAccount = BankAccount::where('id_organisasi', $user->organization->id)->first();
+
+        return view('auth.organization-rejected', compact('user', 'documents', 'bankAccount'));
+    }
+
+    public function resubmitOrganizationWeb(\App\Http\Requests\Auth\ResubmitRegistrationRequest $request)
+    {
+        $this->authService->resubmit($request);
+
+        return Redirect::route('organization.pending');
+    }
+
+    public function showOrganizationResubmit(Request $request)
+    {
+        $user = User::with('organization')
+            ->where('email', $request->query('email'))
+            ->firstOrFail();
+
+        abort_unless($user->organization?->verification_status === 'ditolak', 404);
+
+        $documents = OrganizationDocument::where('id_organisasi', $user->organization->id)
+            ->get()
+            ->keyBy(function ($document) {
+                foreach (['sk', 'ktp', 'bangunan', 'kegiatan'] as $keyword) {
+                    if (str_contains(strtolower($document->lokasi_file), $keyword)) {
+                        return $keyword;
+                    }
+                }
+
+                return $document->id;
+            });
+        $bankAccount = BankAccount::where('id_organisasi', $user->organization->id)->first();
+
+        return view('auth.organization-resubmit', compact('user', 'documents', 'bankAccount'));
     }
 
     public function registerOrganization(RegisterOrganizationRequest $request)

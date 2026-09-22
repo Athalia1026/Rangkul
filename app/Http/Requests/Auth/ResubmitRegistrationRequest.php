@@ -28,6 +28,10 @@ class ResubmitRegistrationRequest extends FormRequest
             'jumlah_anak'    => 'nullable|integer',
             'tahun_berdiri'  => 'nullable|integer',
 
+            'bank'           => 'required|string|max:255',
+            'no_rekening'    => 'required|string|max:255',
+            'pemilik_rekening' => 'required|string|max:255',
+
             'sk_operasional' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'ktp_pj'         => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'foto_bangunan'  => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],

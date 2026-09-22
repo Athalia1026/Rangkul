@@ -416,6 +416,16 @@
 
         const result = await response.json();
 
+        if (result.code === 'ORGANIZATION_UNVERIFIED') {
+          window.location.href = '{{ route('organization.pending') }}';
+          return;
+        }
+
+        if (result.code === 'ORGANIZATION_REJECTED') {
+          window.location.href = '{{ route('organization.rejected') }}?email=' + encodeURIComponent(document.getElementById('email').value);
+          return;
+        }
+
         if (!response.ok) {
           throw new Error(result.message || 'Login gagal. Silakan periksa kembali data Anda.');
         }

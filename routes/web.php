@@ -24,6 +24,20 @@ Route::get('/register-organizations', function () {
     return view('auth.register-organizations');
 })->name('register-organizations');
 
+Route::get('/organization/pending', function () {
+    return view('auth.organization-pending');
+})->name('organization.pending');
+
+Route::get('/organization/rejected', [AuthController::class, 'showOrganizationRejected'])
+    ->name('organization.rejected');
+
+Route::get('/organization/resubmit', [AuthController::class, 'showOrganizationResubmit'])
+    ->name('organization.resubmit.form');
+
+Route::post('/organization/resubmit', [AuthController::class, 'resubmitOrganizationWeb'])
+    ->middleware('throttle:3,1')
+    ->name('organization.resubmit');
+
 Route::post('/register-organizations', [AuthController::class, 'registerOrganizationWeb'])
     ->middleware('throttle:3,1')
     ->name('register.organization.store');
