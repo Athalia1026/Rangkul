@@ -15,6 +15,10 @@ class SearchController extends Controller
             $request->merge(['limit' => 30]);
         }
 
+        if ($request->has('q')) {
+            session(['last_search_query' => $request->query('q')]);
+        }
+
         $payload = $this->search($request)->getData(true);
 
         return view('search', [
@@ -28,6 +32,10 @@ class SearchController extends Controller
     {
         if (!$request->has('limit')) {
             $request->merge(['limit' => 30]);
+        }
+
+        if ($request->has('q')) {
+            session(['last_search_query' => $request->query('q')]);
         }
 
         $payload = $this->search($request)->getData(true);
@@ -61,17 +69,33 @@ class SearchController extends Controller
             ->where('verification_status', 'disetujui');
 
         if ($keyword !== '') {
-            $campaignQuery->where(function ($query) use ($keyword) {
-                $query->where('judul', 'like', "%{$keyword}%")
-                    ->orWhere('deskripsi', 'like', "%{$keyword}%");
-            });
+            try {
+                // Try Meilisearch via Scout
+                $campaignIds = Campaign::search($keyword, function ($indexes, $query, $options) {
+                    $options['limit'] = 100;
+                    return $indexes->search($query, $options);
+                })->keys()->toArray();
+                $campaignQuery->whereIn('id', $campaignIds);
 
-            $organizationQuery->where(function ($query) use ($keyword) {
-                $query->where('nama_lembaga', 'like', "%{$keyword}%")
-                    ->orWhere('tipe', 'like', "%{$keyword}%")
-                    ->orWhere('kota', 'like', "%{$keyword}%")
-                    ->orWhere('deskripsi', 'like', "%{$keyword}%");
-            });
+                $orgIds = Organization::search($keyword, function ($indexes, $query, $options) {
+                    $options['limit'] = 100;
+                    return $indexes->search($query, $options);
+                })->keys()->toArray();
+                $organizationQuery->whereIn('id', $orgIds);
+            } catch (\Exception $e) {
+                // Graceful fallback to SQL LIKE if Meilisearch is down
+                $campaignQuery->where(function ($query) use ($keyword) {
+                    $query->where('judul', 'like', "%{$keyword}%")
+                        ->orWhere('deskripsi', 'like', "%{$keyword}%");
+                });
+
+                $organizationQuery->where(function ($query) use ($keyword) {
+                    $query->where('nama_lembaga', 'like', "%{$keyword}%")
+                        ->orWhere('tipe', 'like', "%{$keyword}%")
+                        ->orWhere('kota', 'like', "%{$keyword}%")
+                        ->orWhere('deskripsi', 'like', "%{$keyword}%");
+                });
+            }
         }
 
         $campaigns = $campaignQuery->get()->map(function ($campaign) {

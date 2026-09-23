@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Campaign extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, \Laravel\Scout\Searchable;
 
     protected $table = 'campaigns';
 
@@ -78,4 +78,20 @@ public function fundDisbursements()
     {
         return $this->hasMany(FundDisbursement::class, 'id_campaign', 'id');
     }
+
+    public function toSearchableArray(): array
+{
+    return [
+        'id' => $this->id,
+        'judul' => $this->judul,
+        'deskripsi' => $this->deskripsi,
+        'status' => $this->status,
+        'nama_organisasi' => $this->organization?->nama_lembaga,
+    ];
+}
+
+public function shouldBeSearchable(): bool
+{
+    return $this->status === 'aktif';
+}
 }

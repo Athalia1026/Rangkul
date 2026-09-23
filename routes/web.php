@@ -16,6 +16,7 @@ Route::get('/search_result', [SearchController::class, 'results'])->name('search
 
 // Campaign detail route
 Route::get('/campaign/{id}', [CampaignController::class, 'show'])->name('campaign.detail');
+Route::get('/campaign/{id}/prayers', [CampaignController::class, 'prayers'])->name('campaign.prayers');
 
 Route::get('/register', function () {
     return view('auth.pick-role');

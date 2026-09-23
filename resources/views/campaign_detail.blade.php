@@ -12,7 +12,11 @@
 
         <!-- Top Floating Navigation: ← Kembali (Left) & Share (Right) -->
         <div class="absolute top-0 left-0 right-0 w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-5 sm:pt-6 flex items-center justify-between z-10">
-            <a href="{{ url()->previous() ?: route('search.result') }}" class="inline-flex items-center gap-2 text-white/95 hover:text-white font-medium text-[15px] sm:text-[16px] drop-shadow-md transition-colors group">
+            @php
+                $backQuery = $searchQuery ?? request('q', session('last_search_query', ''));
+                $backUrl = route('search.results', $backQuery !== '' ? ['q' => $backQuery] : []);
+            @endphp
+            <a href="{{ $backUrl }}" class="inline-flex items-center gap-2 text-white/95 hover:text-white font-medium text-[15px] sm:text-[16px] drop-shadow-md transition-colors group">
                 <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="19" y1="12" x2="5" y2="12"></line>
                     <polyline points="12 19 5 12 12 5"></polyline>
@@ -126,7 +130,7 @@
                         <h3 class="text-[17px] sm:text-[18px] font-bold text-gray-950 leading-tight">Doa & Harapan</h3>
                         <p class="text-[12px] sm:text-[13px] text-gray-500 mt-1">Setiap pesan yang dibagikan menjadi semangat dan harapan bagi mereka yang membutuhkan.</p>
                     </div>
-                    <a href="#doa-semua" class="text-[12px] sm:text-[13px] text-gray-600 hover:text-[#05522d] underline font-medium cursor-pointer shrink-0">Lihat Semua</a>
+                    <a href="{{ route('campaign.prayers', array_filter(['id' => $campaign['id'], 'q' => $backQuery])) }}" class="text-[12px] sm:text-[13px] text-gray-600 hover:text-[#05522d] underline font-medium cursor-pointer shrink-0">Lihat Semua</a>
                 </div>
 
                 <div class="space-y-4 sm:space-y-5">
@@ -153,7 +157,7 @@
             <h2 class="text-[19px] sm:text-[21px] font-bold text-gray-950 mb-4 sm:mb-5">Campaign Lainnya dari {{ $organization->nama_lembaga ?? '' }}</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 @forelse($otherCampaigns as $rc)
-                    <a href="{{ route('campaign.detail', $rc['id']) }}" class="bg-white rounded-2xl p-3 border border-gray-150 shadow-2xs hover:shadow-md transition-all cursor-pointer group">
+                    <a href="{{ route('campaign.detail', array_filter(['id' => $rc['id'], 'q' => $backQuery])) }}" class="bg-white rounded-2xl p-3 border border-gray-150 shadow-2xs hover:shadow-md transition-all cursor-pointer group">
                         <div class="w-full h-[155px] rounded-xl overflow-hidden bg-gray-100">
                             <img src="{{ $rc['image_url'] ?? asset('images/default_campaign.jpg') }}" alt="{{ $rc['judul'] }}" class="w-full h-full object-cover group-hover:scale-104 transition-transform duration-300" />
                         </div>

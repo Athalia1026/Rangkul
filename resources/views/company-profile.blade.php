@@ -1,20 +1,10 @@
 {{-- resources/views/company-profile.blade.php --}}
 @extends('layouts.public')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rangkul - Platform Donasi Terpercaya | Company Profile</title>
-
-    <!-- PANGGIL VITE DI SINI -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-
 @section('content')
     <div class="bg-[#F5F7F4]">
     <!-- HERO & STATS -->
-    <section id="beranda" class="w-full max-w-[1200px] mx-auto ">
+    <section id="beranda" class="w-full mx-auto ">
         <div class="relative w-full min-h-[500px] flex items-center overflow-hidden bg-[#1f2937]">
             <div class="absolute inset-0">
                 <img src="{{ asset('images/hero/hero_children.jpg') }}" alt="Hero" class="w-full h-full object-cover">

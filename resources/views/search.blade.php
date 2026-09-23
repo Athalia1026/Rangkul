@@ -98,7 +98,7 @@
                     style="scrollbar-width: none; -ms-overflow-style: none;"
                 >
                     @forelse ($pilihanRangkul as $campaign)
-                        <div class="w-[290px] sm:w-[330px] md:w-[360px] shrink-0 bg-white rounded-2xl overflow-hidden border border-gray-100/90 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col group cursor-pointer">
+                        <a href="{{ route('campaign.detail', array_filter(['id' => $campaign['id'], 'q' => request('q', $query ?? '')])) }}" class="w-[290px] sm:w-[330px] md:w-[360px] shrink-0 bg-white rounded-2xl overflow-hidden border border-gray-100/90 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col group cursor-pointer">
                             <div class="relative aspect-[16/10] overflow-hidden bg-gray-100">
                                 @if (!empty($campaign['image_url']))
                                     <img src="{{ $campaign['image_url'] }}" alt="{{ $campaign['judul'] }}" class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300">
@@ -120,7 +120,7 @@
                                     <div class="w-full h-2 rounded-full bg-[#d8f0e2] overflow-hidden"><div class="h-full bg-[#05522d] rounded-full" style="width: {{ $campaign['persentase'] }}%"></div></div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @empty
                         <p class="w-full py-8 text-center text-sm text-gray-500">Belum ada campaign aktif.</p>
                     @endforelse
@@ -191,7 +191,7 @@
             <!-- List of Horizontal Campaign Cards -->
             <div class="space-y-4 sm:space-y-5">
                 @forelse ($otherCampaigns as $campaign)
-                    <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row group">
+                    <a href="{{ route('campaign.detail', array_filter(['id' => $campaign['id'], 'q' => request('q', $query ?? '')])) }}" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row group">
                         <div class="w-full sm:w-[260px] md:w-[320px] lg:w-[380px] h-[170px] sm:h-[180px] shrink-0 overflow-hidden bg-gray-100">
                             @if (!empty($campaign['image_url']))
                                 <img src="{{ $campaign['image_url'] }}" alt="{{ $campaign['judul'] }}" class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300">
@@ -228,7 +228,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <div class="bg-white rounded-2xl border border-gray-100 p-8 text-center text-gray-500">
                         <p class="text-[15px] font-medium">

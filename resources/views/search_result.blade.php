@@ -98,7 +98,7 @@
         <!-- ========================================================== -->
         <div id="contentPenggalangan" class="space-y-4 sm:space-y-5">
             @forelse ($campaigns as $campaign)
-                <a href="{{ route('campaign.detail', $campaign['id']) }}" class="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-100 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row gap-4 sm:gap-6 group">
+                <a href="{{ route('campaign.detail', array_filter(['id' => $campaign['id'], 'q' => request('q', $query ?? '')])) }}" class="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-100 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row gap-4 sm:gap-6 group">
                     <div class="w-full sm:w-[320px] md:w-[380px] lg:w-[410px] h-[160px] sm:h-[175px] shrink-0 rounded-xl overflow-hidden bg-gray-100">
                         @if (!empty($campaign['image_url']))
                             <img src="{{ $campaign['image_url'] }}" alt="{{ $campaign['judul'] }}" class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300">
