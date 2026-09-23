@@ -9,15 +9,52 @@ use App\Http\Controllers\Controller;
 
 class SearchController extends Controller
 {
+    public function page(Request $request)
+    {
+        if (!$request->has('limit')) {
+            $request->merge(['limit' => 30]);
+        }
+
+        $payload = $this->search($request)->getData(true);
+
+        return view('search', [
+            'campaigns' => collect($payload['data']['campaigns'] ?? []),
+            'query' => $payload['data']['query'] ?? '',
+            'sort' => $payload['data']['sort'] ?? 'latest',
+        ]);
+    }
+
+    public function results(Request $request)
+    {
+        if (!$request->has('limit')) {
+            $request->merge(['limit' => 30]);
+        }
+
+        $payload = $this->search($request)->getData(true);
+
+        return view('search_result', [
+            'campaigns' => collect($payload['data']['campaigns'] ?? []),
+            'organizations' => collect($payload['data']['organizations'] ?? []),
+            'query' => $payload['data']['query'] ?? '',
+            'sort' => $payload['data']['sort'] ?? 'latest',
+        ]);
+    }
+
     public function search(Request $request)
     {
         $keyword = trim((string) $request->query('q', ''));
-        $sort = $request->query('sort', 'latest');
+        $sort = match ($request->query('sort', 'latest')) {
+            'mendesak', 'urgent' => 'urgent',
+            default => 'latest',
+        };
         $limit = (int) $request->query('limit', 10);
         $limit = max(1, min($limit, 20));
+        $limit = max(1, min($limit, 50));
 
         $campaignQuery = Campaign::query()
-            ->with('organization')
+            ->with(['organization', 'donations' => function ($query) {
+                $query->where('status', 'sudah_bayar');
+            }])
             ->where('status', 'aktif');
 
         $organizationQuery = Organization::query()
@@ -39,13 +76,18 @@ class SearchController extends Controller
 
         $campaigns = $campaignQuery->get()->map(function ($campaign) {
             $targetDana = (int) $campaign->target_dana;
-            $terkumpul = (int) $campaign->donations()
-                ->where('status', 'sudah_bayar')
-                ->sum('nominal');
+            $terkumpul = (int) $campaign->donations->sum('nominal');
 
             $persentase = $targetDana > 0
                 ? min(100, round(($terkumpul / $targetDana) * 100, 1))
                 : 0;
+
+            $imageUrl = null;
+            if ($campaign->foto_cover) {
+                $imageUrl = filter_var($campaign->foto_cover, FILTER_VALIDATE_URL)
+                    ? $campaign->foto_cover
+                    : asset('storage/' . ltrim($campaign->foto_cover, '/'));
+            }
 
             return [
                 'id' => $campaign->id,
@@ -53,7 +95,7 @@ class SearchController extends Controller
                 'judul' => $campaign->judul,
                 'deskripsi' => $campaign->deskripsi,
                 'nama_organisasi' => $campaign->organization?->nama_lembaga ?? '-',
-                'image_url' => $campaign->foto_cover ? asset('storage/' . $campaign->foto_cover) : null,
+                'image_url' => $imageUrl,
                 'target_dana' => $targetDana,
                 'terkumpul' => $terkumpul,
                 'persentase' => $persentase,
