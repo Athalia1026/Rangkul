@@ -454,7 +454,6 @@
                         "/images/bukti-penyaluran2.png",
                         "/images/bukti-penyaluran3.png",
                         "/images/bukti-penyaluran4.png",
-                        "/images/bukti-penyaluran5.png"
                     ],
 
                     keterangan: "Keterangan: Donasi untuk kebutuhan sandang pangan",
@@ -474,7 +473,11 @@
 
                     // DAFTAR GAMBAR
                     gambar: [
-                        "/images/bukti-penyaluran.png"
+                        "/images/bukti-penyaluran.png",
+                        "/images/bukti-penyaluran2.png",
+                        "/images/bukti-penyaluran3.png",
+                        "/images/bukti-penyaluran4.png",
+                        "/images/bukti-penyaluran5.png"
                     ],
 
                     keterangan: "Keterangan: Donasi untuk kebutuhan pendidikan",
