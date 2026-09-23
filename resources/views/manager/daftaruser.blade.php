@@ -178,7 +178,7 @@
                         No.
                     </th>
 
-                    <th class="px-6 py-4">
+                    <th class="px-6 py-4 text-center">
                         Tanggal Pendaftaran
                     </th>
 
@@ -212,7 +212,7 @@
                         1.
                     </td>
 
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 text-center">
                         19/02/2025
                     </td>
 
@@ -249,7 +249,7 @@
                         2.
                     </td>
 
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 text-center">
                         08/11/2025
                     </td>
 
@@ -320,10 +320,6 @@
                         Detail
                     </th>
 
-                    <th class="px-6 py-4 text-center">
-                        Aksi Admin
-                    </th>
-
                 </tr>
 
             </thead>
@@ -357,10 +353,6 @@
 
                     </td>
 
-                    <td class="px-6 py-4 text-center">
-                        -
-                    </td>
-
                 </tr>
 
 
@@ -388,10 +380,6 @@
                             Detail
                         </a>
 
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        -
                     </td>
 
                 </tr>
