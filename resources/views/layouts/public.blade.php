@@ -34,8 +34,8 @@
                 <nav class="hidden md:flex items-center gap-8 text-[15px] font-medium text-gray-700">
                     <a href="{{ url('/beranda') }}"
                         class="{{ request()->is('beranda') ? 'text-[#05522d] font-semibold' : 'text-gray-700 hover:text-[#05522d]' }}">Beranda</a>
-                    <a href="{{ url('/cari') }}"
-                        class="{{ request()->is('cari') ? 'text-[#05522d] font-semibold' : 'text-gray-700 hover:text-[#05522d]' }}">Cari</a>
+                    <a href="{{ url('/search') }}"
+                        class="{{ request()->is('search') ? 'text-[#05522d] font-semibold' : 'text-gray-700 hover:text-[#05522d]' }}">Cari</a>
                     <a href="{{ url('/') }}"
                         class="{{ request()->is('/') ? 'text-[#05522d] font-semibold' : 'text-gray-700 hover:text-[#05522d]' }}">Tentang Kami</a>
                 </nav>
@@ -139,7 +139,7 @@
                         <h4 class="font-bold text-white">Navigasi</h4>
                         <ul class="text-[14px] text-gray-200 space-y-1">
                             <li><a href="{{ url('/beranda') }}">Beranda</a></li>
-                            <li><a href="{{ url('/cari') }}">Cari</a></li>
+                            <li><a href="{{ url('/search') }}">Cari</a></li>
                         </ul>
                     </div>
                     <div class="md:col-span-3 space-y-2">

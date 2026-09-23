@@ -1,12 +1,21 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Donors\SearchController;
+use App\Http\Controllers\Donors\CampaignController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
+
+Route::get('/search', [SearchController::class, 'page'])->name('search');
+Route::get('/search-results', [SearchController::class, 'results'])->name('search.results');
+Route::get('/search_result', [SearchController::class, 'results'])->name('search.result');
+
+// Campaign detail route
+Route::get('/campaign/{id}', [CampaignController::class, 'show'])->name('campaign.detail');
 
 Route::get('/register', function () {
     return view('auth.pick-role');
