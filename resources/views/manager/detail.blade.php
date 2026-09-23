@@ -37,40 +37,56 @@
 
 <body class="text-black-800">
 
-    <!-- NAVIGATION BAR -->
-    <nav class="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between">
-
-        <!-- LOGO RANGKUL -->
-        <div class="flex items-center w-1/3">
-            <img
-                src="/images/logo.png"
-                alt="Rangkul"
-                class="h-10 w-auto"
-            >
-        </div>
-
-        <!-- MENU NAVBAR -->
+<!-- MENU NAVBAR -->
         <div class="flex gap-12 font-semibold text-sm">
-
-            <a href="#" class="hover:text-green-700">
+            <a
+                href="/manager/home"
+                class="text-rangkul-green border-b-2 border-rangkul-green/20 pb-1"
+            >
                 Beranda
             </a>
 
-            <a href="#" class="hover:text-green-700">
+            <a
+                href="/manager/daftaruser"
+                class="hover:text-green-700"
+            >
                 Daftar Pengguna
             </a>
 
-            <a href="#" class="hover:text-green-700">
+            <a
+                href="/manager/detailtransaksi"
+                class="hover:text-green-700"
+            >
                 Laporan Transaksi
             </a>
-
         </div>
 
         <!-- PROFILE -->
-        <div class="flex items-center justify-end w-1/3">
-            <div class="text-rangkul-green text-3xl cursor-pointer">
+        <div class="flex items-center justify-end w-1/3 relative">
+
+            <!-- ICON PROFILE -->
+            <button
+                type="button"
+                id="profileButton"
+                class="text-rangkul-green text-3xl cursor-pointer focus:outline-none"
+            >
                 <i class="fa-solid fa-circle-user"></i>
+            </button>
+
+            <!-- DROPDOWN KELUAR -->
+            <div
+                id="profileDropdown"
+                class="hidden absolute right-0 top-12 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50"
+            >
+                <a
+                    href="/"
+                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                >
+                    <i class="fa-solid fa-right-from-bracket text-rangkul-green"></i>
+                    <span>Keluar</span>
+                </a>
             </div>
+
         </div>
 
     </nav>
@@ -197,48 +213,38 @@
 
     </div>
 
-
     <!-- ====================================== -->
-    <!-- POPUP KONFIRMASI SETUJUI -->
+    <!-- ALERT BERHASIL DISETUJUI -->
     <!-- ====================================== -->
 
     <div
-        id="modalKonfirmasi"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+        id="alertSetujui"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden"
     >
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
 
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full mx-4">
-
-            <h2 class="text-3xl font-extrabold mb-2">
-                Konfirmasi
-            </h2>
-
-            <p class="text-gray-700 text-lg mb-8">
-                Apakah Anda yakin ingin menyetujui permohonan pencairan dana ini?
-            </p>
-
-            <div class="flex gap-4">
-
-                <!-- BATAL -->
-                <button
-                    id="btnBatal"
-                    class="flex-1 bg-[#D9D9D9] hover:bg-gray-400 text-black font-bold py-3 px-6 rounded-xl shadow transition transform active:scale-95"
-                >
-                    Batal
-                </button>
-
-                <!-- KONFIRMASI -->
-                <button
-                    id="btnConfirmFinal"
-                    class="flex-1 bg-rangkul-green hover:bg-green-900 text-white font-bold py-3 px-6 rounded-xl shadow transition transform active:scale-95"
-                >
-                    Konfirmasi
-                </button>
-
+            <div class="flex justify-center mb-4">
+                <div class="text-rangkul-green text-5xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
             </div>
 
-        </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">
+                Pengajuan Disetujui
+            </h2>
 
+            <p class="text-gray-600 text-base">
+                Permohonan pencairan dana berhasil disetujui.
+            </p>
+
+            <button
+                id="btnTutupAlertSetujui"
+                class="mt-6 px-8 py-3 bg-rangkul-green hover:bg-green-900 text-white font-bold rounded-xl transition shadow-md"
+            >
+                Mengerti
+            </button>
+
+        </div>
     </div>
 
     <!-- ====================================== -->
@@ -249,7 +255,6 @@
         id="modalTolak"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
     >
-
         <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4">
 
             <!-- ICON WARNING -->
@@ -298,7 +303,6 @@
             <!-- BUTTONS -->
             <div class="flex justify-end gap-4 mt-8">
 
-                <!-- BATAL -->
                 <button
                     id="btnBatalTolak"
                     class="px-10 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold rounded-xl transition shadow-md transform active:scale-95"
@@ -306,7 +310,6 @@
                     Batal
                 </button>
 
-                <!-- TOLAK -->
                 <button
                     id="btnConfirmTolak"
                     class="px-10 py-3 bg-rangkul-red hover:bg-red-900 text-white font-bold rounded-xl transition shadow-md transform active:scale-95"
@@ -317,9 +320,43 @@
             </div>
 
         </div>
-
     </div>
 
+
+    <!-- ====================================== -->
+    <!-- ALERT ALASAN BELUM DIISI -->
+    <!-- ====================================== -->
+
+    <div
+        id="alertAlasan"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden"
+    >
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
+
+            <div class="flex justify-center mb-4">
+                <div class="text-rangkul-red text-5xl">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">
+                Alasan Belum Diisi
+            </h2>
+
+            <p class="text-gray-600 text-base">
+                Silakan isi alasan penolakan terlebih dahulu
+                sebelum melanjutkan.
+            </p>
+
+            <button
+                id="btnTutupAlert"
+                class="mt-6 px-8 py-3 bg-rangkul-green hover:bg-green-900 text-white font-bold rounded-xl transition shadow-md"
+            >
+                Mengerti
+            </button>
+
+        </div>
+    </div>
 
     <!-- JAVASCRIPT -->
     <script>
@@ -329,24 +366,17 @@
         // ==========================
 
         const btnSetujui = document.getElementById('btnSetujui');
-        const modalKonfirmasi = document.getElementById('modalKonfirmasi');
-        const btnBatal = document.getElementById('btnBatal');
-        const btnConfirmFinal = document.getElementById('btnConfirmFinal');
+        const alertSetujui = document.getElementById('alertSetujui');
+        const btnTutupAlertSetujui = document.getElementById('btnTutupAlertSetujui');
 
-        // Klik Setujui → buka popup
+        // Klik Setujui → tampilkan popup berhasil
         btnSetujui.addEventListener('click', () => {
-            modalKonfirmasi.classList.remove('hidden');
+            alertSetujui.classList.remove('hidden');
         });
 
-        // Klik Batal → tutup popup
-        btnBatal.addEventListener('click', () => {
-            modalKonfirmasi.classList.add('hidden');
-        });
-
-        // Klik Konfirmasi → setujui
-        btnConfirmFinal.addEventListener('click', () => {
-            alert('Permohonan berhasil disetujui!');
-            modalKonfirmasi.classList.add('hidden');
+        // Klik Mengerti → tutup popup
+        btnTutupAlertSetujui.addEventListener('click', () => {
+            alertSetujui.classList.add('hidden');
         });
 
 
@@ -360,30 +390,47 @@
         const btnConfirmTolak = document.getElementById('btnConfirmTolak');
         const alasanTolak = document.getElementById('alasanTolak');
 
+        // ALERT ALASAN BELUM DIISI
+        const alertAlasan = document.getElementById('alertAlasan');
+        const btnTutupAlert = document.getElementById('btnTutupAlert');
+
+
         // Klik Tolak → buka popup
         btnTolak.addEventListener('click', () => {
             modalTolak.classList.remove('hidden');
         });
+
 
         // Klik Batal → tutup popup
         btnBatalTolak.addEventListener('click', () => {
             modalTolak.classList.add('hidden');
         });
 
+
         // Klik Tolak → cek alasan
         btnConfirmTolak.addEventListener('click', () => {
 
-            if (alasanTolak.value.trim() === '') {
-                alert('Alasan penolakan wajib diisi.');
-                alasanTolak.focus();
+            const alasan = alasanTolak.value.trim();
+
+            // Kalau alasan kosong → tampilkan alert di halaman
+            if (alasan === "") {
+                alertAlasan.classList.remove('hidden');
                 return;
             }
 
+            // Kalau alasan sudah diisi
             alert('Permohonan berhasil ditolak!');
+
             modalTolak.classList.add('hidden');
 
             // Kosongkan alasan setelah berhasil
             alasanTolak.value = '';
+        });
+
+
+        // Tutup alert alasan
+        btnTutupAlert.addEventListener('click', () => {
+            alertAlasan.classList.add('hidden');
         });
 
 
@@ -399,6 +446,10 @@
 
             if (e.target === modalTolak) {
                 modalTolak.classList.add('hidden');
+            }
+
+            if (e.target === alertAlasan) {
+                alertAlasan.classList.add('hidden');
             }
 
         });

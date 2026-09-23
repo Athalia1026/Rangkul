@@ -242,7 +242,7 @@
                     </td>
 
                     <td class="px-4 py-4">
-                        Ahmad Fauzi Ozi
+                        Ahmad Fauzil Ozi
                     </td>
 
                     <td class="px-4 py-4">
@@ -250,7 +250,7 @@
                     </td>
 
                     <td class="px-4 py-2">
-                        Rp 150.000
+                        Rp 1.500.000
                     </td>
 
                     <td class="px-4 py-2 text-center">
@@ -295,7 +295,7 @@
                     </td>
 
                     <td class="px-4 py-2">
-                        Rp 500.000
+                        Rp 5.000.000
                     </td>
 
                     <td class="px-4 py-2 text-center">
@@ -408,19 +408,15 @@
         <!-- BUKTI PENYALURAN -->
         <div class="mt-14">
 
-            <h3 class="text-2xl font-semibold text-gray-900 mb-2">
+            <h3 class="text-2xl font-semibold text-gray-900 mb-4">
                 Bukti Penyaluran
             </h3>
 
+        <!-- CONTAINER GAMBAR -->
+            <div id="detailBuktiContainer" class="flex gap-3">
+            </div>
 
-            <img
-                id="detailBukti"
-                src="/images/bukti-penyaluran.jpg"
-                alt="Bukti Penyaluran"
-                class="w-[70px] h-[70px] object-cover rounded-lg"
-            >
-
-
+        <!-- KETERANGAN -->
             <div class="mt-2 text-sm text-gray-800 leading-5">
 
                 <p id="detailKeterangan"></p>
@@ -436,76 +432,225 @@
 </div>
 
 
-<script>
+        <script>
 
-    // DATA DUMMY
-    // Nanti bagian ini bisa diganti dengan data dari database
+            // DATA TRANSAKSI
+            const transaksi = {
 
-    const transaksi = {
+                1: {
+                    id: "TRX-002345",
+                    tanggal: "4 Juni 2026",
+                    organisasi: "Asrama Pemberdayaan Yatim dan Dhuafa",
+                    alamat: "Jl. Delta Raya III No.4, Ngtingas, Kec. Waru, Kabupaten Sidoarjo, Jawa Timur 61256",
+                    donatur: "Ahmad Fauzi Ozi",
+                    tipe: "Individu",
+                    nominal: "Rp 150.000",
+                    metode: "QRIS",
+                    status: "Selesai",
 
-        1: {
-            id: "TRX-002345",
-            tanggal: "4 Juni 2026",
-            organisasi: "Asrama Pemberdayaan Yatim dan Dhuafa",
-            alamat: "Jl. Delta Raya III No.4, Ngtingas, Kec. Waru, Kabupaten Sidoarjo, Jawa Timur 61256",
-            donatur: "Ahmad Fauzi Ozi",
-            tipe: "Individu",
-            nominal: "Rp 150.000",
-            metode: "QRIS",
-            status: "Selesai",
-            keterangan: "Keterangan: Donasi untuk kebutuhan sandang pangan",
-            upload: "Diupload: 13 Juli 2026"
-        },
+                    // DAFTAR GAMBAR
+                    gambar: [
+                        "/images/bukti-penyaluran.png",
+                        "/images/bukti-penyaluran2.png",
+                        "/images/bukti-penyaluran3.png",
+                        "/images/bukti-penyaluran4.png",
+                    ],
 
-        2: {
-            id: "TRX-002346",
-            tanggal: "8 November 2025",
-            organisasi: "SD Harapan Bangsa",
-            alamat: "Jl. Kertajaya No. 10, Surabaya, Jawa Timur",
-            donatur: "Komunitas Anak Surabaya",
-            tipe: "Organisasi",
-            nominal: "Rp 500.000",
-            metode: "Transfer",
-            status: "Menunggu",
-            keterangan: "Keterangan: Donasi untuk kebutuhan pendidikan",
-            upload: "Diupload: 15 November 2025"
-        }
+                    keterangan: "Keterangan: Donasi untuk kebutuhan sandang pangan",
+                    upload: "Diupload: 13 Juli 2026"
+                },
 
-    };
+                2: {
+                    id: "TRX-002346",
+                    tanggal: "8 November 2025",
+                    organisasi: "SD Harapan Bangsa",
+                    alamat: "Jl. Kertajaya No. 10, Surabaya, Jawa Timur",
+                    donatur: "Komunitas Anak Surabaya",
+                    tipe: "Organisasi",
+                    nominal: "Rp 500.000",
+                    metode: "Transfer",
+                    status: "Menunggu",
 
+                    // DAFTAR GAMBAR
+                    gambar: [
+                        "/images/bukti-penyaluran.png",
+                        "/images/bukti-penyaluran2.png",
+                        "/images/bukti-penyaluran3.png",
+                        "/images/bukti-penyaluran4.png",
+                        "/images/bukti-penyaluran5.png"
+                    ],
 
-    // BUKA POPUP
+                    keterangan: "Keterangan: Donasi untuk kebutuhan pendidikan",
+                    upload: "Diupload: 15 November 2025"
+                }
 
-    function openDetail(id) {
-
-        const data = transaksi[id];
-
-        document.getElementById("detailId").textContent = data.id;
-        document.getElementById("detailTanggal").textContent = data.tanggal;
-        document.getElementById("detailOrganisasi").textContent = data.organisasi;
-        document.getElementById("detailAlamat").textContent = data.alamat;
-        document.getElementById("detailDonatur").textContent = data.donatur;
-        document.getElementById("detailTipe").textContent = data.tipe;
-        document.getElementById("detailNominal").textContent = data.nominal;
-        document.getElementById("detailMetode").textContent = data.metode;
-        document.getElementById("detailStatus").textContent = data.status;
-        document.getElementById("detailKeterangan").textContent = data.keterangan;
-        document.getElementById("detailUpload").textContent = data.upload;
-
-        document.getElementById("detailModal").classList.remove("hidden");
-
-    }
+            };
 
 
-    // TUTUP POPUP
+            // ==============================
+            // BUKA DETAIL TRANSAKSI
+            // ==============================
 
-    function closeDetail() {
+            function openDetail(id) {
 
-        document.getElementById("detailModal").classList.add("hidden");
+                const data = transaksi[id];
 
-    }
+                // Isi data detail
+                document.getElementById("detailId").textContent = data.id;
+                document.getElementById("detailTanggal").textContent = data.tanggal;
+                document.getElementById("detailOrganisasi").textContent = data.organisasi;
+                document.getElementById("detailAlamat").textContent = data.alamat;
+                document.getElementById("detailDonatur").textContent = data.donatur;
+                document.getElementById("detailTipe").textContent = data.tipe;
+                document.getElementById("detailNominal").textContent = data.nominal;
+                document.getElementById("detailMetode").textContent = data.metode;
+                document.getElementById("detailStatus").textContent = data.status;
 
-</script>
+                document.getElementById("detailKeterangan").textContent =
+                    data.keterangan;
+
+                document.getElementById("detailUpload").textContent =
+                    data.upload;
+
+
+                // ==============================
+                // TAMPILKAN GAMBAR
+                // ==============================
+
+                const container =
+                    document.getElementById("detailBuktiContainer");
+
+                // Bersihkan gambar sebelumnya
+                container.innerHTML = "";
+
+
+                // ==============================
+                // 3 GAMBAR ATAU KURANG
+                // ==============================
+
+                if (data.gambar.length <= 3) {
+
+                    data.gambar.forEach(function(src) {
+
+                        const img = document.createElement("img");
+
+                        img.src = src;
+                        img.alt = "Bukti Penyaluran";
+
+                        img.className =
+                            "w-[70px] h-[70px] object-cover rounded-lg cursor-pointer";
+
+                        // Klik gambar untuk preview
+                        img.onclick = function() {
+                            openImagePreview(src);
+                        };
+
+                        container.appendChild(img);
+
+                    });
+
+                }
+
+
+                // ==============================
+                // LEBIH DARI 3 GAMBAR
+                // ==============================
+
+                else {
+
+                    // Tampilkan gambar pertama dan kedua
+                    for (let i = 0; i < 2; i++) {
+
+                        const img = document.createElement("img");
+
+                        img.src = data.gambar[i];
+                        img.alt = "Bukti Penyaluran";
+
+                        img.className =
+                            "w-[70px] h-[70px] object-cover rounded-lg cursor-pointer";
+
+                        img.onclick = function() {
+                            openImagePreview(data.gambar[i]);
+                        };
+
+                        container.appendChild(img);
+
+                    }
+
+
+                    // ==============================
+                    // GAMBAR KETIGA + OVERLAY
+                    // ==============================
+
+                    const wrapper = document.createElement("div");
+
+                    wrapper.className =
+                        "relative w-[70px] h-[70px] rounded-lg overflow-hidden cursor-pointer";
+
+
+                    // Gambar ketiga
+                    const imgKetiga = document.createElement("img");
+
+                    imgKetiga.src = data.gambar[2];
+                    imgKetiga.alt = "Bukti Penyaluran";
+
+                    imgKetiga.className =
+                        "w-full h-full object-cover blur-[2px]";
+
+                    wrapper.appendChild(imgKetiga);
+
+
+                    // Jumlah gambar setelah gambar ketiga
+                    const jumlahTambahan =
+                        data.gambar.length - 3;
+
+
+                    // Overlay
+                    const overlay = document.createElement("div");
+
+                    overlay.className =
+                        "absolute inset-0 bg-black/40 flex items-center justify-center";
+
+                    overlay.innerHTML = `
+                        <span class="text-white text-lg font-semibold">
+                            +${jumlahTambahan}
+                        </span>
+                    `;
+
+
+                    wrapper.appendChild(overlay);
+
+
+                    // Klik gambar ketiga
+                    wrapper.onclick = function() {
+                        openImagePreview(data.gambar[2]);
+                    };
+
+
+                    container.appendChild(wrapper);
+
+                }
+                // Tampilkan popup
+                document
+                    .getElementById("detailModal")
+                    .classList.remove("hidden");
+
+            }
+
+
+            // ==============================
+            // TUTUP DETAIL
+            // ==============================
+
+            function closeDetail() {
+
+                document
+                    .getElementById("detailModal")
+                    .classList.add("hidden");
+
+            }
+
+        </script>
 
 </body>
 </html>
