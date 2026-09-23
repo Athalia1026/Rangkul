@@ -96,11 +96,70 @@ class CampaignController extends Controller
             'kebutuhan' => $campaign->kebutuhan ?? [], // assumes JSON column
         ];
 
+        $searchQuery = (string) request('q', session('last_search_query', ''));
+        if (request()->has('q')) {
+            session(['last_search_query' => request('q')]);
+        }
+
         return view('campaign_detail', [
             'campaign' => $campaignData,
             'organization' => $organization,
             'comments' => $comments,
             'otherCampaigns' => $otherCampaigns,
+            'searchQuery' => $searchQuery,
+        ]);
+    }
+
+    /**
+     * Show all prayers / doa & harapan for a campaign.
+     *
+     * @param  string|int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function prayers($id)
+    {
+        $campaign = Campaign::where('id', $id)->where('status', 'aktif')->firstOrFail();
+
+        $prayers = $campaign->donations()
+            ->where('status', 'sudah_bayar')
+            ->whereNotNull('note')
+            ->where('note', '!=', '')
+            ->with(['donor.user'])
+            ->latest()
+            ->get()
+            ->map(function ($don) {
+                $isAnonim = (bool) $don->anonim;
+                $user = $don->donor?->user;
+                $nama = 'Anonim';
+                $avatar = null;
+
+                if (!$isAnonim && $user) {
+                    $nama = $user->nama ?: 'Donatur';
+                    if ($user->profile_photo) {
+                        $avatar = filter_var($user->profile_photo, FILTER_VALIDATE_URL)
+                            ? $user->profile_photo
+                            : asset('storage/' . ltrim($user->profile_photo, '/'));
+                    } else {
+                        $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($nama) . '&background=d8f0e2&color=05522d&bold=true';
+                    }
+                }
+
+                return [
+                    'nama' => $nama,
+                    'is_anonim' => $isAnonim || !$user,
+                    'avatar' => $avatar,
+                    'nominal' => (int) $don->nominal,
+                    'waktu' => $don->created_at ? $don->created_at->diffForHumans() : '',
+                    'note' => $don->note,
+                ];
+            });
+
+        $searchQuery = (string) request('q', session('last_search_query', ''));
+
+        return view('doa_harapan', [
+            'campaign' => $campaign,
+            'prayers' => $prayers,
+            'searchQuery' => $searchQuery,
         ]);
     }
 }
