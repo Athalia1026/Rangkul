@@ -20,7 +20,7 @@
 <body class="bg-[#f5f7f4] text-[#000000] font-['Plus_Jakarta_Sans',sans-serif] antialiased flex flex-col items-center">
 
     <!-- Main Canvas Frame: 1200px Width -->
-    <div class="w-full max-w-[1200px] bg-[#F5F7F4] shadow-xl flex flex-col">
+    <div class="w-full bg-[#F5F7F4] shadow-xl flex flex-col">
 
         <!-- NAVBAR -->
         <header class="w-full bg-white border-b border-gray-100 sticky top-0 z-30 shadow-2xs">

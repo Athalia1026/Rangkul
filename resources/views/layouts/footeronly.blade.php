@@ -14,7 +14,7 @@
 </head>
 <body class="bg-[#f5f7f4] text-[#000000] font-['Plus_Jakarta_Sans',sans-serif] antialiased flex flex-col items-center">
 
-    <div class="w-full max-w-[1200px] bg-[#F5F7F4] shadow-xl flex flex-col">
+    <div class="w-full  bg-[#F5F7F4] shadow-xl flex flex-col">
     <!-- MAIN CONTENT INJECTION -->
     <main class="w-full flex-1">
         @yield('content')
