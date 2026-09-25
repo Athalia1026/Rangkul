@@ -85,7 +85,7 @@
                     <h2 class="text-[24px] sm:text-[26px] font-bold text-[#05522d] tracking-tight">
                         Bantu Mereka Hari Ini
                     </h2>
-                    <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
+                    <p class="text-[14px] sm:text-[15px] text-gray-500 mt-0.5">
                         Geser untuk melihat kampanye donasi lainnya
                     </p>
                 </div>
@@ -115,7 +115,7 @@
                         <div class="p-5 flex flex-col flex-1 justify-between">
                             <div>
                                 <span
-                                    class="text-xs text-gray-500 font-medium">{{ $campaign->organization?->nama_lembaga ?? 'Organisasi sosial' }}</span>
+                                    class="text-[14px] text-gray-500 font-medium">{{ $campaign->organization?->nama_lembaga ?? 'Organisasi sosial' }}</span>
                                 <h3 class="text-[16px] font-bold text-gray-900 mt-1 leading-snug">{{ $campaign->judul }}</h3>
                             </div>
                             <div class="mt-4 pt-2">
@@ -149,7 +149,7 @@
                     <h3 class="text-[22px] sm:text-[26px] lg:text-[28px] font-bold leading-[1.25] text-white">
                         {{ $featuredCampaign?->judul ?? 'Belum ada rekomendasi donasi' }}
                     </h3>
-                    <p class="text-[14px] sm:text-[15px] text-white/90 leading-relaxed max-w-lg">
+                    <p class="text-[14px] sm:text-[16px] text-white/90 leading-relaxed max-w-lg">
                         {{ $featuredCampaign?->deskripsi ?? 'Rekomendasi donasi akan tampil setelah kampanye tersedia.' }}
                     </p>
                     <div class="pt-4">
@@ -174,7 +174,7 @@
                     <h2 class="text-[24px] sm:text-[26px] font-bold text-[#05522d] tracking-tight">
                         Penggalangan Dana Prioritas
                     </h2>
-                    <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
+                    <p class="text-[14px] sm:text-[15px] text-gray-500 mt-0.5">
                         Kebutuhan mendesak dengan sisa waktu penggalangan terbatas
                     </p>
                 </div>
@@ -208,7 +208,7 @@
                         <div class="p-5 flex flex-col flex-1 justify-between">
                             <div>
                                 <span
-                                    class="text-xs text-gray-500 font-medium">{{ $campaign->organization?->nama_lembaga ?? 'Organisasi sosial' }}</span>
+                                    class="text-[14px] text-gray-500 font-medium">{{ $campaign->organization?->nama_lembaga ?? 'Organisasi sosial' }}</span>
                                 <h3 class="text-[16px] font-bold text-gray-900 mt-1 leading-snug">{{ $campaign->judul }}</h3>
                             </div>
                             <div class="mt-4 pt-2">

@@ -67,7 +67,7 @@
                         <h2 class="text-[22px] sm:text-[25px] font-bold text-gray-950 tracking-tight">
                             Pilihan Rangkul
                         </h2>
-                        <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
+                        <p class="text-[14px] sm:text-[15px] text-gray-500 mt-0.5">
                             Geser untuk melihat kampanye pilihan lainnya
                         </p>
                     </div>
@@ -112,7 +112,7 @@
                             </div>
                             <div class="p-5 flex flex-col flex-1 justify-between">
                                 <div>
-                                    <span class="text-[12px] text-gray-500 font-medium block mb-1">{{ $campaign['nama_organisasi'] }}</span>
+                                    <span class="text-[14px] text-gray-500 font-medium block mb-1">{{ $campaign['nama_organisasi'] }}</span>
                                     <h3 class="text-[15.5px] sm:text-[16px] font-bold text-gray-950 leading-snug line-clamp-2 group-hover:text-[#05522d] transition-colors">{{ $campaign['judul'] }}</h3>
                                 </div>
                                 <div class="mt-4 pt-1">

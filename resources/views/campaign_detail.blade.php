@@ -75,8 +75,8 @@
         <!-- Metrics Box -->
         <div class="mt-6 bg-[#dcf3e7] rounded-2xl p-3.5 sm:p-5 grid grid-cols-3 divide-x divide-gray-300/70 text-center">
             <div>
-                <span class="text-[12px] sm:text-[13.5px] text-gray-700 font-medium block">Terkumpul</span>
                 <span class="text-[16px] sm:text-[18px] font-bold text-gray-950 block mt-0.5">{{ $campaign['persentase'] ?? 0 }}%</span>
+                <span class="text-[12px] sm:text-[13.5px] text-gray-700 font-medium block">Terkumpul</span>
             </div>
             <div>
                 <span class="text-[16px] sm:text-[18px] font-bold text-gray-950 block">{{ $campaign['sisa_hari'] ?? '-' }}</span>
@@ -108,7 +108,7 @@
                 <h3 class="font-bold text-[15px] sm:text-[16px] text-gray-950 group-hover:text-[#05522d] transition-colors leading-tight">
                     {{ $organization->nama_lembaga ?? 'Nama Organisasi' }}
                 </h3>
-                <p class="text-[12.5px] sm:text-[13px] text-gray-500 font-medium mt-0.5">
+                <p class="text-[14px] sm:text-[14px] text-gray-500 font-medium mt-0.5">
                     {{ $organization->kota ?? 'Kota' }}
                 </p>
             </div>
@@ -117,7 +117,7 @@
         <!-- ALOKASI PENGGUNAAN DONASI -->
         <section class="mt-8 sm:mt-10">
             <h2 class="text-[18px] sm:text-[20px] font-bold text-gray-950">Alokasi Penggunaan Donasi</h2>
-            <p class="text-[13.5px] sm:text-[14.5px] text-gray-700 leading-relaxed mt-2.5">
+            <p class="text-[14px] sm:text-[15px] text-gray-700 leading-relaxed mt-2.5">
                 {{ $campaign['deskripsi'] ?? 'Deskripsi alokasi penggunaan donasi.' }}
             </p>
         </section>
@@ -128,7 +128,7 @@
                 <div class="flex items-start justify-between gap-4 mb-5">
                     <div>
                         <h3 class="text-[17px] sm:text-[18px] font-bold text-gray-950 leading-tight">Doa & Harapan</h3>
-                        <p class="text-[12px] sm:text-[13px] text-gray-500 mt-1">Setiap pesan yang dibagikan menjadi semangat dan harapan bagi mereka yang membutuhkan.</p>
+                        <p class="text-[14px] sm:text-[15px] text-gray-500 mt-1">Setiap pesan yang dibagikan menjadi semangat dan harapan bagi mereka yang membutuhkan.</p>
                     </div>
                     <a href="{{ route('campaign.prayers', array_filter(['id' => $campaign['id'], 'q' => $backQuery])) }}" class="text-[12px] sm:text-[13px] text-gray-600 hover:text-[#05522d] underline font-medium cursor-pointer shrink-0">Lihat Semua</a>
                 </div>
@@ -140,9 +140,9 @@
                             <div class="flex-1">
                                 <div class="flex items-center flex-wrap gap-x-1.5">
                                     <span class="font-semibold text-[13px] sm:text-[14px] text-gray-950">{{ $cmt['nama'] }}</span>
-                                    <span class="text-[11.5px] sm:text-[12px] text-gray-400">{{ $cmt['detail'] }}</span>
+                                    <span class="text-[12px] sm:text-[13px] text-gray-400">{{ $cmt['detail'] }}</span>
                                 </div>
-                                <p class="text-[12.5px] sm:text-[13.5px] text-gray-600 italic mt-0.5 leading-relaxed">&ldquo;{{ $cmt['pesan'] }}&rdquo;</p>
+                                <p class="text-[14px] sm:text-[15px] text-gray-600 italic mt-0.5 leading-relaxed">&ldquo;{{ $cmt['pesan'] }}&rdquo;</p>
                             </div>
                         </div>
                     @empty

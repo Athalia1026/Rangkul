@@ -104,7 +104,7 @@
                     <div class="md:col-span-6 space-y-4">
                         <img src="{{ asset('images/logo-light.png') }}" alt="Rangkul Logo"
                             class="h-14 max-w-full w-auto">
-                        <p class="text-[14px] text-gray-200 max-w-md">Rangkul hadir untuk menghubungkan kebaikan melalui
+                        <p class="text-[15px] text-gray-200 max-w-md">Rangkul hadir untuk menghubungkan kebaikan melalui
                             platform donasi yang aman, transparan, dan berdampak bagi mereka yang membutuhkan.</p>
                         <div class="flex items-center gap-3 pt-1">
                             <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"
