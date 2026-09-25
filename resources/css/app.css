@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+@theme {
+  --color-rangkul-primary: #0B4D3C;
+  --color-rangkul-hover: #083B2E;
+  --color-rangkul-light: #E8F5E9;
+}
