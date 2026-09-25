@@ -64,6 +64,7 @@ class HomeController extends Controller
 
         $priorityCampaigns = $campaigns
             ->filter(fn (Campaign $campaign) => $campaign->sisa_hari >= 0)
+            ->where('sisa_hari', '<', 14)
             ->sortBy('sisa_hari')
             ->take(7)
             ->values();
