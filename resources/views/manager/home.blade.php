@@ -17,71 +17,7 @@
 </head>
 <body class="text-black-800">
 
-    <!-- NAVIGATION BAR -->
-    <nav class="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between">
-
-        <!-- LOGO RANGKUL -->
-        <div class="flex items-center w-1/3">
-            <img
-                src="/images/logo.png"
-                alt="Rangkul"
-                class="h-10 w-auto"
-            >
-        </div>
-
-        <!-- MENU NAVBAR -->
-        <div class="flex gap-12 font-semibold text-sm">
-            <a
-                href="/manager/home"
-                class="text-rangkul-green border-b-2 border-rangkul-green pb-1"
-            >
-                Beranda
-            </a>
-
-            <a
-                href="/manager/daftaruser"
-                class="hover:text-green-700"
-            >
-                Daftar Pengguna
-            </a>
-
-            <a
-                href="/manager/detailtransaksi"
-                class="hover:text-green-700"
-            >
-                Laporan Transaksi
-            </a>
-        </div>
-
-        <!-- PROFILE -->
-        <div class="flex items-center justify-end w-1/3 relative">
-
-            <!-- ICON PROFILE -->
-            <button
-                type="button"
-                id="profileButton"
-                class="text-rangkul-green text-3xl cursor-pointer focus:outline-none"
-            >
-                <i class="fa-solid fa-circle-user"></i>
-            </button>
-
-            <!-- DROPDOWN KELUAR -->
-            <div
-                id="profileDropdown"
-                class="hidden absolute right-0 top-12 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50"
-            >
-                <a
-                    href="/"
-                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                    <i class="fa-solid fa-right-from-bracket text-rangkul-green"></i>
-                    <span>Keluar</span>
-                </a>
-            </div>
-
-        </div>
-
-    </nav>
+    @include('manager.layouts.navbar')
     
     <!-- MAIN CONTENT -->
     <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
