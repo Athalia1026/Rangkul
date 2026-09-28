@@ -13,11 +13,12 @@ return new class extends Migration {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('id_perusahaan');
-            $table->enum('status', ['aktif', 'nonaktif']);
-            $table->timestamp('started_at');
-            $table->timestamp('expired_at');
-            $table->string('transaction_id', 500)->unique();
-            $table->timestamp('paid_at');
+            $table->enum('status', ['menunggu_bayar', 'aktif', 'nonaktif'])->default('menunggu_bayar');
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('expired_at')->nullable();
+            $table->string('transaction_id', 500)->nullable()->unique();
+            $table->timestamp('paid_at')->nullable();
+            $table->timestamp('reminder_sent_at')->nullable();
             $table->timestamps();
 
             $table->foreign('id_perusahaan')->references('id')->on('companies_premium')->onDelete('cascade');

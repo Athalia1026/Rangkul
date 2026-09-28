@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('donors', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('user_id')->unique();
-            $table->enum('tipe', ['individu', 'komunitas', 'organisasi']);
+            $table->enum('tipe', ['individu', 'komunitas', 'perusahaan']);
             $table->string('no_telp');
             $table->string('kota');
             $table->timestamps();

@@ -1,7 +1,120 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --color-rangkul-primary: #0B4D3C;
-  --color-rangkul-hover: #083B2E;
-  --color-rangkul-light: #E8F5E9;
+
+/* =========================================================
+   RANGKUL COLOR VARIABLES
+========================================================= */
+
+:root {
+    --color-rangkul-primary: #0B4D3C;
+    --color-rangkul-hover: #083B2E;
+    --color-rangkul-light: #E8F5E9;
+}
+
+
+/* =========================================================
+   TESTIMONIAL
+========================================================= */
+
+@layer utilities {
+    .testimonial-track {
+        animation: testimonial-loop 28s linear infinite;
+        will-change: transform;
+    }
+
+    .testimonial-track:hover {
+        animation-play-state: paused;
+    }
+}
+
+
+@keyframes testimonial-loop {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+
+/* =========================================================
+   HERO SLIDER
+========================================================= */
+
+.hero-slide-previous {
+    animation: hero-slide-from-left 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-slide-active {
+    animation: hero-slide-from-right 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-slide-next {
+    animation: hero-slide-from-right 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-slide-content {
+    animation: hero-content-enter 550ms ease-out;
+}
+
+
+@keyframes hero-slide-from-left {
+    from {
+        opacity: 0.35;
+        transform: translateX(-28px) scale(1.04);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+
+@keyframes hero-slide-from-right {
+    from {
+        opacity: 0.35;
+        transform: translateX(28px) scale(1.04);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+
+@keyframes hero-content-enter {
+    from {
+        opacity: 0;
+        transform: translateY(calc(-50% + 16px));
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(-50%);
+    }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .testimonial-track {
+        animation: none;
+    }
+
+    .hero-slide-previous,
+    .hero-slide-active,
+    .hero-slide-next,
+    .hero-slide-content {
+        animation: none;
+    }
 }

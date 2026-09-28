@@ -10,20 +10,23 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('organization_documents', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->string('id_organisasi');
-            $table->string('lokasi_file');
-            $table->string('nama_file');
-            $table->enum('status', ['diterima', 'ditolak', 'menunggu']);
-            $table->string('alasan_penolakan')->nullable();
-            $table->timestamp('uploaded_at');
-            $table->timestamp('verified_at')->nullable();
-            $table->string('verified_by')->nullable();
+        if (!Schema::hasTable('organization_documents')) {
+            Schema::create('organization_documents', function (Blueprint $table) {
+                $table->string('id')->primary();
+                $table->string('id_organisasi');
+                $table->string('lokasi_file');
+                $table->string('nama_file');
+                $table->enum('status', ['diterima', 'ditolak', 'menunggu']);
+                $table->string('alasan_penolakan')->nullable();
+                $table->timestamp('uploaded_at');
+                $table->timestamp('verified_at')->nullable();
+                $table->string('verified_by')->nullable();
+                $table->timestamps();
 
-            $table->foreign('id_organisasi')->references('id')->on('organizations')->onDelete('cascade');
-            $table->foreign('verified_by')->references('id')->on('admins')->onDelete('set null');
-        });
+                $table->foreign('id_organisasi')->references('id')->on('organizations')->onDelete('cascade');
+                $table->foreign('verified_by')->references('id')->on('admins')->onDelete('set null');
+            });
+        }
     }
 
     /**

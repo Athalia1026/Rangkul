@@ -22,9 +22,13 @@ return new class extends Migration {
             $table->enum('status', ['menunggu', 'ditolak', 'aktif', 'disalurkan', 'selesai']);
             $table->string('foto_cover', 500);
             $table->text('alasan_tolak')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
+            $table->string('verified_by')->nullable();
+            $table->timestamp('verified_at')->nullable();
 
+            $table->foreign('verified_by')->references('id')->on('admins')->onDelete('set null');
             $table->foreign('id_organisasi')->references('id')->on('organizations')->onDelete('cascade');
             $table->foreign('id_categories')->references('id')->on('categories')->onDelete('restrict');
         });
