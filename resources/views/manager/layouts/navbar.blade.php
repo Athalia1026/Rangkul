@@ -16,7 +16,7 @@
         <a
             href="/manager/home"
             class="{{ request()->is('manager/home')
-                ? 'text-rangkul-green border-b-2 border-rangkul-green pb-1'
+                ? 'text-rangkul-green border-b-2 border-rangkul-green/20 pb-1'
                 : 'hover:text-green-700' }}"
         >
             Beranda
@@ -26,7 +26,7 @@
         <a
             href="/manager/daftaruser"
             class="{{ request()->is('manager/daftaruser')
-                ? 'text-rangkul-green border-b-2 border-rangkul-green pb-1'
+                ? 'text-rangkul-green border-b-2 border-rangkul-green/20 pb-1'
                 : 'hover:text-green-700' }}"
         >
             Daftar Pengguna
@@ -34,9 +34,9 @@
 
         <!-- LAPORAN TRANSAKSI -->
         <a
-            href="/manager/detailtransaksi"
-            class="{{ request()->is('manager/detailtransaksi')
-                ? 'text-rangkul-green border-b-2 border-rangkul-green pb-1'
+            href="/manager/laporantransaksi"
+            class="{{ request()->is('manager/laporantransaksi')
+                ? 'text-rangkul-green border-b-2 border-rangkul-green/20 pb-1'
                 : 'hover:text-green-700' }}"
         >
             Laporan Transaksi
