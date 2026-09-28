@@ -39,49 +39,7 @@
 
 <body>
 
-<nav class="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between">
-
-    <div class="flex items-center w-1/3">
-        <img
-            src="/images/logo.png"
-            alt="Rangkul"
-            class="h-10 w-auto"
-        >
-    </div>
-
-    <div class="flex gap-12 font-semibold text-sm">
-
-        <a
-            href="/manager/home"
-            class="hover:text-green-700"
-        >
-            Beranda
-        </a>
-
-        <a
-            href="/manager/daftaruser"
-            class="text-rangkul-green border-b-2 border-rangkul-green/20 pb-1"
-        >
-            Daftar Pengguna
-        </a>
-
-        <a
-            href="/manager/laporantransaksi"
-            class="hover:text-green-700"
-        >
-            Laporan Transaksi
-        </a>
-
-    </div>
-
-    <div class="flex items-center justify-end w-1/3">
-        <div class="text-rangkul-green text-3xl cursor-pointer">
-            <i class="fa-solid fa-circle-user"></i>
-        </div>
-    </div>
-
-</nav>
-
+    @include('manager.layouts.navbar')
 
 <!-- MAIN CONTENT -->
 <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
