@@ -41,7 +41,6 @@
 
 @include('manager.layouts.navbar')
 
-
 <!-- MAIN CONTENT -->
 <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
 
