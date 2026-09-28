@@ -32,19 +32,7 @@
 
 <body class="text-black-800">
 
-    <!-- NAVIGATION BAR -->
-    <nav class="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between">
-
-        <!-- LOGO RANGKUL -->
-        <div class="flex items-center w-1/3">
-            <img
-                src="/images/logo.png"
-                alt="Rangkul"
-                class="h-10 w-auto"
-            >
-        </div>
-
-        @include('manager.layouts.navbar')
+    @include('manager.layouts.navbar')
         
     <!-- MAIN CONTENT -->
     <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
@@ -431,26 +419,6 @@
 
 
     <script>
-
-        // PROFILE DROPDOWN
-        const profileButton = document.getElementById('profileButton');
-        const profileDropdown = document.getElementById('profileDropdown');
-
-        profileButton.addEventListener('click', function () {
-            profileDropdown.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', function (event) {
-
-            if (
-                !profileButton.contains(event.target) &&
-                !profileDropdown.contains(event.target)
-            ) {
-                profileDropdown.classList.add('hidden');
-            }
-
-        });
-
 
         // TREN DONASI LINE CHART
         const trenCtx = document.getElementById('trenDonasiChart').getContext('2d');
