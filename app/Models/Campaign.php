@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -12,6 +13,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Campaign extends Model
 {
+    use LogsActivity;
+
+    protected string $activityModule = 'campaign';
+
     use HasFactory, HasUuids, SoftDeletes, \Laravel\Scout\Searchable;
 
     protected $table = 'campaigns';

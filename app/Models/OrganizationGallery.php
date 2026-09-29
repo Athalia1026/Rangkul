@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,10 @@ use App\Models\Organization;
 
 class OrganizationGallery extends Model
 {
+    use LogsActivity;
+
+    protected string $activityModule = 'organization_gallery';
+
     use HasUuids; // Menggunakan UUID otomatis untuk primary key string 'id'
 
     protected $table = 'organization_galleries';

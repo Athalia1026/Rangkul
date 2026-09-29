@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Donation extends Model
 {
+    use LogsActivity;
+
+    protected string $activityModule = 'donation';
+
     protected $table = 'donations';
     public $incrementing = false;
     protected $keyType = 'string';

@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class BankAccount extends Model
 {
+    use LogsActivity;
+
+    protected string $activityModule = 'bank_account';
+
     // Asumsi nama tabel di database Anda adalah bank_accounts
     protected $table = 'bank_accounts'; 
     

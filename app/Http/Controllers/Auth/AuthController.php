@@ -10,6 +10,7 @@ use App\Services\AuthService;
 use App\Models\OrganizationDocument;
 use App\Models\BankAccount;
 use App\Models\User;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -138,6 +139,8 @@ class AuthController extends Controller
                 ], 403);
             }
 
+            app(ActivityLogService::class)->log('login', 'auth', 'Login ke aplikasi', null, null, null, User::where('email', $request->email)->first());
+
             return response()->json([
                 'message' => $result['message'],
                 'access_token' => $result['access_token'],
@@ -173,6 +176,7 @@ class AuthController extends Controller
 
     public function logoutWeb(Request $request)
     {
+        app(ActivityLogService::class)->log('logout', 'auth', 'Logout dari aplikasi');
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -191,6 +195,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        app(ActivityLogService::class)->log('logout', 'auth', 'Logout dari aplikasi');
         $this->authService->logout($request->user());
 
         return response()->json([

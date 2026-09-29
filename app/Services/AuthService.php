@@ -10,6 +10,7 @@ use App\Models\OrganizationDocument;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -37,6 +38,8 @@ class AuthService
                 'kota' => $data['kota'],
             ]);
 
+            app(ActivityLogService::class)->log('register', 'auth', 'Mendaftar sebagai donatur', $user, null, null, $user);
+
             return [
                 'user' => $user->load('donor'),
                 'token' => $user->createToken('rangkul-donor-token')->plainTextToken,
@@ -59,6 +62,7 @@ class AuthService
             DB::commit();
 
             $user->load(['organization.documents', 'organization.bankAccount']);
+            app(ActivityLogService::class)->log('register', 'auth', 'Mendaftar sebagai organisasi', $user, null, null, $user);
             app(NotificationService::class)->organizationRegistered($user->organization);
 
             return [

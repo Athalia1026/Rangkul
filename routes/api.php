@@ -12,6 +12,7 @@ use App\Http\Controllers\Donors\DonationController;
 use App\Http\Controllers\Donors\ProfileController;
 use App\Http\Controllers\Donors\VisitController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Organizations\CampaignController;
 use App\Http\Controllers\Organizations\OrganizationDisbursementController;
 use App\Http\Controllers\Organizations\OrganizationGalleryController;
@@ -99,6 +100,16 @@ Route::middleware('auth:sanctum')->prefix('visits')->group(function () {
     Route::patch('/{id}/respond', [VisitController::class, 'respondVisit']); // Organisasi confirm/reject
     Route::post('/{id}/documentation', [VisitController::class, 'uploadDocumentation']); // Donatur upload bukti
     Route::put('/{id}', [VisitController::class, 'update']);
+});
+
+// Activity log: riwayat aktivitas milik user login (semua role)
+Route::middleware('auth:sanctum')->get('/activity-logs', [ActivityLogController::class, 'mine']);
+
+// Activity log: seluruh aktivitas (khusus admin)
+Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin/activity-logs')->group(function () {
+    Route::get('/', [ActivityLogController::class, 'index']);
+    Route::get('/filters', [ActivityLogController::class, 'filters']);
+    Route::get('/{id}', [ActivityLogController::class, 'show']);
 });
 
 // Notifikasi in-app untuk semua role (donatur, organisasi, admin)

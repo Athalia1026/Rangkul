@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class PurchaseProof extends Model
 {
+    use LogsActivity;
+
+    protected string $activityModule = 'purchase_proof';
+
     protected $table = 'purchase_proofs';
     protected $keyType = 'string';
     public $incrementing = false;

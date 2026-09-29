@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,6 +13,10 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids; // Wajib untuk UUID
 
 class User extends Authenticatable
 {
+    use LogsActivity;
+
+    protected string $activityModule = 'user';
+
     use HasApiTokens, HasFactory, Notifiable, HasUuids;
 
     // Pastikan ID tidak auto-increment dan bertipe string

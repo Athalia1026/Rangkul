@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\BankAccount;
 
 class FundDisbursement extends Model
 {
+    use LogsActivity;
+
+    protected string $activityModule = 'fund_disbursement';
+
     protected $table = 'fund_disbursements';
     protected $keyType = 'string';
     public $incrementing = false;
