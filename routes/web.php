@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Donors\SearchController;
 use App\Http\Controllers\Donors\CampaignController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Donors\ProfileController;
 use App\Http\Controllers\Donors\VisitController;
 use App\Http\Controllers\Organizations\CampaignController as OrganizationCampaignController;
 use App\Http\Controllers\Organizations\OrganizationDashboardController;
@@ -324,6 +325,10 @@ Route::prefix('organisasi')
 
         Route::post('/profil/galeri', [OrganizationGalleryController::class, 'store'])
             ->name('profil.galeri.store');
+
+
+        Route::post('/profil/foto', [ProfileController::class, 'updatePhoto'])
+            ->name('profil.foto');
 
 
         /*

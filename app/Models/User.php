@@ -35,6 +35,18 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
     ];
+    /** URL foto profil (path storage atau URL penuh), null jika belum ada foto. */
+    public function profilePhotoUrl(): ?string
+    {
+        if (!$this->profile_photo) {
+            return null;
+        }
+
+        return filter_var($this->profile_photo, FILTER_VALIDATE_URL)
+            ? $this->profile_photo
+            : asset('storage/' . ltrim($this->profile_photo, '/'));
+    }
+
     public function adminProfile()
     {
         return $this->hasOne(Admin::class, 'user_id');

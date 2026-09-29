@@ -1,357 +1,103 @@
-<header class="bg-white border-b border-gray-100 w-full sticky top-0 z-50">
+@php
+    $navItems = [
+        'dashboard' => ['label' => 'Dashboard', 'route' => 'organisasi.dashboard'],
+        'kampanye'  => ['label' => 'Kampanye',  'route' => 'organisasi.kampanye'],
+        'donasi'    => ['label' => 'Donasi',    'route' => 'organisasi.donasi'],
+        'kunjungan' => ['label' => 'Kunjungan', 'route' => 'organisasi.kunjungan'],
+        'laporan'   => ['label' => 'Laporan',   'route' => 'organisasi.laporan'],
+    ];
 
-    <div
-        class="w-full
-               px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24
-               h-[124px]
-               flex items-center justify-between"
-    >
+    $active = $activeNav ?? '';
+    $orgName = auth()->user()?->organization?->nama_lembaga ?? auth()->user()?->nama ?? 'Organisasi';
+    // Foto profil dari users.profile_photo (path storage atau URL penuh); jika kosong tampilkan inisial nama user.
+    $profilePhotoUrl = auth()->user()?->profilePhotoUrl();
+    $userInitials = collect(preg_split('/\s+/', trim(auth()->user()?->nama ?? $orgName)))
+        ->filter()
+        ->take(2)
+        ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))
+        ->implode('');
 
-        {{-- =====================================================
-            LOGO
-        ===================================================== --}}
-        <a
-            href="{{ route('organisasi.dashboard') }}"
-            class="flex items-center gap-4 shrink-0"
-        >
+    $hasUnreadNotification = auth()->check()
+        && \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->exists();
+@endphp
 
-            <div
-                class="w-[68px]
-                       h-[68px]
-                       rounded-full
-                       bg-[#08703F]
-                       text-white
-                       flex items-center
-                       justify-center"
-            >
-                <i class="fa-solid fa-hand-holding-heart text-[30px]"></i>
+<header class="w-full bg-white border-b border-gray-100 sticky top-0 z-30 shadow-2xs">
+    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+
+        {{-- LOGO --}}
+        <a href="{{ route('organisasi.dashboard') }}" class="flex items-center gap-2.5">
+            <div class="flex flex-col leading-tight">
+                <img src="{{ asset('images/logo.png') }}" alt="Rangkul Logo" class="h-11 w-auto">
             </div>
-
-
-            <div class="hidden sm:block">
-
-                <p class="text-[34px] leading-none font-bold text-[#08703F]">
-                    Rangkul.com
-                </p>
-
-                <p class="mt-1 text-[15px] text-gray-500">
-                    Donation Platform
-                </p>
-
-            </div>
-
         </a>
 
-
-
-        {{-- =====================================================
-            DESKTOP NAVIGATION
-        ===================================================== --}}
-        <nav
-            class="hidden lg:flex
-                   items-center
-                   gap-10 xl:gap-14
-                   text-[22px] xl:text-[23px]
-                   font-semibold"
-        >
-
-            <a
-                href="{{ route('organisasi.dashboard') }}"
-                class="relative py-4 transition
-                       {{ ($activeNav ?? '') === 'dashboard'
-                            ? 'text-[#08703F]'
-                            : 'text-gray-900 hover:text-[#08703F]' }}"
-            >
-                Dashboard
-
-                @if (($activeNav ?? '') === 'dashboard')
-                    <span
-                        class="absolute
-                               left-0 right-0
-                               -bottom-1
-                               h-[4px]
-                               bg-[#08703F]
-                               rounded-full"
-                    ></span>
-                @endif
-            </a>
-
-
-            <a
-                href="{{ route('organisasi.kampanye') }}"
-                class="relative py-4 transition
-                       {{ ($activeNav ?? '') === 'kampanye'
-                            ? 'text-[#08703F]'
-                            : 'text-gray-900 hover:text-[#08703F]' }}"
-            >
-                Kampanye
-
-                @if (($activeNav ?? '') === 'kampanye')
-                    <span
-                        class="absolute
-                               left-0 right-0
-                               -bottom-1
-                               h-[4px]
-                               bg-[#08703F]
-                               rounded-full"
-                    ></span>
-                @endif
-            </a>
-
-
-            <a
-                href="{{ route('organisasi.donasi') }}"
-                class="relative py-4 transition
-                       {{ ($activeNav ?? '') === 'donasi'
-                            ? 'text-[#08703F]'
-                            : 'text-gray-900 hover:text-[#08703F]' }}"
-            >
-                Donasi
-
-                @if (($activeNav ?? '') === 'donasi')
-                    <span
-                        class="absolute
-                               left-0 right-0
-                               -bottom-1
-                               h-[4px]
-                               bg-[#08703F]
-                               rounded-full"
-                    ></span>
-                @endif
-            </a>
-
-
-            <a
-                href="{{ route('organisasi.kunjungan') }}"
-                class="relative py-4 transition
-                       {{ ($activeNav ?? '') === 'kunjungan'
-                            ? 'text-[#08703F]'
-                            : 'text-gray-900 hover:text-[#08703F]' }}"
-            >
-                Kunjungan
-
-                @if (($activeNav ?? '') === 'kunjungan')
-                    <span
-                        class="absolute
-                               left-0 right-0
-                               -bottom-1
-                               h-[4px]
-                               bg-[#08703F]
-                               rounded-full"
-                    ></span>
-                @endif
-            </a>
-
-
-            <a
-                href="{{ route('organisasi.laporan') }}"
-                class="relative py-4 transition
-                       {{ ($activeNav ?? '') === 'laporan'
-                            ? 'text-[#08703F]'
-                            : 'text-gray-900 hover:text-[#08703F]' }}"
-            >
-                Laporan
-
-                @if (($activeNav ?? '') === 'laporan')
-                    <span
-                        class="absolute
-                               left-0 right-0
-                               -bottom-1
-                               h-[4px]
-                               bg-[#08703F]
-                               rounded-full"
-                    ></span>
-                @endif
-            </a>
-
+        {{-- DESKTOP NAVIGATION --}}
+        <nav class="hidden md:flex items-center gap-8 text-[15px] font-medium text-gray-700">
+            @foreach ($navItems as $key => $item)
+                <a href="{{ route($item['route']) }}"
+                    class="{{ $active === $key ? 'text-[#05522d] font-semibold' : 'text-gray-700 hover:text-[#05522d]' }}">{{ $item['label'] }}</a>
+            @endforeach
         </nav>
 
+        {{-- RIGHT SIDE --}}
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-6">
 
+                {{-- Notifikasi --}}
+                <a href="{{ route('organisasi.notifikasi') }}"
+                    class="relative p-1 transition-colors {{ $active === 'notifikasi' ? 'text-[#05522d]' : 'text-gray-500 hover:text-[#05522d]' }}"
+                    aria-label="Notifikasi">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                        stroke="currentColor" class="w-[26px] h-[26px]">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                    </svg>
+                    @if ($hasUnreadNotification)
+                        <span class="absolute top-1 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                    @endif
+                </a>
 
-        {{-- =====================================================
-            RIGHT SIDE
-        ===================================================== --}}
-        <div class="flex items-center gap-7">
+                {{-- Profil --}}
+                <a href="{{ route('organisasi.profil') }}"
+                    class="relative flex items-center gap-3 border-l border-gray-200 pl-6">
+                    @if ($profilePhotoUrl)
+                        <img class="h-10 w-10 rounded-full object-cover border-2 transition-all shadow-sm {{ $active === 'profil' ? 'border-[#05522d]' : 'border-transparent hover:border-[#05522d]' }}"
+                            src="{{ $profilePhotoUrl }}"
+                            alt="Profil {{ $orgName }}">
+                    @else
+                        <span class="h-10 w-10 rounded-full flex items-center justify-center bg-[#d8f0e2] text-[#05522d] text-[14px] font-bold border-2 transition-all shadow-sm {{ $active === 'profil' ? 'border-[#05522d]' : 'border-transparent hover:border-[#05522d]' }}"
+                            title="{{ $orgName }}" aria-label="Profil {{ $orgName }}">{{ $userInitials ?: 'O' }}</span>
+                    @endif
+                </a>
 
-            {{-- =================================================
-                NOTIFICATION - BISA DIKLIK
-            ================================================= --}}
-            <a
-                href="{{ route('organisasi.notifikasi') }}"
-                title="Notifikasi"
-                class="relative
-                       w-[58px]
-                       h-[58px]
-                       rounded-full
-                       flex items-center
-                       justify-center
-                       text-gray-700
-                       hover:text-[#08703F]
-                       hover:bg-[#EAF7F1]
-                       transition"
-            >
-                <i class="fa-regular fa-bell text-[31px]"></i>
+                {{-- Keluar --}}
+                <form method="POST" action="{{ route('logout') }}"
+                    onsubmit="localStorage.removeItem('auth_token'); localStorage.removeItem('auth_user');">
+                    @csrf
+                    <button type="submit" class="p-1 text-gray-500 hover:text-red-600 transition-colors"
+                        aria-label="Keluar" title="Keluar">
+                        <i class="fa-solid fa-right-from-bracket text-[20px]"></i>
+                    </button>
+                </form>
 
-                {{-- DOT NOTIFIKASI --}}
-                <span
-                    class="absolute
-                           top-[9px]
-                           right-[10px]
-                           w-[10px]
-                           h-[10px]
-                           rounded-full
-                           bg-red-500
-                           border-2
-                           border-white"
-                ></span>
-            </a>
+                {{-- MOBILE MENU --}}
+                <details class="relative md:hidden">
+                    <summary class="list-none cursor-pointer p-1 text-gray-700 hover:text-[#05522d]" aria-label="Menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                            stroke="currentColor" class="w-[26px] h-[26px]">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                    </summary>
 
-
-
-            {{-- =================================================
-                PROFILE
-            ================================================= --}}
-            <a
-                href="{{ route('organisasi.profil') }}"
-                title="Profil Panti"
-                class="w-[68px]
-                       h-[68px]
-                       rounded-full
-                       overflow-hidden
-                       border-[3px]
-                       transition
-                       {{ ($activeNav ?? '') === 'profil'
-                            ? 'border-[#08703F] ring-4 ring-[#08703F]/10'
-                            : 'border-gray-200 hover:border-[#08703F]' }}"
-            >
-
-                <img
-                    src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=300&auto=format&fit=crop"
-                    alt="Profile"
-                    class="w-full h-full object-cover"
-                >
-
-            </a>
-
-
-
-            {{-- =================================================
-                MOBILE MENU
-            ================================================= --}}
-            <details class="relative lg:hidden">
-
-                <summary
-                    class="list-none
-                           cursor-pointer
-                           text-[#08703F]
-                           text-[30px]"
-                >
-                    <i class="fa-solid fa-bars"></i>
-                </summary>
-
-
-                <div
-                    class="absolute
-                           right-0
-                           top-[55px]
-                           w-[290px]
-                           bg-white
-                           rounded-[18px]
-                           shadow-xl
-                           border border-gray-100
-                           p-5"
-                >
-
-                    <div class="flex flex-col text-[20px] font-semibold">
-
-                        <a
-                            href="{{ route('organisasi.dashboard') }}"
-                            class="px-5 py-4 rounded-xl
-                                   {{ ($activeNav ?? '') === 'dashboard'
-                                        ? 'bg-[#EAF7F1] text-[#08703F]'
-                                        : 'text-gray-800 hover:bg-gray-50' }}"
-                        >
-                            Dashboard
-                        </a>
-
-
-                        <a
-                            href="{{ route('organisasi.kampanye') }}"
-                            class="px-5 py-4 rounded-xl
-                                   {{ ($activeNav ?? '') === 'kampanye'
-                                        ? 'bg-[#EAF7F1] text-[#08703F]'
-                                        : 'text-gray-800 hover:bg-gray-50' }}"
-                        >
-                            Kampanye
-                        </a>
-
-
-                        <a
-                            href="{{ route('organisasi.donasi') }}"
-                            class="px-5 py-4 rounded-xl
-                                   {{ ($activeNav ?? '') === 'donasi'
-                                        ? 'bg-[#EAF7F1] text-[#08703F]'
-                                        : 'text-gray-800 hover:bg-gray-50' }}"
-                        >
-                            Donasi
-                        </a>
-
-
-                        <a
-                            href="{{ route('organisasi.kunjungan') }}"
-                            class="px-5 py-4 rounded-xl
-                                   {{ ($activeNav ?? '') === 'kunjungan'
-                                        ? 'bg-[#EAF7F1] text-[#08703F]'
-                                        : 'text-gray-800 hover:bg-gray-50' }}"
-                        >
-                            Kunjungan
-                        </a>
-
-
-                        <a
-                            href="{{ route('organisasi.laporan') }}"
-                            class="px-5 py-4 rounded-xl
-                                   {{ ($activeNav ?? '') === 'laporan'
-                                        ? 'bg-[#EAF7F1] text-[#08703F]'
-                                        : 'text-gray-800 hover:bg-gray-50' }}"
-                        >
-                            Laporan
-                        </a>
-
-
-                        <div class="h-px bg-gray-200 my-3"></div>
-
-
-                        <a
-                            href="{{ route('organisasi.notifikasi') }}"
-                            class="px-5 py-4 rounded-xl
-                                   text-gray-800
-                                   hover:bg-gray-50"
-                        >
-                            <i class="fa-regular fa-bell mr-3"></i>
-                            Notifikasi
-                        </a>
-
-
-                        <a
-                            href="{{ route('organisasi.profil') }}"
-                            class="px-5 py-4 rounded-xl
-                                   {{ ($activeNav ?? '') === 'profil'
-                                        ? 'bg-[#EAF7F1] text-[#08703F]'
-                                        : 'text-gray-800 hover:bg-gray-50' }}"
-                        >
-                            <i class="fa-regular fa-user mr-3"></i>
-                            Profil Panti
-                        </a>
-
+                    <div class="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg border border-gray-100 p-2 text-[15px] font-medium">
+                        @foreach ($navItems as $key => $item)
+                            <a href="{{ route($item['route']) }}"
+                                class="block px-4 py-2.5 rounded-lg {{ $active === $key ? 'bg-[#d8f0e2] text-[#05522d] font-semibold' : 'text-gray-700 hover:bg-gray-50' }}">{{ $item['label'] }}</a>
+                        @endforeach
                     </div>
+                </details>
 
-                </div>
-
-            </details>
-
+            </div>
         </div>
-
     </div>
-
 </header>

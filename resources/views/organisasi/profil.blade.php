@@ -20,7 +20,7 @@
 
     <div class="relative z-10 h-full flex items-center">
 
-        <div class="w-full px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24">
+        <div class="w-full org-container px-6 sm:px-8 lg:px-12">
 
             <h1
                 class="text-white
@@ -54,9 +54,10 @@
 {{-- =========================================================
     MAIN CONTENT
 ========================================================= --}}
-<main
+<form
+    id="profileForm"
     class="w-full
-           px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24
+           org-container px-6 sm:px-8 lg:px-12
            py-20
            space-y-12"
 >
@@ -113,6 +114,7 @@
         >
 
             {{-- FOTO UPLOAD --}}
+            @php($profilePhotoUrl = $user->profilePhotoUrl())
             <div>
 
                 <label
@@ -120,6 +122,7 @@
                     class="relative
                            w-full
                            h-[470px]
+                           overflow-hidden
                            bg-[#ECFAF7]
                            border-2
                            border-[#7B9F94]
@@ -133,8 +136,25 @@
                            transition"
                 >
 
+                    <img
+                        id="fotoPreview"
+                        src="{{ $profilePhotoUrl }}"
+                        alt="Foto profil {{ $organization->nama_lembaga }}"
+                        class="{{ $profilePhotoUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full object-cover"
+                    >
+
+                    {{-- Lapisan petunjuk: selalu tampil jika belum ada foto, muncul saat hover jika sudah ada --}}
                     <div
-                        class="w-[80px]
+                        id="fotoHint"
+                        class="absolute inset-0
+                               flex flex-col items-center justify-center
+                               transition
+                               {{ $profilePhotoUrl ? 'bg-black/45 opacity-0 hover:opacity-100 text-white' : '' }}"
+                    >
+
+                    <div
+                        class="relative
+                               w-[80px]
                                h-[80px]
                                rounded-full
                                bg-[#D6F0E7]
@@ -148,24 +168,30 @@
 
 
                     <p
-                        class="mt-6
+                        id="fotoTitle"
+                        class="relative
+                               mt-6
                                text-[28px]
                                font-bold
-                               text-gray-950"
+                               {{ $profilePhotoUrl ? 'text-white' : 'text-gray-950' }}"
                     >
-                        Unduh Foto
+                        {{ $profilePhotoUrl ? 'Ganti Foto Profil' : 'Unggah Foto Profil' }}
                     </p>
 
 
                     <p
-                        class="mt-3
+                        id="fotoCaption"
+                        class="relative
+                               mt-3
                                px-8
                                text-center
                                text-[20px]
-                               text-gray-500"
+                               {{ $profilePhotoUrl ? 'text-white/90' : 'text-gray-500' }}"
                     >
-                        Klik untuk memilih file dengan tipe JPG, PNG
+                        Klik untuk memilih file dengan tipe JPG, PNG (maks. 2 MB).
                     </p>
+
+                    </div>
 
 
                     <input
@@ -200,7 +226,10 @@
 
                     <input
                         id="namaPanti"
+                        name="nama_lembaga"
                         type="text"
+                        value="{{ $organization->nama_lembaga }}"
+                        required
                         class="w-full
                                h-[82px]
                                bg-white
@@ -236,9 +265,11 @@
                     <input
                         id="emailPanti"
                         type="email"
+                        value="{{ $user->email }}"
+                        readonly
                         class="w-full
                                h-[82px]
-                               bg-white
+                               bg-[#F3F5F4]
                                border border-gray-300
                                rounded-[16px]
                                px-6
@@ -270,7 +301,10 @@
 
                     <input
                         id="teleponPanti"
+                        name="no_telp"
                         type="text"
+                        value="{{ $organization->no_telp }}"
+                        required
                         class="w-full
                                h-[82px]
                                bg-white
@@ -305,7 +339,10 @@
 
                     <input
                         id="alamatPanti"
+                        name="alamat"
                         type="text"
+                        value="{{ $organization->alamat }}"
+                        required
                         class="w-full
                                h-[82px]
                                bg-white
@@ -362,6 +399,8 @@
 
             <textarea
                 id="deskripsiPanti"
+                name="deskripsi"
+                required
                 class="w-full
                        h-[330px]
                        bg-white
@@ -377,7 +416,7 @@
                        focus:border-[#08703F]
                        focus:ring-2
                        focus:ring-[#08703F]/10"
-            ></textarea>
+            >{{ $organization->deskripsi }}</textarea>
 
         </div>
 
@@ -458,7 +497,10 @@
 
                         <input
                             id="jumlahAnak"
+                            name="jumlah_anak"
                             type="number"
+                            min="0"
+                            value="{{ $organization->jumlah_anak }}"
                             class="w-full
                                    h-[82px]
                                    bg-white
@@ -520,7 +562,11 @@
 
                 <input
                     id="tahunBerdiri"
+                    name="tahun_berdiri"
                     type="number"
+                    min="1"
+                    max="{{ now()->year }}"
+                    value="{{ $organization->tahun_berdiri }}"
                     placeholder="Masukan tahun"
                     class="w-full
                            h-[82px]
@@ -558,61 +604,21 @@
                 </label>
 
 
-                <div class="relative">
-
-                    <select
-                        id="namaBank"
-                        class="w-full
-                               h-[82px]
-                               appearance-none
-                               bg-white
-                               border border-gray-300
-                               rounded-[16px]
-                               px-6
-                               pr-16
-                               text-[23px]
-                               text-[#A9CEC0]
-                               outline-none
-                               focus:border-[#08703F]
-                               focus:ring-2
-                               focus:ring-[#08703F]/10"
-                    >
-
-                        <option value="">
-                            Silahkan pilih
-                        </option>
-
-                        <option value="bca">
-                            BCA
-                        </option>
-
-                        <option value="bni">
-                            BNI
-                        </option>
-
-                        <option value="bri">
-                            BRI
-                        </option>
-
-                        <option value="mandiri">
-                            Mandiri
-                        </option>
-
-                    </select>
-
-
-                    <i
-                        class="fa-solid fa-chevron-down
-                               absolute
-                               right-6
-                               top-1/2
-                               -translate-y-1/2
-                               text-[20px]
-                               text-gray-600
-                               pointer-events-none"
-                    ></i>
-
-                </div>
+                <input
+                    id="namaBank"
+                    type="text"
+                    readonly
+                    value="{{ $bankAccount?->bank ?? '-' }}"
+                    class="w-full
+                           h-[82px]
+                           bg-[#F3F5F4]
+                           border border-gray-300
+                           rounded-[16px]
+                           px-6
+                           text-[23px]
+                           text-gray-900
+                           outline-none"
+                >
 
             </div>
 
@@ -638,9 +644,11 @@
                 <input
                     id="nomorRekening"
                     type="text"
+                    readonly
+                    value="{{ $bankAccount?->no_rekening ?? '-' }}"
                     class="w-full
                            h-[82px]
-                           bg-white
+                           bg-[#F3F5F4]
                            border border-gray-300
                            rounded-[16px]
                            px-6
@@ -676,9 +684,11 @@
                 <input
                     id="pemilikRekening"
                     type="text"
+                    readonly
+                    value="{{ $bankAccount?->pemilik_rekening ?? '-' }}"
                     class="w-full
                            h-[82px]
-                           bg-white
+                           bg-[#F3F5F4]
                            border border-gray-300
                            rounded-[16px]
                            px-6
@@ -711,53 +721,21 @@
                 </label>
 
 
-                <div class="relative">
-
-                    <select
-                        id="statusPanti"
-                        class="w-full
-                               h-[82px]
-                               appearance-none
-                               bg-white
-                               border border-gray-300
-                               rounded-[16px]
-                               px-6
-                               pr-16
-                               text-[23px]
-                               text-[#A9CEC0]
-                               outline-none
-                               focus:border-[#08703F]
-                               focus:ring-2
-                               focus:ring-[#08703F]/10"
-                    >
-
-                        <option value="">
-                            Silahkan pilih
-                        </option>
-
-                        <option value="aktif">
-                            Aktif
-                        </option>
-
-                        <option value="nonaktif">
-                            Nonaktif
-                        </option>
-
-                    </select>
-
-
-                    <i
-                        class="fa-solid fa-chevron-down
-                               absolute
-                               right-6
-                               top-1/2
-                               -translate-y-1/2
-                               text-[20px]
-                               text-gray-600
-                               pointer-events-none"
-                    ></i>
-
-                </div>
+                <input
+                    id="statusPanti"
+                    type="text"
+                    readonly
+                    value="{{ $organization->verification_status === 'disetujui' ? 'Terverifikasi' : ucfirst($organization->verification_status) }}"
+                    class="w-full
+                           h-[82px]
+                           bg-[#F3F5F4]
+                           border border-gray-300
+                           rounded-[16px]
+                           px-6
+                           text-[23px]
+                           text-gray-900
+                           outline-none"
+                >
 
             </div>
 
@@ -768,10 +746,15 @@
         {{-- =================================================
             BUTTON SIMPAN
         ================================================= --}}
+        <p class="mt-10 text-[20px] text-gray-500">
+            Email dan data rekening tidak dapat diubah dari halaman ini karena memerlukan verifikasi ulang oleh admin.
+        </p>
+
         <div class="flex justify-end mt-14">
 
             <button
-                type="button"
+                type="submit"
+                id="saveProfile"
                 class="min-w-[220px]
                        h-[76px]
                        bg-[#08703F]
@@ -789,6 +772,79 @@
 
     </section>
 
-</main>
+</form>
 
 @endsection
+
+
+@push('scripts')
+<script>
+    try {
+        if (sessionStorage.getItem('profileSaved')) {
+            sessionStorage.removeItem('profileSaved');
+            orgFlash('Profil berhasil disimpan.');
+        }
+    } catch (e) {}
+
+    document.getElementById('profileForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const button = document.getElementById('saveProfile');
+        const payload = Object.fromEntries(
+            ['nama_lembaga', 'no_telp', 'alamat', 'deskripsi', 'jumlah_anak', 'tahun_berdiri']
+                .map((field) => [field, this.elements[field].value.trim()])
+                .map(([field, value]) => [field, value === '' && ['jumlah_anak', 'tahun_berdiri'].includes(field) ? null : value])
+        );
+
+        button.disabled = true;
+
+        try {
+            if (photoInput.files[0]) {
+                const photoData = new FormData();
+                photoData.append('profile_photo', photoInput.files[0]);
+                await orgRequest('{{ route('organisasi.profil.foto') }}', { body: photoData });
+            }
+
+            await orgRequest('{{ route('organisasi.profil.update') }}', { method: 'PUT', body: payload });
+
+            // Muat ulang agar foto di navbar ikut diperbarui; pesan sukses ditampilkan setelah reload.
+            try { sessionStorage.setItem('profileSaved', '1'); } catch (e) {}
+            window.location.reload();
+        } catch (error) {
+            orgFlash(error.message, 'error');
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+
+    const photoInput = document.getElementById('fotoPanti');
+
+    // Pratinjau foto yang dipilih; file baru diunggah saat tombol Simpan ditekan.
+    photoInput.addEventListener('change', function () {
+        const file = this.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            orgFlash('Ukuran foto maksimal 2 MB.', 'error');
+            this.value = '';
+            return;
+        }
+
+        const preview = document.getElementById('fotoPreview');
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove('hidden');
+
+        const hint = document.getElementById('fotoHint');
+        hint.classList.add('bg-black/45', 'opacity-0', 'hover:opacity-100', 'text-white');
+        document.getElementById('fotoTitle').classList.replace('text-gray-950', 'text-white');
+        document.getElementById('fotoTitle').textContent = 'Ganti Foto Profil';
+        document.getElementById('fotoCaption').classList.replace('text-gray-500', 'text-white/90');
+
+        orgFlash('Foto dipilih. Tekan Simpan untuk menyimpan perubahan.');
+    });
+</script>
+@endpush
