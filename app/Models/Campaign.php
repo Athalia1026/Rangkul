@@ -17,7 +17,7 @@ class Campaign extends Model
 
     protected string $activityModule = 'campaign';
 
-    use HasFactory, HasUuids, SoftDeletes, \Laravel\Scout\Searchable;
+    use HasFactory, HasUuids, SoftDeletes, Concerns\SafeSearchable;
 
     protected $table = 'campaigns';
 

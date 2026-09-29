@@ -14,7 +14,7 @@ class Organization extends Model
 
     protected string $activityModule = 'organization';
 
-    use HasUuids, SoftDeletes, \Laravel\Scout\Searchable;
+    use HasUuids, SoftDeletes, Concerns\SafeSearchable;
 
     protected $casts = [
         'is_verified' => 'boolean',
