@@ -1,3 +1,5 @@
+@use('App\Support\OrgFormat')
+
 @extends('layouts.organization', [
     'title' => 'Ajukan Pencairan Dana',
     'activeNav' => 'kampanye'
@@ -7,7 +9,7 @@
 
 <main
     class="w-full
-           px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24
+           org-container px-6 sm:px-8 lg:px-12
            pt-16 pb-24"
 >
 
@@ -63,7 +65,7 @@
                            font-bold
                            text-[#08703F]"
                 >
-                    Rp.200.000
+                    {{ OrgFormat::rupiah($campaign->saldoTersisa()) }}
                 </span>
 
             </div>
@@ -73,7 +75,7 @@
 
         {{-- KEMBALI --}}
         <a
-            href="{{ route('organisasi.kampanye.detail') }}"
+            href="{{ route('organisasi.kampanye.detail', ['campaign' => $campaign->id, 'tab' => 'pencairan']) }}"
             class="min-w-[210px]
                    h-[72px]
                    inline-flex
@@ -92,6 +94,15 @@
 
     </section>
 
+
+    <p class="mt-4 text-[24px] text-gray-500 font-medium">
+        Kampanye: {{ $campaign->judul }}
+    </p>
+
+
+    <form id="disbursementForm" enctype="multipart/form-data">
+
+    <input type="hidden" name="id_campaign" value="{{ $campaign->id }}">
 
     {{-- =====================================================
         FORM CARD
@@ -125,7 +136,11 @@
 
                 <input
                     id="nominal"
+                    name="nominal_diajukan"
                     type="text"
+                    inputmode="numeric"
+                    placeholder="Contoh : 100000"
+                    required
                     class="w-full
                            h-[82px]
                            bg-white
@@ -143,23 +158,26 @@
             </div>
 
 
-            {{-- TANGGAL --}}
-            <div class="max-w-[520px]">
+            {{-- ALOKASI DANA --}}
+            <div>
 
                 <label
-                    for="tanggal"
+                    for="alokasi"
                     class="block
                            mb-4
                            text-[24px]
                            font-semibold
                            text-[#08703F]"
                 >
-                    Tanggal Pengajuan
+                    Nama Alokasi
                 </label>
 
                 <input
-                    id="tanggal"
-                    type="date"
+                    id="alokasi"
+                    name="alokasi_dana"
+                    type="text"
+                    placeholder="Contoh : Pembelian Beras"
+                    required
                     class="w-full
                            h-[82px]
                            bg-white
@@ -194,9 +212,11 @@
                 <input
                     id="rekening"
                     type="text"
+                    readonly
+                    value="{{ $bankAccount ? $bankAccount->bank . ' - ' . $bankAccount->no_rekening . ' a.n. ' . $bankAccount->pemilik_rekening : 'Belum ada rekening terdaftar' }}"
                     class="w-full
                            h-[82px]
-                           bg-white
+                           bg-[#F3F5F4]
                            border border-gray-300
                            rounded-[16px]
                            px-6
@@ -207,6 +227,12 @@
                            focus:ring-2
                            focus:ring-[#08703F]/10"
                 >
+
+                @if ($bankAccount && $bankAccount->status_verifikasi !== 'diterima')
+                    <p class="mt-3 text-[20px] text-red-500">
+                        Rekening belum diverifikasi admin, pencairan belum dapat diajukan.
+                    </p>
+                @endif
 
             </div>
 
@@ -227,6 +253,8 @@
 
                 <textarea
                     id="alasan"
+                    name="alasan"
+                    required
                     class="w-full
                            min-h-[340px]
                            bg-white
@@ -295,7 +323,7 @@
                                font-semibold
                                text-[#08703F]"
                     >
-                        Unduh Tampilan Campaign
+                        Unggah Lampiran
                     </h2>
 
 
@@ -304,15 +332,26 @@
                                text-[22px]
                                text-gray-700"
                     >
-                        Klik untuk memilih file dengan tipe JPG, PNG
+                        Klik untuk memilih file dengan tipe PDF, JPG, PNG (maks. 2 MB)
                     </p>
+
+
+                    <p
+                        id="lampiranName"
+                        class="mt-4
+                               text-[21px]
+                               font-semibold
+                               text-gray-900"
+                    ></p>
 
 
                     <input
                         id="lampiran"
+                        name="lampiran"
                         type="file"
-                        accept=".jpg,.jpeg,.png"
+                        accept=".pdf,.jpg,.jpeg,.png"
                         class="hidden"
+                        onchange="document.getElementById('lampiranName').textContent = this.files[0]?.name ?? ''"
                     >
 
                 </label>
@@ -338,7 +377,7 @@
 
         {{-- BATAL --}}
         <a
-            href="{{ route('organisasi.kampanye.detail') }}"
+            href="{{ route('organisasi.kampanye.detail', ['campaign' => $campaign->id, 'tab' => 'pencairan']) }}"
             class="min-w-[220px]
                    h-[76px]
                    inline-flex
@@ -363,7 +402,8 @@
 
         {{-- AJUKAN --}}
         <button
-            type="button"
+            type="submit"
+            id="submitDisbursement"
             class="min-w-[300px]
                    h-[76px]
                    bg-[#08703F]
@@ -372,6 +412,7 @@
                    text-[24px]
                    font-semibold
                    hover:bg-[#065D35]
+                   disabled:opacity-60
                    transition"
         >
             Ajukan Verifikasi
@@ -379,6 +420,35 @@
 
     </section>
 
+    </form>
+
 </main>
 
 @endsection
+
+
+@push('scripts')
+<script>
+    document.getElementById('disbursementForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const button = document.getElementById('submitDisbursement');
+        const formData = new FormData(this);
+        formData.set('nominal_diajukan', (formData.get('nominal_diajukan') || '').replace(/\D/g, ''));
+
+        if (!formData.get('lampiran')?.size) {
+            formData.delete('lampiran');
+        }
+
+        button.disabled = true;
+
+        try {
+            await orgRequest('{{ route('organisasi.kampanye.pencairan.store') }}', { body: formData });
+            window.location.href = '{{ route('organisasi.kampanye.detail', ['campaign' => $campaign->id, 'tab' => 'pencairan']) }}';
+        } catch (error) {
+            orgFlash(error.message, 'error');
+            button.disabled = false;
+        }
+    });
+</script>
+@endpush

@@ -11,6 +11,7 @@ use App\Models\OrganizationDocument;
 use App\Models\BankAccount;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 
@@ -148,6 +149,35 @@ class AuthController extends Controller
                 'message' => $e->validator->errors()->first(),
             ], 401);
         }
+    }
+
+    /**
+     * Login dari halaman web: respons JSON sama dengan API login, dan untuk akun
+     * organisasi juga membuka sesi web agar halaman Blade organisasi bisa membaca data user.
+     */
+    public function loginWeb(Request $request)
+    {
+        $response = $this->login($request);
+
+        if ($response->getStatusCode() === 200) {
+            $user = User::where('email', $request->input('email'))->first();
+
+            if ($user?->account_type === 'organisasi') {
+                Auth::guard('web')->login($user);
+                $request->session()->regenerate();
+            }
+        }
+
+        return $response;
+    }
+
+    public function logoutWeb(Request $request)
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::route('login');
     }
 
     public function me(Request $request)

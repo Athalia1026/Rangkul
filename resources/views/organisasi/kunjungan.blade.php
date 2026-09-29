@@ -1,3 +1,5 @@
+@use('App\Support\OrgFormat')
+
 @extends('layouts.organization', [
     'title' => 'Kunjungan Organisasi',
     'activeNav' => 'kunjungan'
@@ -20,7 +22,7 @@
 
     <div class="relative z-10 h-full flex items-center">
 
-        <div class="w-full px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24">
+        <div class="w-full org-container px-6 sm:px-8 lg:px-12">
 
             <h1
                 class="text-white
@@ -56,7 +58,7 @@
 ========================================================= --}}
 <main
     class="w-full
-           px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24
+           org-container px-6 sm:px-8 lg:px-12
            py-20"
 >
 
@@ -71,7 +73,11 @@
                px-10 py-10"
     >
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <form
+            method="GET"
+            action="{{ route('organisasi.kunjungan') }}"
+            class="grid grid-cols-1 lg:grid-cols-3 gap-8"
+        >
 
             {{-- SEARCH --}}
             <div>
@@ -97,7 +103,9 @@
 
                     <input
                         id="searchInstansi"
+                        name="q"
                         type="text"
+                        value="{{ request('q') }}"
                         placeholder="Cari nama instansi..."
                         class="w-full
                                h-[82px]
@@ -138,6 +146,8 @@
 
                     <select
                         id="statusKunjungan"
+                        name="status"
+                        onchange="this.form.submit()"
                         class="w-full
                                h-[82px]
                                appearance-none
@@ -152,10 +162,12 @@
                                focus:ring-2
                                focus:ring-[#08703F]/10"
                     >
-                        <option value="">Silakan pilih</option>
-                        <option value="menunggu">Menunggu</option>
-                        <option value="diterima">Diterima</option>
-                        <option value="ditolak">Ditolak</option>
+                        <option value="">Semua status</option>
+                        @foreach (\App\Http\Controllers\Organizations\OrganizationVisitController::STATUS_FILTERS as $status)
+                            <option value="{{ $status }}" @selected(request('status') === $status)>
+                                {{ OrgFormat::statusLabel('visit', $status) }}
+                            </option>
+                        @endforeach
                     </select>
 
                     <i
@@ -187,7 +199,10 @@
 
                 <input
                     id="tanggalKunjungan"
+                    name="tanggal"
                     type="date"
+                    value="{{ request('tanggal') }}"
+                    onchange="this.form.submit()"
                     class="w-full
                            h-[82px]
                            bg-white
@@ -204,7 +219,7 @@
 
             </div>
 
-        </div>
+        </form>
 
     </section>
 
@@ -216,12 +231,12 @@
     <section class="mt-16">
 
         <h2
-            class="text-[50px]
-                   lg:text-[54px]
+            class="text-[35px]
+                   lg:text-[45px]
                    font-bold
                    text-[#16735F]"
         >
-            List Kunjungan
+            Daftar Kunjungan
         </h2>
 
 
@@ -266,316 +281,114 @@
                 {{-- BODY --}}
                 <tbody class="text-[23px] text-gray-900">
 
-                    {{-- ROW 1 --}}
-                    <tr class="hover:bg-[#F0F8F4] transition">
+                    @forelse ($visits as $visit)
+                        <tr class="hover:bg-[#F0F8F4] transition">
 
-                        <td class="px-7 py-7 text-center font-medium">
-                            John
-                        </td>
+                            <td class="px-7 py-7 text-center font-medium">
+                                {{ $visit->donor?->user?->nama ?? '-' }}
+                            </td>
 
-                        <td class="px-7 py-7 text-center">
-                            18 / 01 / 2026
-                        </td>
+                            <td class="px-7 py-7 text-center">
+                                {{ OrgFormat::date($visit->tanggal_kunjungan) }}
+                            </td>
 
-                        <td class="px-7 py-7 text-center">
-                            12
-                        </td>
+                            <td class="px-7 py-7 text-center">
+                                {{ $visit->pengunjung }}
+                            </td>
 
-                        <td class="px-7 py-7">
+                            <td class="px-7 py-7">
 
-                            <div class="flex items-center justify-center gap-4">
+                                <div class="flex items-center justify-center gap-4">
 
-                                <button
-                                    type="button"
-                                    class="w-[56px] h-[56px]
-                                           rounded-[14px]
-                                           bg-[#FBE7E7]
-                                           text-[#D94A4A]
-                                           hover:bg-[#D94A4A]
-                                           hover:text-white
-                                           flex items-center justify-center
-                                           text-[22px]
-                                           transition"
-                                >
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    class="w-[56px] h-[56px]
-                                           rounded-[14px]
-                                           bg-[#DDF0E9]
-                                           text-[#08703F]
-                                           hover:bg-[#08703F]
-                                           hover:text-white
-                                           flex items-center justify-center
-                                           text-[22px]
-                                           transition"
-                                >
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
+                                    @if ($visit->status === 'terkirim')
+                                        <button
+                                            type="button"
+                                            data-respond-url="{{ route('organisasi.kunjungan.respond', $visit->id) }}"
+                                            data-visit-status="ditolak"
+                                            data-visitor="{{ $visit->donor?->user?->nama ?? 'donatur' }}"
+                                            data-visit-date="{{ OrgFormat::longDate($visit->tanggal_kunjungan) }}"
+                                            aria-label="Tolak kunjungan"
+                                            class="w-[56px] h-[56px]
+                                                   rounded-[14px]
+                                                   bg-[#FBE7E7]
+                                                   text-[#D94A4A]
+                                                   hover:bg-[#D94A4A]
+                                                   hover:text-white
+                                                   flex items-center justify-center
+                                                   text-[22px]
+                                                   transition"
+                                        >
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
 
 
-                                <a
-                                    href="{{ route('organisasi.kunjungan.detail') }}"
-                                    class="min-w-[145px]
-                                           h-[56px]
-                                           inline-flex
-                                           items-center
-                                           justify-center
-                                           border-2 border-[#08703F]
-                                           text-[#08703F]
-                                           hover:bg-[#08703F]
-                                           hover:text-white
-                                           rounded-[14px]
-                                           px-7
-                                           text-[21px]
-                                           font-semibold
-                                           transition"
-                                >
-                                    Detail
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                    {{-- ROW 2 --}}
-                    <tr class="hover:bg-[#F0F8F4] transition">
-
-                        <td class="px-7 py-7 text-center font-medium">
-                            PT Maju
-                        </td>
-
-                        <td class="px-7 py-7 text-center">
-                            18 / 04 / 2026
-                        </td>
-
-                        <td class="px-7 py-7 text-center">
-                            8
-                        </td>
-
-                        <td class="px-7 py-7">
-
-                            <div class="flex items-center justify-center gap-4">
-
-                                <button
-                                    type="button"
-                                    class="w-[56px] h-[56px]
-                                           rounded-[14px]
-                                           bg-[#FBE7E7]
-                                           text-[#D94A4A]
-                                           hover:bg-[#D94A4A]
-                                           hover:text-white
-                                           flex items-center justify-center
-                                           text-[22px]
-                                           transition"
-                                >
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
+                                        <button
+                                            type="button"
+                                            data-respond-url="{{ route('organisasi.kunjungan.respond', $visit->id) }}"
+                                            data-visit-status="dikonfirmasi"
+                                            data-visitor="{{ $visit->donor?->user?->nama ?? 'donatur' }}"
+                                            data-visit-date="{{ OrgFormat::longDate($visit->tanggal_kunjungan) }}"
+                                            aria-label="Terima kunjungan"
+                                            class="w-[56px] h-[56px]
+                                                   rounded-[14px]
+                                                   bg-[#DDF0E9]
+                                                   text-[#08703F]
+                                                   hover:bg-[#08703F]
+                                                   hover:text-white
+                                                   flex items-center justify-center
+                                                   text-[22px]
+                                                   transition"
+                                        >
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                    @else
+                                        <span
+                                            class="inline-flex
+                                                   min-w-[125px]
+                                                   justify-center
+                                                   {{ OrgFormat::statusBadge('visit', $visit->status) }}
+                                                   px-5 py-3
+                                                   rounded-full
+                                                   text-[19px]
+                                                   font-semibold"
+                                        >
+                                            {{ OrgFormat::statusLabel('visit', $visit->status) }}
+                                        </span>
+                                    @endif
 
 
-                                <button
-                                    type="button"
-                                    class="w-[56px] h-[56px]
-                                           rounded-[14px]
-                                           bg-[#DDF0E9]
-                                           text-[#08703F]
-                                           hover:bg-[#08703F]
-                                           hover:text-white
-                                           flex items-center justify-center
-                                           text-[22px]
-                                           transition"
-                                >
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
+                                    <a
+                                        href="{{ route('organisasi.kunjungan.detail', $visit->id) }}"
+                                        class="min-w-[145px]
+                                               h-[56px]
+                                               inline-flex
+                                               items-center
+                                               justify-center
+                                               border-2 border-[#08703F]
+                                               text-[#08703F]
+                                               hover:bg-[#08703F]
+                                               hover:text-white
+                                               rounded-[14px]
+                                               px-7
+                                               text-[21px]
+                                               font-semibold
+                                               transition"
+                                    >
+                                        Detail
+                                    </a>
 
+                                </div>
 
-                                <a
-                                    href="{{ route('organisasi.kunjungan.detail') }}"
-                                    class="min-w-[145px]
-                                           h-[56px]
-                                           inline-flex
-                                           items-center
-                                           justify-center
-                                           border-2 border-[#08703F]
-                                           text-[#08703F]
-                                           hover:bg-[#08703F]
-                                           hover:text-white
-                                           rounded-[14px]
-                                           px-7
-                                           text-[21px]
-                                           font-semibold
-                                           transition"
-                                >
-                                    Detail
-                                </a>
+                            </td>
 
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                    {{-- ROW 3 --}}
-                    <tr class="hover:bg-[#F0F8F4] transition">
-
-                        <td class="px-7 py-7 text-center font-medium">
-                            Sane
-                        </td>
-
-                        <td class="px-7 py-7 text-center">
-                            22 / 04 / 2026
-                        </td>
-
-                        <td class="px-7 py-7 text-center">
-                            3
-                        </td>
-
-                        <td class="px-7 py-7">
-
-                            <div class="flex items-center justify-center gap-4">
-
-                                <button
-                                    type="button"
-                                    class="w-[56px] h-[56px]
-                                           rounded-[14px]
-                                           bg-[#FBE7E7]
-                                           text-[#D94A4A]
-                                           hover:bg-[#D94A4A]
-                                           hover:text-white
-                                           flex items-center justify-center
-                                           text-[22px]
-                                           transition"
-                                >
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    class="w-[56px] h-[56px]
-                                           rounded-[14px]
-                                           bg-[#DDF0E9]
-                                           text-[#08703F]
-                                           hover:bg-[#08703F]
-                                           hover:text-white
-                                           flex items-center justify-center
-                                           text-[22px]
-                                           transition"
-                                >
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
-
-
-                                <a
-                                    href="{{ route('organisasi.kunjungan.detail') }}"
-                                    class="min-w-[145px]
-                                           h-[56px]
-                                           inline-flex
-                                           items-center
-                                           justify-center
-                                           border-2 border-[#08703F]
-                                           text-[#08703F]
-                                           hover:bg-[#08703F]
-                                           hover:text-white
-                                           rounded-[14px]
-                                           px-7
-                                           text-[21px]
-                                           font-semibold
-                                           transition"
-                                >
-                                    Detail
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                    {{-- ROW 4 --}}
-                    <tr class="hover:bg-[#F0F8F4] transition">
-
-                        <td class="px-7 py-7 text-center font-medium">
-                            Dewi
-                        </td>
-
-                        <td class="px-7 py-7 text-center">
-                            13 / 05 / 2026
-                        </td>
-
-                        <td class="px-7 py-7 text-center">
-                            7
-                        </td>
-
-                        <td class="px-7 py-7">
-
-                            <div class="flex items-center justify-center gap-4">
-
-                                <button
-                                    type="button"
-                                    class="w-[56px] h-[56px]
-                                           rounded-[14px]
-                                           bg-[#FBE7E7]
-                                           text-[#D94A4A]
-                                           hover:bg-[#D94A4A]
-                                           hover:text-white
-                                           flex items-center justify-center
-                                           text-[22px]
-                                           transition"
-                                >
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    class="w-[56px] h-[56px]
-                                           rounded-[14px]
-                                           bg-[#DDF0E9]
-                                           text-[#08703F]
-                                           hover:bg-[#08703F]
-                                           hover:text-white
-                                           flex items-center justify-center
-                                           text-[22px]
-                                           transition"
-                                >
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
-
-
-                                <a
-                                    href="{{ route('organisasi.kunjungan.detail') }}"
-                                    class="min-w-[145px]
-                                           h-[56px]
-                                           inline-flex
-                                           items-center
-                                           justify-center
-                                           border-2 border-[#08703F]
-                                           text-[#08703F]
-                                           hover:bg-[#08703F]
-                                           hover:text-white
-                                           rounded-[14px]
-                                           px-7
-                                           text-[21px]
-                                           font-semibold
-                                           transition"
-                                >
-                                    Detail
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-7 py-10 text-center text-gray-500">
+                                Belum ada permintaan kunjungan.
+                            </td>
+                        </tr>
+                    @endforelse
 
                 </tbody>
 
@@ -587,107 +400,10 @@
 
 
 
-    {{-- =====================================================
-        PAGINATION
-    ===================================================== --}}
-    <section class="flex justify-center mt-16">
-
-        <nav class="flex flex-wrap items-center justify-center gap-5">
-
-            <button
-                type="button"
-                class="inline-flex
-                       items-center
-                       gap-3
-                       px-8 py-4
-                       border-2 border-[#08703F]
-                       rounded-[14px]
-                       bg-white
-                       text-[#08703F]
-                       text-[22px]
-                       font-semibold
-                       hover:bg-[#F0F8F4]
-                       transition"
-            >
-                <i class="fa-solid fa-chevron-left text-[15px]"></i>
-                Kembali
-            </button>
+    @include('organisasi.partials.pagination', ['paginator' => $visits])
 
 
-            <div
-                class="flex items-center
-                       gap-3
-                       bg-white
-                       border border-gray-200
-                       rounded-[14px]
-                       p-2
-                       shadow-sm"
-            >
-
-                <button
-                    type="button"
-                    class="w-[58px] h-[58px]
-                           rounded-xl
-                           bg-[#08703F]
-                           text-white
-                           text-[21px]
-                           font-semibold"
-                >
-                    1
-                </button>
-
-
-                <button
-                    type="button"
-                    class="w-[58px] h-[58px]
-                           rounded-xl
-                           text-[#08703F]
-                           text-[21px]
-                           font-semibold
-                           hover:bg-[#F0F8F4]
-                           transition"
-                >
-                    2
-                </button>
-
-
-                <button
-                    type="button"
-                    class="w-[58px] h-[58px]
-                           rounded-xl
-                           text-[#08703F]
-                           text-[21px]
-                           font-semibold
-                           hover:bg-[#F0F8F4]
-                           transition"
-                >
-                    3
-                </button>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="inline-flex
-                       items-center
-                       gap-3
-                       px-8 py-4
-                       rounded-[14px]
-                       bg-[#08703F]
-                       text-white
-                       text-[22px]
-                       font-semibold
-                       hover:bg-[#065D35]
-                       transition"
-            >
-                Selanjutnya
-                <i class="fa-solid fa-chevron-right text-[15px]"></i>
-            </button>
-
-        </nav>
-
-    </section>
+    @include('organisasi.partials.visit-confirm-modal')
 
 </main>
 

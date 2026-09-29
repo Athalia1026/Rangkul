@@ -3,11 +3,88 @@
 namespace App\Http\Controllers\Organizations;
 
 use App\Http\Controllers\Controller;
+use App\Models\BankAccount;
 use App\Models\Campaign;
+use App\Models\PurchaseProof;
 use Illuminate\Http\Request;
 
 class CampaignController extends Controller
 {
+    public const STATUS_FILTERS = ['aktif', 'menunggu', 'disalurkan', 'selesai', 'ditolak'];
+
+    // Halaman daftar kampanye milik organisasi (web)
+    public function index(Request $request)
+    {
+        $organization = $request->user()->organization;
+
+        $campaigns = Campaign::where('id_organisasi', $organization->id)
+            ->withFinancialSummary()
+            ->when($request->filled('q'), fn ($q) => $q->where('judul', 'like', '%' . $request->q . '%'))
+            ->when(
+                in_array($request->status, self::STATUS_FILTERS, true),
+                fn ($q) => $q->where('status', $request->status)
+            )
+            ->latest()
+            ->paginate(4)
+            ->withQueryString();
+
+        return view('organisasi.kampanye', compact('organization', 'campaigns'));
+    }
+
+    // Halaman detail kampanye beserta pencairan dana & bukti penyaluran (web)
+    public function show(Request $request, string $campaignId)
+    {
+        $organization = $request->user()->organization;
+
+        $campaign = Campaign::where('id_organisasi', $organization->id)
+            ->withFinancialSummary()
+            ->findOrFail($campaignId);
+
+        $jumlahDonatur = $campaign->donations()
+            ->where('status', 'sudah_bayar')
+            ->distinct()
+            ->count('id_donatur');
+
+        $disbursements = $campaign->fundDisbursements()
+            ->with('bankAccount')
+            ->latest()
+            ->get();
+
+        $proofs = PurchaseProof::with('fundDisbursement:id,alokasi_dana')
+            ->whereIn('id_pencairan', $disbursements->pluck('id'))
+            ->latest('uploaded_at')
+            ->get();
+
+        $bankAccount = BankAccount::where('id_organisasi', $organization->id)->first();
+
+        return view('organisasi.kampanye-detail', [
+            'organization'       => $organization,
+            'campaign'           => $campaign,
+            'jumlahDonatur'      => $jumlahDonatur,
+            'disbursements'      => $disbursements,
+            'latestDisbursement' => $disbursements->first(),
+            'proofs'             => $proofs,
+            'bankAccount'        => $bankAccount,
+        ]);
+    }
+
+    // Simpan perubahan deskripsi kampanye dari tab Overview (web)
+    public function updateDescription(Request $request, string $campaignId)
+    {
+        $campaign = Campaign::where('id_organisasi', $request->user()->organization->id)
+            ->findOrFail($campaignId);
+
+        $validated = $request->validate([
+            'deskripsi' => 'required|string',
+        ]);
+
+        $campaign->update($validated);
+
+        return redirect()
+            ->route('organisasi.kampanye.detail', $campaign->id)
+            ->with('success', 'Deskripsi kampanye berhasil disimpan.');
+    }
+
     public function store(Request $request)
     {
         $organization = $request->user()->organization;

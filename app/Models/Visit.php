@@ -31,6 +31,11 @@ class Visit extends Model
         return $this->belongsTo(Organization::class, 'id_organisasi', 'id');
     }
 
+    public function donor()
+    {
+        return $this->belongsTo(Donor::class, 'id_donatur', 'id');
+    }
+
     public function documents()
     {
         return $this->hasMany(VisitDocument::class, 'id_kunjungan');

@@ -1,3 +1,5 @@
+@use('App\Support\OrgFormat')
+
 @extends('layouts.organization', [
     'title' => 'Detail Donasi',
     'activeNav' => 'donasi'
@@ -5,353 +7,143 @@
 
 @section('content')
 
-<main
-    class="w-full
-           px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24
-           pt-16 pb-24"
->
+    <main class="w-full
+               org-container px-6 sm:px-8 lg:px-12
+               pt-16 pb-24">
 
-    {{-- =====================================================
+        {{-- =====================================================
         BACK
-    ===================================================== --}}
-    <a
-        href="{{ route('organisasi.donasi') }}"
-        class="inline-flex items-center gap-3
-               text-[22px]
-               text-gray-600
-               hover:text-[#08703F]
-               transition"
-    >
-        <i class="fa-solid fa-arrow-left text-[16px]"></i>
-        Back to Donasi
-    </a>
+        ===================================================== --}}
+        <a href="{{ route('organisasi.donasi') }}" class="inline-flex items-center gap-3
+                   text-[22px]
+                   text-gray-600
+                   hover:text-[#08703F]
+                   transition">
+            <i class="fa-solid fa-arrow-left text-[16px]"></i>
+            Back to Donasi
+        </a>
 
 
 
-    {{-- =====================================================
+        {{-- =====================================================
         TITLE
-    ===================================================== --}}
-    <section class="mt-9">
+        ===================================================== --}}
+        <section class="mt-9">
 
-        <h1
-            class="text-[54px]
-                   lg:text-[60px]
-                   xl:text-[64px]
-                   font-bold
-                   text-[#08703F]
-                   leading-tight"
-        >
-            Detail Donasi
-        </h1>
+            <h1 class="text-[35px]
+                       lg:text-[45px]
+                       xl:text-[50px]
+                       font-bold
+                       text-[#08703F]
+                       leading-tight">
+                Detail Donasi
+            </h1>
 
 
-        <p
-            class="mt-5
-                   text-[25px]
-                   lg:text-[28px]
-                   text-gray-500
-                   font-medium"
-        >
-            Informasi lengkap mengenai donasi yang telah diterima.
-        </p>
+            <p class="mt-5
+                       text-[15px]
+                       lg:text-[25px]
+                       text-gray-500
+                       font-medium">
+                Informasi lengkap mengenai donasi yang telah diterima.
+            </p>
 
-    </section>
+        </section>
 
 
 
-    {{-- =====================================================
+        {{-- =====================================================
         DETAIL CARD
-    ===================================================== --}}
-    <section class="mt-14">
+        ===================================================== --}}
+        <section class="mt-14">
 
-        <div
-            class="bg-white
-                   rounded-[28px]
-                   border border-gray-100
-                   shadow-md
-                   px-10
-                   lg:px-14
-                   py-12"
-        >
+            <div class="bg-white
+                       rounded-[28px]
+                       border border-gray-100
+                       shadow-md
+                       px-10
+                       lg:px-14
+                       py-12">
 
-            {{-- =================================================
-                TOP GRID
-            ================================================= --}}
-            <div
-                class="grid grid-cols-1
-                       lg:grid-cols-2
-                       gap-x-12
-                       gap-y-9"
-            >
+                {{-- =================================================
+                DETAIL DONASI
+                ================================================= --}}
+                @php
+                    $labelClass = 'text-[20px] text-gray-500';
+                    $valueClass = 'mt-2 text-[26px] font-semibold text-gray-950 leading-snug break-words';
 
-                {{-- NAMA DONATUR --}}
-                <div>
+                    $rows = [
+                        [
+                            ['label' => 'Nama Donatur', 'value' => $donation->anonim ? 'Anonim' : ($donation->donor?->user?->nama ?? '-')],
+                            ['label' => 'Campaign', 'value' => $donation->campaign?->judul ?? '-'],
+                        ],
+                        [
+                            ['label' => 'Nominal', 'value' => OrgFormat::rupiah($donation->nominal)],
+                            ['label' => 'Tanggal', 'value' => OrgFormat::date($donation->paid_at ?? $donation->created_at)],
+                        ],
+                    ];
+                @endphp
 
-                    <label
-                        class="block
-                               mb-4
-                               text-[24px]
-                               font-semibold
-                               text-gray-900"
-                    >
-                        Nama Donatur
-                    </label>
+                <dl class="divide-y divide-gray-200">
 
-                    <div
-                        class="w-full
-                               min-h-[86px]
-                               flex items-center
-                               bg-[#F3F5F4]
-                               border border-gray-200
-                               rounded-[16px]
-                               px-7
-                               text-[24px]
-                               text-gray-800
-                               font-medium"
-                    >
-                        Budiman Tandieono
-                    </div>
+                    @foreach ($rows as $row)
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-7 py-8 first:pt-0">
 
-                </div>
+                            @foreach ($row as $item)
+                                <div>
+                                    <dt class="{{ $labelClass }}">{{ $item['label'] }}</dt>
+                                    <dd class="{{ $valueClass }}">{{ $item['value'] }}</dd>
+                                </div>
+                            @endforeach
+
+                        </div>
+                    @endforeach
 
 
+                    {{-- METODE PEMBAYARAN + STATUS --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-7 py-8">
 
-                {{-- CAMPAIGN --}}
-                <div>
+                        <div>
+                            <dt class="{{ $labelClass }}">Metode Pembayaran</dt>
+                            <dd class="{{ $valueClass }}">{{ $donation->transaction_id ? 'Midtrans' : '-' }}</dd>
+                        </div>
 
-                    <label
-                        class="block
-                               mb-4
-                               text-[24px]
-                               font-semibold
-                               text-gray-900"
-                    >
-                        Campaign
-                    </label>
-
-                    <div
-                        class="w-full
-                               min-h-[86px]
-                               flex items-center
-                               bg-[#F3F5F4]
-                               border border-gray-200
-                               rounded-[16px]
-                               px-7
-                               text-[24px]
-                               text-gray-800
-                               font-medium"
-                    >
-                        Bantu Anak Muda Penerus Bangsa
-                    </div>
-
-                </div>
-
-
-
-                {{-- NOMINAL --}}
-                <div>
-
-                    <label
-                        class="block
-                               mb-4
-                               text-[24px]
-                               font-semibold
-                               text-gray-900"
-                    >
-                        Nominal
-                    </label>
-
-                    <div
-                        class="w-full
-                               min-h-[86px]
-                               flex items-center
-                               bg-[#F3F5F4]
-                               border border-gray-200
-                               rounded-[16px]
-                               px-7
-                               text-[24px]
-                               text-gray-800
-                               font-medium"
-                    >
-                        Rp 500.000
-                    </div>
-
-                </div>
-
-
-
-                {{-- TANGGAL --}}
-                <div>
-
-                    <label
-                        class="block
-                               mb-4
-                               text-[24px]
-                               font-semibold
-                               text-gray-900"
-                    >
-                        Tanggal
-                    </label>
-
-                    <div
-                        class="w-full
-                               min-h-[86px]
-                               flex items-center
-                               bg-[#F3F5F4]
-                               border border-gray-200
-                               rounded-[16px]
-                               px-7
-                               text-[24px]
-                               text-gray-800
-                               font-medium"
-                    >
-                        18 / 01 / 2026
-                    </div>
-
-                </div>
-
-
-
-                {{-- METODE PEMBAYARAN --}}
-                <div>
-
-                    <label
-                        class="block
-                               mb-4
-                               text-[24px]
-                               font-semibold
-                               text-gray-900"
-                    >
-                        Metode Pembayaran
-                    </label>
-
-                    <div
-                        class="w-full
-                               min-h-[86px]
-                               flex items-center
-                               bg-[#F3F5F4]
-                               border border-gray-200
-                               rounded-[16px]
-                               px-7
-                               text-[24px]
-                               text-gray-800
-                               font-medium"
-                    >
-                        Transfer Bank
-                    </div>
-
-                </div>
-
-
-
-                {{-- STATUS --}}
-                <div>
-
-                    <label
-                        class="block
-                               mb-4
-                               text-[24px]
-                               font-semibold
-                               text-gray-900"
-                    >
-                        Status
-                    </label>
-
-                    <div
-                        class="w-full
-                               min-h-[86px]
-                               flex items-center
-                               bg-[#F3F5F4]
-                               border border-gray-200
-                               rounded-[16px]
-                               px-7"
-                    >
-
-                        <span
-                            class="inline-flex
-                                   min-w-[160px]
-                                   justify-center
-                                   bg-[#D7EFE5]
-                                   text-[#10765B]
-                                   px-7 py-3
-                                   rounded-full
-                                   text-[21px]
-                                   font-semibold"
-                        >
-                            Berhasil
-                        </span>
+                        <div>
+                            <dt class="{{ $labelClass }}">Status</dt>
+                            <dd class="mt-3">
+                                <span
+                                    class="inline-flex
+                                           justify-center
+                                           {{ OrgFormat::statusBadge('donation', $donation->status) }}
+                                           px-6 py-2
+                                           rounded-full
+                                           text-[21px]
+                                           font-semibold"
+                                >
+                                    {{ OrgFormat::statusLabel('donation', $donation->status) }}
+                                </span>
+                            </dd>
+                        </div>
 
                     </div>
+
+
+                    {{-- PESAN DONATUR --}}
+                    <div class="py-8 last:pb-0">
+                        <dt class="{{ $labelClass }}">Pesan Donatur</dt>
+                        <dd class="mt-2 text-[24px] text-gray-900 leading-relaxed break-words">
+                            {{ $donation->note ?: 'Tidak ada pesan.' }}
+                        </dd>
+                    </div>
+
+                </dl>
 
                 </div>
 
             </div>
 
+        </section>
 
-
-            {{-- =================================================
-                PESAN DONATUR
-            ================================================= --}}
-            <div class="mt-10">
-
-                <label
-                    class="block
-                           mb-4
-                           text-[24px]
-                           font-semibold
-                           text-gray-900"
-                >
-                    Pesan Donatur
-                </label>
-
-
-                <div
-                    class="w-full
-                           min-h-[190px]
-                           bg-[#F3F5F4]
-                           border border-gray-200
-                           rounded-[18px]
-                           px-7 py-7
-                           text-[24px]
-                           text-gray-800
-                           leading-relaxed
-                           font-medium"
-                >
-                    Tetap semangat untuk para generasi muda berbakat,
-                    jangan takut untuk memulai sesuatu.
-                </div>
-
-            </div>
-
-
-
-            {{-- =================================================
-                BUTTON
-            ================================================= --}}
-            <div class="flex justify-end mt-12">
-
-                <a
-                    href="{{ route('organisasi.donasi') }}"
-                    class="min-w-[210px]
-                           text-center
-                           bg-[#08703F]
-                           hover:bg-[#065D35]
-                           text-white
-                           px-10 py-5
-                           rounded-[16px]
-                           text-[24px]
-                           font-semibold
-                           transition"
-                >
-                    Kembali
-                </a>
-
-            </div>
-
-        </div>
-
-    </section>
-
-</main>
+    </main>
 
 @endsection

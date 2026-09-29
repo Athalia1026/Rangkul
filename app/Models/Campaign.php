@@ -79,6 +79,31 @@ public function fundDisbursements()
         return $this->hasMany(FundDisbursement::class, 'id_campaign', 'id');
     }
 
+    /**
+     * Tambahkan kolom total_terkumpul (donasi sudah_bayar) dan total_dicairkan
+     * (pencairan yang disetujui admin) pada query campaign.
+     */
+    public function scopeWithFinancialSummary($query)
+    {
+        return $query
+            ->withSum(['donations as total_terkumpul' => fn ($q) => $q->where('status', 'sudah_bayar')], 'nominal')
+            ->withSum(['fundDisbursements as total_dicairkan' => fn ($q) => $q->where('status', 'diterima')], 'nominal_dicairkan');
+    }
+
+    /** Persentase dana terkumpul terhadap target (0-100). Butuh scope withFinancialSummary. */
+    public function progressPercent(): float
+    {
+        $target = (float) $this->target_dana;
+
+        return $target > 0 ? min(100, round(((float) $this->total_terkumpul / $target) * 100, 1)) : 0;
+    }
+
+    /** Saldo campaign yang belum dicairkan. Butuh scope withFinancialSummary. */
+    public function saldoTersisa(): float
+    {
+        return max(0, (float) $this->total_terkumpul - (float) $this->total_dicairkan);
+    }
+
     public function toSearchableArray(): array
 {
     return [

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Organizations;
 
 use App\Http\Controllers\Controller;
+use App\Models\BankAccount;
 use App\Models\Campaign;
 use App\Models\Organization;
 use App\Models\OrganizationGallery;
@@ -33,6 +34,16 @@ class OrganizationProfileController extends Controller
                 ]
             ]
         ]);
+    }
+
+    // Halaman profil organisasi (web)
+    public function edit(Request $request)
+    {
+        $user = $request->user();
+        $organization = $user->organization->load('galleries');
+        $bankAccount = BankAccount::where('id_organisasi', $organization->id)->first();
+
+        return view('organisasi.profil', compact('user', 'organization', 'bankAccount'));
     }
 
     // 2. Update Informasi Profil Organisasi

@@ -402,11 +402,12 @@
       button.textContent = 'Memproses...';
 
       try {
-        const response = await fetch('/api/login', {
+        const response = await fetch('{{ route('login.store') }}', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
           },
           body: JSON.stringify({
             email: document.getElementById('email').value,
@@ -437,7 +438,12 @@
 
         localStorage.setItem('auth_token', authToken);
         localStorage.setItem('auth_user', JSON.stringify(result.user));
-        window.location.href = '/manager/home';
+        const redirectByAccountType = {
+          organisasi: '{{ route('organisasi.dashboard') }}',
+          admin: '/manager/home',
+          donatur: '/beranda'
+        };
+        window.location.href = redirectByAccountType[result.user?.account_type] || '/beranda';
       } catch (error) {
         errorMessage.textContent = error.message;
         errorMessage.style.display = 'block';

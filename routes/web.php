@@ -6,6 +6,17 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Donors\SearchController;
 use App\Http\Controllers\Donors\CampaignController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Donors\VisitController;
+use App\Http\Controllers\Organizations\CampaignController as OrganizationCampaignController;
+use App\Http\Controllers\Organizations\OrganizationDashboardController;
+use App\Http\Controllers\Organizations\OrganizationDisbursementController;
+use App\Http\Controllers\Organizations\OrganizationDonationController;
+use App\Http\Controllers\Organizations\OrganizationGalleryController;
+use App\Http\Controllers\Organizations\OrganizationNotificationController;
+use App\Http\Controllers\Organizations\OrganizationProfileController;
+use App\Http\Controllers\Organizations\OrganizationReportController;
+use App\Http\Controllers\Organizations\OrganizationVisitController;
+use App\Http\Middleware\EnsureOrganizationAccount;
 
 
 /*
@@ -32,6 +43,15 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
+
+
+Route::post('/login', [AuthController::class, 'loginWeb'])
+    ->middleware('throttle:5,1')
+    ->name('login.store');
+
+
+Route::post('/logout', [AuthController::class, 'logoutWeb'])
+    ->name('logout');
 
 
 Route::get('/register', function () {
@@ -175,6 +195,7 @@ Route::get('/manager/detailtransaksi', function () {
 
 Route::prefix('organisasi')
     ->name('organisasi.')
+    ->middleware(['auth', EnsureOrganizationAccount::class])
     ->group(function () {
 
         /*
@@ -183,9 +204,8 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/dashboard', function () {
-            return view('organisasi.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [OrganizationDashboardController::class, 'index'])
+            ->name('dashboard');
 
 
         /*
@@ -194,14 +214,16 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/kampanye', function () {
-            return view('organisasi.kampanye');
-        })->name('kampanye');
+        Route::get('/kampanye', [OrganizationCampaignController::class, 'index'])
+            ->name('kampanye');
 
 
-        Route::get('/kampanye/detail', function () {
-            return view('organisasi.kampanye-detail');
-        })->name('kampanye.detail');
+        Route::get('/kampanye/{campaign}', [OrganizationCampaignController::class, 'show'])
+            ->name('kampanye.detail');
+
+
+        Route::put('/kampanye/{campaign}/deskripsi', [OrganizationCampaignController::class, 'updateDescription'])
+            ->name('kampanye.deskripsi.update');
 
 
         /*
@@ -210,9 +232,12 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/kampanye/pencairan/ajukan', function () {
-            return view('organisasi.pencairan-ajukan');
-        })->name('kampanye.pencairan.ajukan');
+        Route::get('/kampanye/{campaign}/pencairan/ajukan', [OrganizationDisbursementController::class, 'create'])
+            ->name('kampanye.pencairan.ajukan');
+
+
+        Route::post('/pencairan', [OrganizationDisbursementController::class, 'requestDisbursement'])
+            ->name('kampanye.pencairan.store');
 
 
         /*
@@ -221,14 +246,16 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/kampanye/bukti/upload', function () {
-            return view('organisasi.bukti-upload');
-        })->name('kampanye.bukti.upload');
+        Route::get('/kampanye/{campaign}/bukti/upload', [OrganizationDisbursementController::class, 'createProof'])
+            ->name('kampanye.bukti.upload');
 
 
-        Route::get('/kampanye/bukti/detail', function () {
-            return view('organisasi.bukti-detail');
-        })->name('kampanye.bukti.detail');
+        Route::post('/pencairan/{disbursement}/bukti', [OrganizationDisbursementController::class, 'uploadProof'])
+            ->name('kampanye.bukti.store');
+
+
+        Route::get('/bukti/{proof}', [OrganizationDisbursementController::class, 'showProof'])
+            ->name('kampanye.bukti.detail');
 
 
         /*
@@ -237,14 +264,12 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/donasi', function () {
-            return view('organisasi.donasi');
-        })->name('donasi');
+        Route::get('/donasi', [OrganizationDonationController::class, 'index'])
+            ->name('donasi');
 
 
-        Route::get('/donasi/detail', function () {
-            return view('organisasi.donasi-detail');
-        })->name('donasi.detail');
+        Route::get('/donasi/{donation}', [OrganizationDonationController::class, 'show'])
+            ->name('donasi.detail');
 
 
         /*
@@ -253,14 +278,16 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/kunjungan', function () {
-            return view('organisasi.kunjungan');
-        })->name('kunjungan');
+        Route::get('/kunjungan', [OrganizationVisitController::class, 'index'])
+            ->name('kunjungan');
 
 
-        Route::get('/kunjungan/detail', function () {
-            return view('organisasi.kunjungan-detail');
-        })->name('kunjungan.detail');
+        Route::get('/kunjungan/{visit}', [OrganizationVisitController::class, 'show'])
+            ->name('kunjungan.detail');
+
+
+        Route::patch('/kunjungan/{visit}/respond', [VisitController::class, 'respondVisit'])
+            ->name('kunjungan.respond');
 
 
         /*
@@ -269,14 +296,16 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/laporan', function () {
-            return view('organisasi.laporan');
-        })->name('laporan');
+        Route::get('/laporan', [OrganizationReportController::class, 'index'])
+            ->name('laporan');
 
 
-        Route::get('/laporan/hasil', function () {
-            return view('organisasi.laporan-hasil');
-        })->name('laporan.hasil');
+        Route::get('/laporan/hasil', [OrganizationReportController::class, 'result'])
+            ->name('laporan.hasil');
+
+
+        Route::get('/laporan/download', [OrganizationReportController::class, 'download'])
+            ->name('laporan.download');
 
 
         /*
@@ -285,9 +314,16 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/profil', function () {
-            return view('organisasi.profil');
-        })->name('profil');
+        Route::get('/profil', [OrganizationProfileController::class, 'edit'])
+            ->name('profil');
+
+
+        Route::put('/profil', [OrganizationProfileController::class, 'update'])
+            ->name('profil.update');
+
+
+        Route::post('/profil/galeri', [OrganizationGalleryController::class, 'store'])
+            ->name('profil.galeri.store');
 
 
         /*
@@ -296,8 +332,7 @@ Route::prefix('organisasi')
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/notifikasi', function () {
-            return view('organisasi.notifikasi');
-        })->name('notifikasi');
+        Route::get('/notifikasi', [OrganizationNotificationController::class, 'index'])
+            ->name('notifikasi');
 
     });

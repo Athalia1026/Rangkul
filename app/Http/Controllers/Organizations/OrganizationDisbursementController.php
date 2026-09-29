@@ -6,12 +6,55 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use App\Models\Campaign;
 use App\Models\FundDisbursement;
 use App\Models\PurchaseProof;
 use App\Models\BankAccount;
 
 class OrganizationDisbursementController extends Controller
 {
+    // Halaman form pengajuan pencairan dana untuk sebuah kampanye (web)
+    public function create(Request $request, string $campaignId)
+    {
+        $organization = $request->user()->organization;
+
+        $campaign = Campaign::where('id_organisasi', $organization->id)
+            ->withFinancialSummary()
+            ->findOrFail($campaignId);
+
+        $bankAccount = BankAccount::where('id_organisasi', $organization->id)->first();
+
+        return view('organisasi.pencairan-ajukan', compact('campaign', 'bankAccount'));
+    }
+
+    // Halaman form upload bukti penyaluran untuk pencairan yang sudah disetujui (web)
+    public function createProof(Request $request, string $campaignId)
+    {
+        $campaign = Campaign::where('id_organisasi', $request->user()->organization->id)
+            ->findOrFail($campaignId);
+
+        $disbursements = $campaign->fundDisbursements()
+            ->where('status', 'diterima')
+            ->latest()
+            ->get();
+
+        return view('organisasi.bukti-upload', compact('campaign', 'disbursements'));
+    }
+
+    // Halaman detail bukti penyaluran (web)
+    public function showProof(Request $request, string $proofId)
+    {
+        $organizationId = $request->user()->organization->id;
+
+        $proof = PurchaseProof::with('fundDisbursement.campaign')
+            ->whereKey($proofId)
+            ->whereHas('fundDisbursement.campaign', fn ($q) => $q->where('id_organisasi', $organizationId))
+            ->firstOrFail();
+
+        return view('organisasi.bukti-detail', compact('proof'));
+    }
+
     // 1. Organisasi Mengajukan Pencairan Dana
     public function requestDisbursement(Request $request)
     {
@@ -46,7 +89,10 @@ class OrganizationDisbursementController extends Controller
         }
 
         $request->validate([
-            'id_campaign'      => 'required|exists:campaigns,id',
+            'id_campaign'      => [
+                'required',
+                Rule::exists('campaigns', 'id')->where('id_organisasi', $organizationId),
+            ],
             'alokasi_dana'     => 'required|string',
             'nominal_diajukan' => 'required|numeric|min:10000',
             'alasan'           => 'required|string',
@@ -90,7 +136,11 @@ class OrganizationDisbursementController extends Controller
             'deskripsi'  => 'required|string'
         ]);
 
-        $disbursement = FundDisbursement::findOrFail($disbursementId);
+        $organizationId = auth()->user()->organization?->id;
+
+        $disbursement = FundDisbursement::whereKey($disbursementId)
+            ->whereHas('campaign', fn ($q) => $q->where('id_organisasi', $organizationId))
+            ->firstOrFail();
 
         if ($disbursement->status !== 'diterima') {
             return response()->json([

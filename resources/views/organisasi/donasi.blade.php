@@ -1,3 +1,5 @@
+@use('App\Support\OrgFormat')
+
 @extends('layouts.organization', [
     'title' => 'Donasi Organisasi',
     'activeNav' => 'donasi'
@@ -20,7 +22,7 @@
 
     <div class="relative z-10 h-full flex items-center">
 
-        <div class="w-full px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24">
+        <div class="w-full org-container px-6 sm:px-8 lg:px-12">
 
             <h1
                 class="text-white
@@ -56,7 +58,7 @@
 ========================================================= --}}
 <main
     class="w-full
-           px-8 sm:px-10 lg:px-16 xl:px-20 2xl:px-24
+           org-container px-6 sm:px-8 lg:px-12
            py-20"
 >
 
@@ -71,7 +73,11 @@
                px-10 py-10"
     >
 
-        <div class="grid grid-cols-1 lg:grid-cols-[1.5fr_0.8fr_auto] gap-8 items-end">
+        <form
+            method="GET"
+            action="{{ route('organisasi.donasi') }}"
+            class="grid grid-cols-1 lg:grid-cols-[1.5fr_0.8fr_auto] gap-8 items-end"
+        >
 
             {{-- SEARCH --}}
             <div>
@@ -97,7 +103,9 @@
 
                     <input
                         id="searchDonatur"
+                        name="q"
                         type="text"
+                        value="{{ request('q') }}"
                         placeholder="Cari nama donatur..."
                         class="w-full
                                h-[82px]
@@ -137,6 +145,7 @@
 
                     <select
                         id="statusDonasi"
+                        name="status"
                         class="w-full
                                h-[82px]
                                appearance-none
@@ -151,10 +160,12 @@
                                focus:ring-2
                                focus:ring-[#08703F]/10"
                     >
-                        <option value="">Silakan pilih</option>
-                        <option value="berhasil">Berhasil</option>
-                        <option value="diterima">Diterima</option>
-                        <option value="gagal">Gagal</option>
+                        <option value="">Semua status</option>
+                        @foreach (\App\Http\Controllers\Organizations\OrganizationDonationController::STATUS_FILTERS as $status)
+                            <option value="{{ $status }}" @selected(request('status') === $status)>
+                                {{ OrgFormat::statusLabel('donation', $status) }}
+                            </option>
+                        @endforeach
                     </select>
 
                     <i
@@ -172,7 +183,7 @@
 
             {{-- SEARCH BUTTON --}}
             <button
-                type="button"
+                type="submit"
                 class="h-[82px]
                        px-12
                        bg-[#08703F]
@@ -186,7 +197,7 @@
                 Cari
             </button>
 
-        </div>
+        </form>
 
 
 
@@ -226,7 +237,7 @@
                 <div class="mt-8">
 
                     <p class="text-[36px] lg:text-[39px] font-bold text-[#08703F]">
-                        Rp.1.200.000
+                        {{ OrgFormat::rupiah($stats['total']) }}
                     </p>
 
                     <p class="mt-2 text-[21px] text-gray-500">
@@ -269,7 +280,7 @@
                 <div class="mt-8">
 
                     <p class="text-[36px] lg:text-[39px] font-bold text-[#08703F]">
-                        Rp.500.000
+                        {{ OrgFormat::rupiah($stats['hari_ini']) }}
                     </p>
 
                     <p class="mt-2 text-[21px] text-gray-500">
@@ -312,7 +323,7 @@
                 <div class="mt-8">
 
                     <p class="text-[36px] lg:text-[39px] font-bold text-[#08703F]">
-                        Rp.700.000
+                        {{ OrgFormat::rupiah($stats['bulan_ini']) }}
                     </p>
 
                     <p class="mt-2 text-[21px] text-gray-500">
@@ -355,7 +366,7 @@
                 <div class="mt-8">
 
                     <p class="text-[39px] font-bold text-[#08703F]">
-                        23
+                        {{ $stats['kampanye_aktif'] }}
                     </p>
 
                     <p class="mt-2 text-[21px] text-gray-500">
@@ -378,8 +389,8 @@
     <section class="mt-16">
 
         <h2
-            class="text-[50px]
-                   lg:text-[54px]
+            class="text-[35px]
+                   lg:text-[45px]
                    font-bold
                    text-[#16735F]"
         >
@@ -432,180 +443,54 @@
                 {{-- BODY --}}
                 <tbody class="text-[23px] text-gray-900">
 
-                    {{-- ROW 1 --}}
-                    <tr
-                        onclick="window.location='{{ route('organisasi.donasi.detail') }}'"
-                        class="cursor-pointer
-                               transition-all duration-200
-                               hover:bg-[#EAF7F1]
-                               hover:shadow-[inset_5px_0_0_#08703F]"
-                    >
+                    @forelse ($donations as $donation)
+                        <tr
+                            onclick="window.location='{{ route('organisasi.donasi.detail', $donation->id) }}'"
+                            class="cursor-pointer
+                                   transition-all duration-200
+                                   hover:bg-[#EAF7F1]
+                                   hover:shadow-[inset_5px_0_0_#08703F]"
+                        >
 
-                        <td class="px-7 py-6 text-center font-medium">
-                            Budiman
-                        </td>
+                            <td class="px-7 py-6 text-center font-medium">
+                                {{ $donation->anonim ? 'Anonim' : ($donation->donor?->user?->nama ?? '-') }}
+                            </td>
 
-                        <td class="px-7 py-6 text-center">
-                            Bantu Anak Muda Penerus Bangsa
-                        </td>
+                            <td class="px-7 py-6 text-center">
+                                {{ $donation->campaign?->judul ?? '-' }}
+                            </td>
 
-                        <td class="px-7 py-6 text-center">
-                            Rp 500.000
-                        </td>
+                            <td class="px-7 py-6 text-center">
+                                {{ OrgFormat::rupiah($donation->nominal) }}
+                            </td>
 
-                        <td class="px-7 py-6 text-center">
-                            18 / 01 / 2026
-                        </td>
+                            <td class="px-7 py-6 text-center">
+                                {{ OrgFormat::date($donation->paid_at ?? $donation->created_at) }}
+                            </td>
 
-                        <td class="px-7 py-6 text-center">
-                            <span
-                                class="inline-flex
-                                       min-w-[135px]
-                                       justify-center
-                                       bg-[#D7EFE5]
-                                       text-[#10765B]
-                                       px-6 py-3
-                                       rounded-full
-                                       text-[20px]
-                                       font-semibold"
-                            >
-                                Berhasil
-                            </span>
-                        </td>
+                            <td class="px-7 py-6 text-center">
+                                <span
+                                    class="inline-flex
+                                           min-w-[135px]
+                                           justify-center
+                                           {{ OrgFormat::statusBadge('donation', $donation->status) }}
+                                           px-6 py-3
+                                           rounded-full
+                                           text-[20px]
+                                           font-semibold"
+                                >
+                                    {{ OrgFormat::statusLabel('donation', $donation->status) }}
+                                </span>
+                            </td>
 
-                    </tr>
-
-
-                    {{-- ROW 2 --}}
-                    <tr
-                        onclick="window.location='{{ route('organisasi.donasi.detail') }}'"
-                        class="cursor-pointer
-                               transition-all duration-200
-                               hover:bg-[#EAF7F1]
-                               hover:shadow-[inset_5px_0_0_#08703F]"
-                    >
-
-                        <td class="px-7 py-6 text-center font-medium">
-                            Budi
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            Anggaran Pembagian Beras
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            Rp 350.000
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            18 / 01 / 2026
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            <span
-                                class="inline-flex
-                                       min-w-[135px]
-                                       justify-center
-                                       bg-[#E4E9FA]
-                                       text-[#5665A6]
-                                       px-6 py-3
-                                       rounded-full
-                                       text-[20px]
-                                       font-semibold"
-                            >
-                                Diterima
-                            </span>
-                        </td>
-
-                    </tr>
-
-
-                    {{-- ROW 3 --}}
-                    <tr
-                        onclick="window.location='{{ route('organisasi.donasi.detail') }}'"
-                        class="cursor-pointer
-                               transition-all duration-200
-                               hover:bg-[#EAF7F1]
-                               hover:shadow-[inset_5px_0_0_#08703F]"
-                    >
-
-                        <td class="px-7 py-6 text-center font-medium">
-                            Sane
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            Anggaran Sarapan Kecil
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            Rp 200.000
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            17 / 01 / 2026
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            <span
-                                class="inline-flex
-                                       min-w-[135px]
-                                       justify-center
-                                       bg-[#F8DEDE]
-                                       text-[#B43B3B]
-                                       px-6 py-3
-                                       rounded-full
-                                       text-[20px]
-                                       font-semibold"
-                            >
-                                Gagal
-                            </span>
-                        </td>
-
-                    </tr>
-
-
-                    {{-- ROW 4 --}}
-                    <tr
-                        onclick="window.location='{{ route('organisasi.donasi.detail') }}'"
-                        class="cursor-pointer
-                               transition-all duration-200
-                               hover:bg-[#EAF7F1]
-                               hover:shadow-[inset_5px_0_0_#08703F]"
-                    >
-
-                        <td class="px-7 py-6 text-center font-medium">
-                            Dewi
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            Anggaran Keperluan Para Guru
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            Rp 150.000
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            16 / 01 / 2026
-                        </td>
-
-                        <td class="px-7 py-6 text-center">
-                            <span
-                                class="inline-flex
-                                       min-w-[135px]
-                                       justify-center
-                                       bg-[#D7EFE5]
-                                       text-[#10765B]
-                                       px-6 py-3
-                                       rounded-full
-                                       text-[20px]
-                                       font-semibold"
-                            >
-                                Berhasil
-                            </span>
-                        </td>
-
-                    </tr>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-7 py-10 text-center text-gray-500">
+                                Belum ada donasi.
+                            </td>
+                        </tr>
+                    @endforelse
 
                 </tbody>
 
@@ -617,105 +502,7 @@
 
 
 
-    {{-- =====================================================
-        PAGINATION
-    ===================================================== --}}
-    <section class="flex justify-center mt-16">
-
-        <nav class="flex flex-wrap items-center justify-center gap-5">
-
-            <button
-                type="button"
-                class="inline-flex
-                       items-center
-                       gap-3
-                       px-8 py-4
-                       border-2 border-[#08703F]
-                       rounded-[14px]
-                       bg-white
-                       text-[#08703F]
-                       text-[22px]
-                       font-semibold
-                       hover:bg-[#F0F8F4]
-                       transition"
-            >
-                <i class="fa-solid fa-chevron-left text-[15px]"></i>
-                Kembali
-            </button>
-
-
-            <div
-                class="flex items-center
-                       gap-3
-                       bg-white
-                       border border-gray-200
-                       rounded-[14px]
-                       p-2
-                       shadow-sm"
-            >
-
-                <button
-                    type="button"
-                    class="w-[58px] h-[58px]
-                           rounded-xl
-                           bg-[#08703F]
-                           text-white
-                           text-[21px]
-                           font-semibold"
-                >
-                    1
-                </button>
-
-                <button
-                    type="button"
-                    class="w-[58px] h-[58px]
-                           rounded-xl
-                           text-[#08703F]
-                           text-[21px]
-                           font-semibold
-                           hover:bg-[#F0F8F4]
-                           transition"
-                >
-                    2
-                </button>
-
-                <button
-                    type="button"
-                    class="w-[58px] h-[58px]
-                           rounded-xl
-                           text-[#08703F]
-                           text-[21px]
-                           font-semibold
-                           hover:bg-[#F0F8F4]
-                           transition"
-                >
-                    3
-                </button>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="inline-flex
-                       items-center
-                       gap-3
-                       px-8 py-4
-                       rounded-[14px]
-                       bg-[#08703F]
-                       text-white
-                       text-[22px]
-                       font-semibold
-                       hover:bg-[#065D35]
-                       transition"
-            >
-                Selanjutnya
-                <i class="fa-solid fa-chevron-right text-[15px]"></i>
-            </button>
-
-        </nav>
-
-    </section>
+    @include('organisasi.partials.pagination', ['paginator' => $donations])
 
 </main>
 
