@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
 use App\Models\OrganizationDocument;
@@ -132,6 +133,8 @@ class OrganizationVerificationController extends Controller
 
         // Kirim Email jika status berubah menjadi final (disetujui/ditolak)
         if ($previousStatus !== $organization->verification_status && in_array($organization->verification_status, ['disetujui', 'ditolak'])) {
+            app(NotificationService::class)->organizationVerified($organization);
+
             try {
                 Mail::to($organization->user->email)->send(new OrganizationVerificationMail($organization));
             } catch (\Exception $e) {

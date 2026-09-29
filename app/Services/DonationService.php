@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\NotificationService;
 use App\Models\Campaign;
 use App\Models\Donation;
 use Carbon\Carbon;
@@ -142,6 +143,8 @@ class DonationService
             'status' => 'gagal',
             'transaction_id' => $transactionIdMidtrans,
         ]);
+
+        app(NotificationService::class)->donationFailed($donation);
     }
 
     private function markDonationPending(Donation $donation): void
@@ -228,6 +231,8 @@ class DonationService
             'transaction_id' => $transactionIdMidtrans,
             'paid_at' => now(),
         ]);
+
+        app(NotificationService::class)->donationPaid($donation);
 
         Campaign::where('id', $donation->id_campaign)
             ->increment('target_terkumpul', $donation->nominal);

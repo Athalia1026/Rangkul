@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Organizations;
 
+use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
 use App\Models\BankAccount;
 use App\Models\Campaign;
@@ -120,6 +121,8 @@ class CampaignController extends Controller
             'foto_cover'      => $path,
             'status'          => 'menunggu', // Default menunggu verifikasi admin
         ]);
+
+        app(NotificationService::class)->campaignSubmitted($campaign);
 
         return response()->json([
             'status'  => 'success',

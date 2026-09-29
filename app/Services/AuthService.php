@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\NotificationService;
 use App\Models\BankAccount;
 use App\Models\Donor;
 use App\Models\Organization;
@@ -58,6 +59,7 @@ class AuthService
             DB::commit();
 
             $user->load(['organization.documents', 'organization.bankAccount']);
+            app(NotificationService::class)->organizationRegistered($user->organization);
 
             return [
                 'user' => $user,
@@ -334,6 +336,7 @@ class AuthService
 
         $existingDocuments = $this->getOrganizationDocumentsByOrganizationId($organization->id);
         $this->resubmitOrganizationDocuments($request, $organization, $existingDocuments);
+        app(NotificationService::class)->organizationRegistered($organization->fresh(), true);
 
         return [
             'status' => 'success',

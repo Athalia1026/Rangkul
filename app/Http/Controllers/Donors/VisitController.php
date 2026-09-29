@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Donors;
 
+use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
 use App\Models\Visit;
 use App\Models\VisitDocument;
@@ -42,6 +43,8 @@ class VisitController extends Controller
             'status'            => 'terkirim',
         ]);
 
+        app(NotificationService::class)->visitRequested($visit);
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Pengajuan kunjungan berhasil dikirim.',
@@ -68,6 +71,8 @@ class VisitController extends Controller
             'pesan_organisasi' => $request->pesan_organisasi,
             'confirmed_at' => $request->status === 'dikonfirmasi' ? now() : null,
         ]);
+
+        app(NotificationService::class)->visitResponded($visit);
 
         return response()->json([
             'status' => 'success',
@@ -108,6 +113,8 @@ class VisitController extends Controller
             }
 
             $visit->update(['status' => 'selesai']);
+
+            app(NotificationService::class)->visitCompleted($visit);
 
             return response()->json([
                 'status'  => 'success',
@@ -167,6 +174,8 @@ public function update(Request $request, $id)
 
     // Update data kunjungan
     $visit->update($validated);
+
+    app(NotificationService::class)->visitUpdated($visit);
 
     return response()->json([
         'status'  => 'success',

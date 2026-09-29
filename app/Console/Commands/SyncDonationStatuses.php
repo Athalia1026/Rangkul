@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\NotificationService;
 use App\Models\Campaign;
 use App\Models\Donation;
 use Illuminate\Console\Command;
@@ -32,12 +33,16 @@ class SyncDonationStatuses extends Command
                             'status' => 'gagal',
                             'transaction_id' => $status->transaction_id ?? $donation->transaction_id,
                         ]);
+
+                        app(NotificationService::class)->donationFailed($donation);
                     } elseif (in_array($transactionStatus, ['settlement', 'capture'], true)) {
                         $donation->update([
                             'status' => 'sudah_bayar',
                             'transaction_id' => $status->transaction_id ?? $donation->transaction_id,
                             'paid_at' => now(),
                         ]);
+
+                        app(NotificationService::class)->donationPaid($donation);
 
                         Campaign::where('id', $donation->id_campaign)
                             ->increment('target_terkumpul', $donation->nominal);

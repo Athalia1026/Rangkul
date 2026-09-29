@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Admin;
 
+use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
 use App\Models\Campaign;
 use Illuminate\Http\Request;
@@ -37,6 +38,8 @@ class AdminCampaignVerificationController extends Controller
             'verified_by'  => $adminId,
             'verified_at'  => now(),
         ]);
+
+        app(NotificationService::class)->campaignVerified($campaign);
 
         return response()->json([
             'status'  => 'success',

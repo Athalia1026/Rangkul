@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
 use App\Mail\PurchaseProofVerificationMail;
 use App\Models\PurchaseProof;
@@ -51,6 +52,8 @@ class AdminProofVerificationController extends Controller
                         'status' => 'ditolak',
                         'alasan_tolak' => $request->catatan,
                     ]);
+
+                    app(NotificationService::class)->proofVerified($proof);
                 }
 
                 return response()->json(['status' => 'success', 'message' => 'Verifikasi Staff berhasil disimpan. Menunggu Manajer.']);
@@ -72,6 +75,8 @@ class AdminProofVerificationController extends Controller
                     'status' => $request->status,
                     'alasan_tolak' => $request->status === 'ditolak' ? $request->catatan : null,
                 ]);
+
+                app(NotificationService::class)->proofVerified($proof);
 
                 $organization = $proof->fundDisbursement?->campaign?->organization;
                 if ($organization && $organization->user) {

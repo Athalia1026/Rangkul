@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Donors\DonationController;
 use App\Http\Controllers\Donors\ProfileController;
 use App\Http\Controllers\Donors\VisitController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Organizations\CampaignController;
 use App\Http\Controllers\Organizations\OrganizationDisbursementController;
 use App\Http\Controllers\Organizations\OrganizationGalleryController;
@@ -98,6 +99,15 @@ Route::middleware('auth:sanctum')->prefix('visits')->group(function () {
     Route::patch('/{id}/respond', [VisitController::class, 'respondVisit']); // Organisasi confirm/reject
     Route::post('/{id}/documentation', [VisitController::class, 'uploadDocumentation']); // Donatur upload bukti
     Route::put('/{id}', [VisitController::class, 'update']);
+});
+
+// Notifikasi in-app untuk semua role (donatur, organisasi, admin)
+Route::middleware('auth:sanctum')->prefix('notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'index']);
+    Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::patch('/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::delete('/{id}', [NotificationController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->prefix('donations')->group(function () {

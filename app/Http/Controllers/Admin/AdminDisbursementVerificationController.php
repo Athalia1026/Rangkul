@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
 use App\Mail\DisbursementVerificationMail;
 use App\Models\FundDisbursement;
@@ -58,6 +59,8 @@ class AdminDisbursementVerificationController extends Controller
                 'transaction_id' => $request->status === 'diterima' ? ('MANUAL-' . strtoupper(substr(md5((string) now()), 0, 8))) : $disbursement->transaction_id,
             ]);
 
+            app(NotificationService::class)->disbursementVerified($disbursement);
+
             $organization = $disbursement->campaign?->organization;
             if ($organization && $organization->user) {
                 try {
@@ -106,6 +109,8 @@ class AdminDisbursementVerificationController extends Controller
             'paid_at' => now(),
             'transfer_note' => $request->catatan ?? $disbursement->transfer_note,
         ]);
+
+        app(NotificationService::class)->disbursementTransferred($disbursement);
 
         return response()->json([
             'status' => 'success',

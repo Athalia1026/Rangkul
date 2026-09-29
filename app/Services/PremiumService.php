@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Services\NotificationService;
 use App\Mail\PremiumActivatedMail;
 use App\Models\CompanyPremium;
 use App\Models\Subscription;
@@ -117,6 +118,8 @@ class PremiumService
         ]);
 
         if (!$wasActive) {
+            app(NotificationService::class)->subscriptionActivated($subscription->fresh());
+
             $company = $subscription->company()->with('donor.user')->first();
             $email = $company?->email_korporat ?? $company?->donor?->user?->email;
             if ($email) {

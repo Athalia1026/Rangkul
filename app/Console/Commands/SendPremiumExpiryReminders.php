@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\NotificationService;
 use App\Mail\PremiumExpiringMail;
 use App\Models\Subscription;
 use Illuminate\Console\Command;
@@ -25,6 +26,7 @@ class SendPremiumExpiryReminders extends Command
                 if ($email) {
                     Mail::to($email)->send(new PremiumExpiringMail($subscription));
                     $subscription->update(['reminder_sent_at' => now()]);
+                    app(NotificationService::class)->subscriptionExpiring($subscription);
                 }
             });
 

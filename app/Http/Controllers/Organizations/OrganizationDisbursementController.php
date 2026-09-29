@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Organizations;
 
+use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -123,6 +124,8 @@ class OrganizationDisbursementController extends Controller
                 'status'             => 'menunggu'
             ]);
 
+            app(NotificationService::class)->disbursementRequested($disbursement);
+
             return response()->json(['status' => 'success', 'data' => $disbursement], 201);
         });
     }
@@ -161,6 +164,8 @@ class OrganizationDisbursementController extends Controller
                 'status'       => 'menunggu',
                 'uploaded_at'  => now(),
             ]);
+
+            app(NotificationService::class)->proofUploaded($proof);
 
             return response()->json(['status' => 'success', 'data' => $proof], 201);
         });
