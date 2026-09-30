@@ -53,7 +53,6 @@
             </a>
         </div>
 
-
         <!-- Grid Layout 2 Kolom -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
@@ -270,7 +269,6 @@
         </div>
     </div>
 
-
     <!-- ====================================== -->
     <!-- ALERT ALASAN BELUM DIISI -->
     <!-- ====================================== -->
@@ -327,7 +325,6 @@
             alertSetujui.classList.add('hidden');
         });
 
-
         // ==========================
         // POPUP TOLAK
         // ==========================
@@ -342,18 +339,15 @@
         const alertAlasan = document.getElementById('alertAlasan');
         const btnTutupAlert = document.getElementById('btnTutupAlert');
 
-
         // Klik Tolak → buka popup
         btnTolak.addEventListener('click', () => {
             modalTolak.classList.remove('hidden');
         });
 
-
         // Klik Batal → tutup popup
         btnBatalTolak.addEventListener('click', () => {
             modalTolak.classList.add('hidden');
         });
-
 
         // Klik Tolak → cek alasan
         btnConfirmTolak.addEventListener('click', () => {
@@ -375,12 +369,10 @@
             alasanTolak.value = '';
         });
 
-
         // Tutup alert alasan
         btnTutupAlert.addEventListener('click', () => {
             alertAlasan.classList.add('hidden');
         });
-
 
         // ==========================
         // KLIK DI LUAR POPUP
