@@ -130,7 +130,15 @@
             </span>
         </div>
 
-        <table class="w-full text-left">
+        <table class="w-full text-left" style="table-layout: fixed;">
+            <colgroup>
+                <col style="width: 52.5px;">
+                <col style="width: 168px;">
+                <col style="width: 262.5px;">
+                <col style="width: 262.5px;">
+                <col style="width: 105px;">
+                <col style="width: 84px;">
+            </colgroup>
 
             <thead class="border-b border-gray-200">
 
@@ -184,11 +192,11 @@
                         19/02/2025
                     </td>
 
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-6 py-4">
                         SD Harapan Bangsa
                     </td>
 
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-6 py-4">
                         Jl. Raya Surabaya No. 10
                     </td>
 
@@ -224,11 +232,11 @@
                         08/11/2025
                     </td>
 
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-6 py-4">
                         Asrama Pemberdayaan Yatim dan Dhuafa
                     </td>
 
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-6 py-4">
                         Jl. Delta Raya III No.4, Sidoarjo
                     </td>
 
@@ -372,6 +380,8 @@
         const selectedJenis = filterJenis.value.toLowerCase();
         const searchValue = searchInput.value.toLowerCase();
 
+        let nomor = 1;
+
         rows.forEach(row => {
             const jenis = row.dataset.jenis;
             const rowText = row.textContent.toLowerCase();
@@ -383,10 +393,15 @@
             const sesuaiSearch =
                 rowText.includes(searchValue);
 
-            row.style.display =
-                sesuaiJenis && sesuaiSearch
-                    ? ''
-                    : 'none';
+            if (sesuaiJenis && sesuaiSearch) {
+                row.style.display = '';
+
+                // Update nomor sesuai data yang tampil
+                row.querySelector('td:first-child').textContent = nomor + '.';
+                nomor++;
+            } else {
+                row.style.display = 'none';
+            }
         });
     }
 

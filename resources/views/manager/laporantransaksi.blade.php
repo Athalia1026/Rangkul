@@ -45,7 +45,7 @@
 <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
 
     <!-- TOP SECTION -->
-    <div class="flex justify-between items-start mb-10">
+    <div class="flex justify-between items-start mb-5">
 
         <!-- SEARCH & FILTER -->
         <div class="flex gap-4">
@@ -80,15 +80,16 @@
 
             <!-- FILTER -->
             <select
+                id="filterStatus"
                 class="border border-gray-300 rounded-md px-4 py-2 w-56 text-gray-400 bg-white focus:outline-none focus:ring-1 focus:ring-rangkul-green appearance-none cursor-pointer"
                 style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ccc%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 10px center; background-size: 18px;"
             >
+                <option value="semua">Semua</option>
                 <option value="disetujui">Disetujui</option>
                 <option value="menunggu">Menunggu</option>
             </select>
 
         </div>
-
 
         <!-- STATS CARD -->
         <div class="bg-rangkul-green rounded-xl p-4 text-white shadow-lg">
@@ -126,17 +127,17 @@
 
 
         <!-- TABLE -->
-        <table class="w-full border">
+        <table class="w-full text-left" style="table-layout: fixed;">
 
             <colgroup>
-                <col class="w-[60px]">
-                <col class="w-[200px]">
-                <col class="w-[350px]">
-                <col class="w-[350px]">
-                <col class="w-[200px]">
-                <col class="w-[120px]">
-                <col class="w-[120px]">
-                <col class="w-[120px]">
+                <col style="width: 60px;">
+                <col style="width: 200px;">
+                <col style="width: 350px;">
+                <col style="width: 350px;">
+                <col style="width: 200px;">
+                <col style="width: 120px;">
+                <col style="width: 120px;">
+                <col style="width: 120px;">
             </colgroup>
 
             <thead class="border-b border-gray-200">
@@ -183,13 +184,15 @@
             <tbody class="text-sm">
 
                 <!-- DATA 1 -->
-                <tr class="text-gray-800 border-b border-gray-200">
-
+                <tr
+                    class="text-gray-800 border-b border-gray-200"
+                    data-status="disetujui"
+                >
                     <td class="px-4 py-4 text-center">
                         1.
                     </td>
 
-                    <td class="px-4 py-2 text-center">
+                    <td class="px-4 py-4 text-center">
                         04/06/2026
                     </td>
 
@@ -201,16 +204,16 @@
                         Asrama Pemberdayaan Yatim dan Dhuafa
                     </td>
 
-                    <td class="px-4 py-2">
+                    <td class="px-4 py-4">
                         Rp 1.500.000
                     </td>
 
-                    <td class="px-4 py-2 text-center">
+                    <td class="px-4 py-4 text-center">
                         QRIS
                     </td>
 
-                    <td class="px-4 py-2 text-center">
-                        Selesai
+                    <td class="px-4 py-4 text-center">
+                        Disetujui
                     </td>
 
                     <td class="px-4 py-4 text-center">
@@ -228,7 +231,10 @@
 
 
                 <!-- DATA 2 -->
-                <tr class="text-gray-800 border-b border-gray-200">
+                <tr
+                    class="text-gray-800 border-b border-gray-200"
+                    data-status="menunggu"
+                    >
 
                     <td class="px-4 py-4 text-center">
                         2.
@@ -398,7 +404,7 @@
                     tipe: "Individu",
                     nominal: "Rp 150.000",
                     metode: "QRIS",
-                    status: "Selesai",
+                    status: "Disetujui",
 
                     // DAFTAR GAMBAR
                     gambar: [
@@ -602,6 +608,37 @@
 
             }
 
+            // FILTER STATUS
+
+            const filterStatus = document.getElementById("filterStatus");
+            const rows = document.querySelectorAll("tbody tr");
+
+            filterStatus.addEventListener("change", function () {
+
+                const selectedStatus = this.value;
+                let nomor = 1;
+
+                rows.forEach(function (row) {
+
+                    const status = row.dataset.status;
+
+                    if (
+                        selectedStatus === "semua" ||
+                        status === selectedStatus
+                    ) {
+                        row.style.display = "";
+
+                        // Ubah nomor sesuai urutan data yang tampil
+                        row.querySelector("td:first-child").textContent = nomor + ".";
+                        nomor++;
+
+                    } else {
+                        row.style.display = "none";
+                    }
+
+                });
+
+            });
         </script>
 
 </body>
