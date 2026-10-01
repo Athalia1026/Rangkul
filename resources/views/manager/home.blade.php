@@ -325,7 +325,7 @@
                             <td class="px-6 py-4 text-center">
 
                                 <a
-                                    href="/manager/detail"
+                                    href="/manager/detailpengajuan"
                                     class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
                                 >
                                     Detail
@@ -360,10 +360,8 @@
 
                             <td class="px-6 py-4 text-center">
 
-                                <a
-                                    href="/manager/detail"
-                                    class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                                >
+                                <a href="/manager/detailpengajuan"
+                                class="bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold">
                                     Detail
                                 </a>
 
@@ -397,7 +395,7 @@
                             <td class="px-6 py-4 text-center">
 
                                 <a
-                                    href="/manager/detail"
+                                    href="/manager/detailpengajuan"
                                     class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
                                 >
                                     Detail
