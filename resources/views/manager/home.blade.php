@@ -31,9 +31,9 @@
 </head>
 
 <body class="text-black-800">
-
+    
     @include('manager.layouts.navbar')
-        
+    
     <!-- MAIN CONTENT -->
     <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
 
@@ -96,7 +96,6 @@
 
         </section>
 
-
         <!-- TWO COLUMNS STATS -->
         <div class="grid grid-cols-2 gap-6">
 
@@ -138,7 +137,6 @@
 
                             </div>
 
-
                             <div>
 
                                 <p class="text-sm text-gray-500 mb-2">
@@ -162,7 +160,6 @@
                         </div>
 
                     </div>
-
 
                     <!-- SEKOLAH -->
                     <div>
@@ -193,7 +190,6 @@
 
                             </div>
 
-
                             <div>
 
                                 <p class="text-sm text-gray-500 mb-2">
@@ -222,7 +218,6 @@
 
             </section>
 
-
             <!-- TOTAL TERSALURKAN -->
             <section class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
 
@@ -250,7 +245,6 @@
             </section>
 
         </div>
-
 
         <!-- DAFTAR PENCAIRAN DANA TABLE -->
         <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -325,7 +319,7 @@
                             <td class="px-6 py-4 text-center">
 
                                 <a
-                                    href="/manager/detail"
+                                    href="/manager/detailpengajuan"
                                     class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
                                 >
                                     Detail
@@ -334,7 +328,6 @@
                             </td>
 
                         </tr>
-
 
                         <tr class="border-b hover:bg-gray-50">
 
@@ -360,17 +353,14 @@
 
                             <td class="px-6 py-4 text-center">
 
-                                <a
-                                    href="/manager/detail"
-                                    class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                                >
+                                <a href="/manager/detailpengajuan"
+                                class="bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold">
                                     Detail
                                 </a>
 
                             </td>
 
                         </tr>
-
 
                         <tr class="border-b hover:bg-gray-50">
 
@@ -397,7 +387,7 @@
                             <td class="px-6 py-4 text-center">
 
                                 <a
-                                    href="/manager/detail"
+                                    href="/manager/detailpengajuan"
                                     class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
                                 >
                                     Detail
@@ -416,7 +406,6 @@
         </section>
 
     </main>
-
 
     <script>
 
@@ -494,7 +483,6 @@
             }
 
         });
-
 
         // GAUGE CHART
         const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
