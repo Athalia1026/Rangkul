@@ -1,1 +1,12 @@
 import './bootstrap';
+import '../css/donor.css';
+import './donor';
+import '../css/panti-profile.css';
+import '../css/activity.css';
+import './activity';
+import '../css/checkout.css';
+import './checkout';
+import '../css/donor-updates.css';
+import './donor-updates';
+import '../css/visits.css';
+import './visits';

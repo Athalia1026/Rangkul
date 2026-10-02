@@ -16,9 +16,9 @@
         <div class="absolute top-5 left-5 sm:top-7 sm:left-7 z-10"><a href="{{ url('/') }}"><img src="{{ asset('images/logo.png') }}" alt="Rangkul.com Donation Platform" class="w-44 sm:w-52 h-auto object-contain"></a></div>
     </aside>
     <main class="flex-1 h-full overflow-y-auto overflow-x-hidden relative isolate flex flex-col items-center pt-8 sm:pt-12 pb-14 px-4 sm:px-8 md:px-10 lg:px-14 xl:px-20">
-        <div class="absolute -top-10 -right-10 z-0 w-60 h-60 rounded-full blur-[55px] pointer-events-none" style="background-color: rgba(72, 202, 154, .16)"></div>
-        <div class="absolute bottom-16 left-6 sm:left-12 z-0 w-56 h-56 rounded-full blur-[50px] pointer-events-none" style="background-color: rgba(58, 191, 141, .18)"></div>
-        <div class="w-full max-w-[450px] mx-auto z-10">
+        <x-auth-background />
+
+                <div class="w-full max-w-[450px] mx-auto z-10">
             <div class="text-center mb-6 sm:mb-7">
                 <h1 class="text-[27px] sm:text-[31px] font-bold text-gray-950 tracking-tight leading-tight">Registrasi Ulang Organisasi</h1>
                 <p class="text-[13px] sm:text-[14px] text-gray-600 mt-2 leading-relaxed">Perbaiki data atau dokumen yang ditolak, lalu kirimkan kembali untuk diverifikasi.</p>

@@ -12,9 +12,17 @@ use Illuminate\Validation\Rule;
 
 class VisitController extends Controller
 {
+    public function show(Request $request, string $id)
+    {
+        abort_unless($request->user()->account_type === 'donatur' && $request->user()->donor, 403);
+        $visit = Visit::with(['organization.galleries', 'documents'])
+            ->where('id_donatur', $request->user()->donor->id)->findOrFail($id);
+        return response()->json(['data' => $visit]);
+    }
     // 1. Donatur Mengajukan Kunjungan
     public function store(Request $request)
     {
+        abort_unless($request->user()->account_type === 'donatur' && $request->user()->donor, 403);
         $validated = $request->validate([
             'id_organisasi' => [
                 'required',
@@ -23,7 +31,7 @@ class VisitController extends Controller
                 }),
             ],
             'tanggal_kunjungan' => 'required|date|after_or_equal:today',
-            'waktu_kunjungan'   => 'required',
+            'waktu_kunjungan'   => 'required|date_format:H:i',
             'pengunjung'        => 'required|integer|min:1',
             'pesan_donatur'     => 'nullable|string|max:255',
         ], [
@@ -79,8 +87,9 @@ class VisitController extends Controller
     // 3. Donatur Upload Dokumentasi Kunjungan (Status -> Selesai)
     public function uploadDocumentation(Request $request, $id)
     {
+        abort_unless($request->user()->account_type === 'donatur' && $request->user()->donor, 403);
         $request->validate([
-            'dokumentasi'   => 'required|array|min:1',
+            'dokumentasi'   => 'required|array|min:1|max:5',
             'dokumentasi.*' => 'image|mimes:jpeg,jpg,png|max:2048',
         ]);
 
@@ -143,9 +152,10 @@ class VisitController extends Controller
     // Donatur Mengedit Data Kunjungan (Hanya Jika Status Masih 'terkirim')
 public function update(Request $request, $id)
 {
+    abort_unless($request->user()->account_type === 'donatur' && $request->user()->donor, 403);
     $validated = $request->validate([
         'tanggal_kunjungan' => 'sometimes|required|date|after_or_equal:today',
-        'waktu_kunjungan'   => 'sometimes|required',
+        'waktu_kunjungan'   => 'sometimes|required|date_format:H:i',
         'pengunjung'        => 'sometimes|required|integer|min:1',
         'pesan_donatur'     => 'nullable|string|max:255',
     ]);

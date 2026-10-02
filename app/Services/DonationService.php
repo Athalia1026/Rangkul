@@ -12,6 +12,24 @@ use Midtrans\Snap;
 
 class DonationService
 {
+    public const PAYMENT_FEE = 3000;
+    public function refreshPayment(Donation $donation): Donation
+    {
+        if ($donation->status !== 'belum_bayar' || !$donation->snap_token) return $donation;
+        try {
+            $payload = (array) \Midtrans\Transaction::status($donation->id);
+            DB::transaction(function () use ($donation, $payload) {
+                $locked = Donation::lockForUpdate()->findOrFail($donation->id);
+                if ($locked->status === 'sudah_bayar') return;
+                if (($payload['order_id'] ?? '') !== $locked->id) return;
+                if ((float) ($payload['gross_amount'] ?? 0) !== (float) ($locked->nominal + ($locked->payment_fee ?? self::PAYMENT_FEE))) return;
+                $this->processDonationCallback($locked, $payload);
+            });
+        } catch (\Throwable $exception) {
+            // A not-yet-started Snap transaction can return 404; keep it pending.
+        }
+        return $donation->fresh();
+    }
     public function __construct()
     {
         Config::$serverKey = config('services.midtrans.server_key', env('MIDTRANS_SERVER_KEY'));
@@ -23,7 +41,7 @@ class DonationService
     public function createDonationTransaction(array $validated, $user): array
     {
         $donorId = $user->donor?->id ?? $user->id;
-        $adminFee = 3000;
+        $adminFee = self::PAYMENT_FEE;
         $totalAmount = $validated['nominal'] + $adminFee;
 
         return DB::transaction(function () use ($validated, $user, $donorId, $adminFee, $totalAmount) {
@@ -34,6 +52,7 @@ class DonationService
                 'note' => $validated['note'] ?? null,
                 'anonim' => !empty($validated['anonim']) ? 1 : 0,
                 'status' => 'belum_bayar',
+                'payment_fee' => $adminFee,
             ]);
 
             $params = [
@@ -48,10 +67,11 @@ class DonationService
                 'enabled_payments' => ['gopay', 'qris'],
             ];
 
-            $snapToken = Snap::getSnapToken($params);
-            $snapRedirectUrl = Snap::getSnapUrl($params);
+            $transaction = $this->createGatewayTransaction($params);
+            $snapToken = $transaction->token;
+            $snapRedirectUrl = $transaction->redirect_url;
 
-            $donation->update(['transaction_id' => $snapToken]);
+            $donation->update(['snap_token' => $snapToken, 'payment_url' => $snapRedirectUrl]);
 
             return [
                 'status' => 'success',
@@ -69,6 +89,11 @@ class DonationService
         });
     }
 
+    protected function createGatewayTransaction(array $params): object
+    {
+        return Snap::createTransaction($params);
+    }
+
     public function handleCallback(array $payload): array
     {
         try {
@@ -83,6 +108,8 @@ class DonationService
                 return $this->buildErrorResponse(401, 'Signature callback tidak valid.');
             }
 
+            if (!Config::$serverKey) return $this->buildErrorResponse(503, 'Pembayaran belum dikonfigurasi.');
+
             $donation = $this->findDonationByOrderId($orderId);
             if ($donation === null) {
                 return $this->buildErrorResponse(404, 'Data donasi tidak ditemukan.');
@@ -92,7 +119,13 @@ class DonationService
                 return $this->buildAlreadyProcessedResponse();
             }
 
-            $this->processDonationCallback($donation, $payload);
+            if ((float) ($payload['gross_amount'] ?? 0) !== (float) ($donation->nominal + ($donation->payment_fee ?? self::PAYMENT_FEE))) {
+                return $this->buildErrorResponse(422, 'Nominal pembayaran tidak sesuai.');
+            }
+            DB::transaction(function () use ($donation, $payload) {
+                $locked = Donation::lockForUpdate()->findOrFail($donation->id);
+                if (!$this->isAlreadyProcessed($locked)) $this->processDonationCallback($locked, $payload);
+            });
 
             return $this->buildSuccessResponse();
         } catch (\Exception $e) {
@@ -229,8 +262,7 @@ class DonationService
             'paid_at' => now(),
         ]);
 
-        Campaign::where('id', $donation->id_campaign)
-            ->increment('target_terkumpul', $donation->nominal);
+        // Campaign totals are calculated from paid donations, not a cached column.
     }
 
     private function buildErrorResponse(int $statusCode, string $message): array

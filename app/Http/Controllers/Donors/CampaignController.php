@@ -55,6 +55,7 @@ class CampaignController extends Controller
                     'nama'   => $nama,
                     'detail' => $don->created_at ? $don->created_at->diffForHumans() : '',
                     'pesan'  => $don->note,
+                    'nominal' => (int) $don->nominal,
                     'avatar' => null, // fallback ke UI Avatars di view
                 ];
             });
@@ -93,7 +94,11 @@ class CampaignController extends Controller
             'persentase' => $persentase,
             'sisa_hari' => (int) $campaign->sisa_hari,
             'donatur' => $campaign->donations()->where('status', 'sudah_bayar')->count(),
-            'kebutuhan' => $campaign->kebutuhan ?? [], // assumes JSON column
+            'kebutuhan' => $campaign->kebutuhan ?? (str_starts_with($campaign->id, 'demo-campaign-')
+                ? (in_array($campaign->id, ['demo-campaign-1', 'demo-campaign-7'])
+                    ? ['Beras (300 kg)', 'Telur ayam (900 butir)', 'Daging ayam (60 kg)', 'Ikan (40 kg)', 'Sayuran segar (120 kg)', 'Buah-buahan (90 kg)', 'Susu (150 liter)', 'Roti dan camilan sehat (150 bungkus)', 'Minyak goreng (40 liter)', 'Bumbu dapur (1 paket)', 'Perlengkapan kebersihan dapur (1 paket)']
+                    : ['Perlengkapan kegiatan anak (30 paket)', 'Bahan dan peralatan penunjang (10 paket)', 'Transportasi dan distribusi (1 paket)', 'Pendampingan kegiatan (4 sesi)'])
+                : []),
         ];
 
         $searchQuery = (string) request('q', session('last_search_query', ''));
