@@ -10,9 +10,25 @@ use Illuminate\Support\Facades\Auth;
 
 class ActivityHistoryController extends Controller
 {
+    public function distribution(Request $request, string $id)
+    {
+        abort_unless($request->user()->account_type === 'donatur' && $request->user()->donor, 403);
+        $donation = Donation::with(['campaign.organization', 'campaign.fundDisbursements.purchaseProofs'])
+            ->where('id_donatur', $request->user()->donor->id)->where('status', 'sudah_bayar')->findOrFail($id);
+        $reports = ($donation->campaign?->fundDisbursements ?? collect())->map(function ($report) {
+            $proofs = $report->purchaseProofs->where('status', 'diterima');
+            if ($proofs->isEmpty()) return null;
+            return ['id' => $report->id, 'date' => $report->paid_at ?: $proofs->max('uploaded_at'),
+                'total' => (float) $proofs->sum('nominal'), 'description' => $report->alokasi_dana ?: $report->alasan,
+                'proofs' => $proofs->map(fn ($proof) => ['description' => $proof->deskripsi, 'amount' => (float) $proof->nominal, 'url' => asset('storage/' . $proof->lokasi_file)])->values()];
+        })->filter()->values();
+        return response()->json(['campaign' => $donation->campaign?->judul, 'organization' => $donation->campaign?->organization?->nama_lembaga, 'reports' => $reports]);
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
+        abort_unless($user->account_type === 'donatur', 403);
         $donorId = $user?->donor?->id ?? $user?->id;
 
         // ==========================================
@@ -61,11 +77,14 @@ class ActivityHistoryController extends Controller
 
             return [
                 'id'                => $donation->id,
+                'proofs' => $displayStatus === 'sudah_disalurkan' ? $donation->campaign->fundDisbursements->flatMap(fn ($item) => $item->purchaseProofs->where('status', 'diterima'))->map(fn ($proof) => ['url' => asset('storage/' . $proof->lokasi_file), 'description' => $proof->deskripsi])->values() : [],
                 'invoice_id'        => $donation->transaction_id ?? 'D-NS-' . strtoupper(substr($donation->id, 0, 8)),
                 'amount'            => (float) $donation->nominal,
                 'campaign_name'     => $donation->campaign?->judul ?? 'Campaign Tidak Diketahui',
                 'organization_name' => $donation->campaign?->organization?->nama_lembaga ?? '-',
                 'created_at'        => $donation->created_at,
+                'paid_at'           => $donation->paid_at,
+                'distributed_at'    => $displayStatus === 'sudah_disalurkan' ? $donation->campaign->fundDisbursements->flatMap(fn ($item) => $item->purchaseProofs->where('status', 'diterima'))->max('updated_at') : null,
                 'status_asli'       => $donation->status,
                 'display_status'    => $displayStatus,
                 'campaign_image'    => $donation->campaign?->foto_cover ? asset('storage/' . $donation->campaign->foto_cover) : null,
@@ -75,13 +94,21 @@ class ActivityHistoryController extends Controller
         // ==========================================
         // 3. Query Riwayat Kunjungan
         // ==========================================
-        $visits = Visit::with('organization')
+        $visits = Visit::with(['organization.galleries', 'documents'])
             ->where('id_donatur', $donorId)
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($visit) {
                 return [
                     'id'                => $visit->id,
+                    'organization_id'   => $visit->id_organisasi,
+                    'updated_at' => $visit->updated_at,
+                    'image' => $visit->organization?->galleries->first()?->image_url,
+                    'date' => $visit->tanggal_kunjungan,
+                    'time' => $visit->waktu_kunjungan,
+                    'message' => $visit->pesan_donatur,
+                    'response' => $visit->pesan_organisasi,
+                    'documents' => $visit->documents->map(fn ($document) => asset('storage/' . $document->lokasi_file))->values(),
                     'organization_name' => $visit->organization?->nama_lembaga ?? '-',
                     'lokasi'            => $visit->organization?->kota ?? '-',
                     'tanggal_waktu'     => trim($visit->tanggal_kunjungan . ' ' . ($visit->waktu_kunjungan ?? '')),

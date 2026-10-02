@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Donors;
 
 use App\Models\Campaign;
+use App\Models\Category;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -25,6 +26,7 @@ class SearchController extends Controller
             'campaigns' => collect($payload['data']['campaigns'] ?? []),
             'query' => $payload['data']['query'] ?? '',
             'sort' => $payload['data']['sort'] ?? 'latest',
+            'categories' => $request->routeIs('donatur.cari') ? Category::orderBy('name')->get() : collect(),
         ]);
     }
 
@@ -40,7 +42,7 @@ class SearchController extends Controller
 
         $payload = $this->search($request)->getData(true);
 
-        return view('search_result', [
+        return view($request->routeIs('donatur.search.results') ? 'donatur.hasil-pencarian' : 'search_result', [
             'campaigns' => collect($payload['data']['campaigns'] ?? []),
             'organizations' => collect($payload['data']['organizations'] ?? []),
             'query' => $payload['data']['query'] ?? '',
@@ -50,6 +52,7 @@ class SearchController extends Controller
 
     public function search(Request $request)
     {
+        $request->validate(['category' => ['nullable', 'string', 'max:500']]);
         $keyword = trim((string) $request->query('q', ''));
         $sort = match ($request->query('sort', 'latest')) {
             'mendesak', 'urgent' => 'urgent',
@@ -68,19 +71,17 @@ class SearchController extends Controller
         $organizationQuery = Organization::query()
             ->where('verification_status', 'disetujui');
 
+        if ($request->filled('category')) {
+            $campaignQuery->where('id_categories', $request->query('category'));
+        }
+
         if ($keyword !== '') {
             try {
-                // Try Meilisearch via Scout
-                $campaignIds = Campaign::search($keyword, function ($indexes, $query, $options) {
-                    $options['limit'] = 100;
-                    return $indexes->search($query, $options);
-                })->keys()->toArray();
-                $campaignQuery->whereIn('id', $campaignIds);
+                // Use Scout's shared API for both collection and Meilisearch drivers.
+                $campaignIds = Campaign::search($keyword)->take(100)->keys()->toArray();
+                $orgIds = Organization::search($keyword)->take(100)->keys()->toArray();
 
-                $orgIds = Organization::search($keyword, function ($indexes, $query, $options) {
-                    $options['limit'] = 100;
-                    return $indexes->search($query, $options);
-                })->keys()->toArray();
+                $campaignQuery->whereIn('id', $campaignIds);
                 $organizationQuery->whereIn('id', $orgIds);
             } catch (\Exception $e) {
                 // Graceful fallback to SQL LIKE if Meilisearch is down

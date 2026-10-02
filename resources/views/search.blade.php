@@ -3,13 +3,15 @@
 
 @section('content')
 @php
+    $isDonorSearch = request()->routeIs('donatur.cari');
     $hasQuery = !empty(trim((string) request('q', $query ?? '')));
+    $hasFilters = $hasQuery || request()->filled('category');
     $pilihanRangkul = $campaigns->take(7);
-    $otherCampaigns = $hasQuery ? $campaigns : $campaigns->skip(7);
+    $otherCampaigns = $isDonorSearch || $hasQuery ? $campaigns : $campaigns->skip(7);
     $isUrgent = ($sort === 'urgent');
 @endphp
 
-<div class="w-full flex flex-col">
+<div class="w-full flex flex-col {{ $isDonorSearch ? 'donor-search-page' : '' }}">
     <!-- ============================================================ -->
     <!-- 2. HERO SEARCH BANNER                                        -->
     <!-- ============================================================ -->
@@ -32,7 +34,7 @@
 
             <!-- Search Bar Input -->
             <div class="w-full max-w-[580px] mt-6 relative">
-                <form action="{{ route('search.results') }}" method="GET" class="relative flex items-center bg-white/90 backdrop-blur-md hover:bg-white focus-within:bg-white rounded-xl shadow-lg border border-white/40 transition-all">
+                <form action="{{ route($isDonorSearch ? 'donatur.search.results' : 'search.results') }}" method="GET" role="search" class="relative flex items-center bg-white/90 backdrop-blur-md hover:bg-white focus-within:bg-white rounded-xl shadow-lg border border-white/40 transition-all">
                     <svg class="w-5 h-5 text-gray-500 ml-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8" stroke-width="2"/>
                         <path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/>
@@ -40,6 +42,7 @@
                     <input
                         type="text"
                         name="q"
+                        aria-label="Cari kampanye atau organisasi"
                         value="{{ request('q') }}"
                         placeholder="Cari organisasi atau campaign..."
                         class="w-full py-3 sm:py-3.5 pl-3 pr-10 text-gray-900 placeholder-gray-500 text-[14px] sm:text-[15px] outline-none bg-transparent"
@@ -47,6 +50,10 @@
                     @if(request('sort'))
                         <input type="hidden" name="sort" value="{{ request('sort') }}">
                     @endif
+                    @if($isDonorSearch && request('category'))
+                        <input type="hidden" name="category" value="{{ request('category') }}">
+                    @endif
+                    <button type="submit" class="mr-2 rounded-lg bg-[#05522d] px-4 py-2 text-sm font-semibold text-white hover:bg-[#044023]">Cari</button>
                 </form>
             </div>
         </div>
@@ -55,9 +62,9 @@
     <!-- ============================================================ -->
     <!-- 3. MAIN CONTENT CONTAINER                                    -->
     <!-- ============================================================ -->
-    <div class="w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-12 sm:space-y-14 flex-1">
+    <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-12 sm:space-y-14 flex-1">
         
-        @if(!$hasQuery)
+        @if(!$hasFilters)
             <!-- ========================================================== -->
             <!-- SECTION A: PILIHAN RANGKUL (SLIDABLE - 7 CAMPAIGNS)       -->
             <!-- ========================================================== -->
@@ -140,7 +147,7 @@
                 </h2>
 
                 <!-- Sort Filter Trigger Button -->
-                <div class="relative" id="sortDropdownContainer">
+                <div class="relative {{ $isDonorSearch ? 'hidden' : '' }}" id="sortDropdownContainer">
                     <button
                         type="button"
                         id="sortBtn"
@@ -188,8 +195,46 @@
                 </div>
             </div>
 
+            @if ($isDonorSearch)
+                <form action="{{ route('donatur.cari') }}" method="GET" class="mb-8" id="donor-search-filters">
+                    <input type="hidden" name="q" value="{{ $query }}">
+                    <div class="search-filter-bar">
+                        <details class="search-filter-menu">
+                            <summary class="search-filter-trigger">Urutkan <svg class="search-filter-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></summary>
+                            <div class="search-filter-popover">
+                                <label for="donor-sort" class="mb-2 block text-sm font-semibold">Urutkan kampanye</label>
+                                <select id="donor-sort" name="sort" class="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm">
+                                    <option value="latest" @selected(!$isUrgent)>Terbaru</option>
+                                    <option value="urgent" @selected($isUrgent)>Paling Mendesak</option>
+                                </select>
+                                <button type="submit" class="mt-3 w-full rounded-lg bg-[#05522d] py-2 text-sm font-semibold text-white">Terapkan</button>
+                            </div>
+                        </details>
+                        <details class="search-filter-menu">
+                            <summary class="search-filter-trigger">Filter <svg class="search-filter-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></summary>
+                            <div class="search-filter-popover">
+                                <label for="donor-category" class="mb-2 block text-sm font-semibold">Kategori</label>
+                                <select id="donor-category" name="category" class="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm">
+                                    <option value="">Semua kategori</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}" @selected(request('category') === $category->id)>{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="mt-3 w-full rounded-lg bg-[#05522d] py-2 text-sm font-semibold text-white">Terapkan</button>
+                            </div>
+                        </details>
+                    </div>
+                    @if($hasFilters || $isUrgent)
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
+                            <p>{{ $campaigns->count() }} kampanye ditampilkan{{ request('category') ? ' · ' . ($categories->firstWhere('id', request('category'))?->name ?? 'Kategori tidak ditemukan') : '' }}</p>
+                            <a href="{{ route('donatur.cari') }}" class="font-semibold text-[#05522d] underline">Reset pencarian & filter</a>
+                        </div>
+                    @endif
+                </form>
+            @endif
+
             <!-- List of Horizontal Campaign Cards -->
-            <div class="space-y-4 sm:space-y-5">
+            <div class="search-campaign-list space-y-4 sm:space-y-5">
                 @forelse ($otherCampaigns as $campaign)
                     <a href="{{ route('campaign.detail', array_filter(['id' => $campaign['id'], 'q' => request('q', $query ?? '')])) }}" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row group">
                         <div class="w-full sm:w-[260px] md:w-[320px] lg:w-[380px] h-[170px] sm:h-[180px] shrink-0 overflow-hidden bg-gray-100">
@@ -245,11 +290,70 @@
 
 @push('scripts')
 <style>
+    .donor-search-page .search-campaign-list > a > div:first-child { height: 230px; }
+    .donor-search-page .search-campaign-list > a > div:last-child { min-width: 0; padding: 26px 28px; }
+    .donor-search-page .search-campaign-list h3 { font-size: 20px; line-height: 1.4; }
+    .donor-search-page .search-campaign-list h3 + p { font-size: 14px; }
+    .donor-search-page .search-campaign-list .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 20px; }
+    .donor-search-page .search-campaign-list .grid span:first-child { font-size: 13px; }
+    .donor-search-page .search-campaign-list .grid span:last-child { margin-top: 6px; font-size: 23px; line-height: 1.3; font-weight: 700; color: #05522d; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+    .donor-search-page #pilihanRangkulTrack > a { width: 390px; }
+    .donor-search-page #pilihanRangkulTrack h3 { font-size: 18px; }
+    .donor-search-page #pilihanRangkulTrack p { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 4px; }
+    .donor-search-page #pilihanRangkulTrack p > span { font-size: 21px; line-height: 1.4; }
+    @media (min-width: 1024px) { .donor-search-page .search-campaign-list > a > div:first-child { width: 400px; } }
+    @media (max-width: 900px) {
+        .donor-search-page .search-campaign-list > a > div:last-child { padding: 22px; }
+        .donor-search-page .search-campaign-list .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .donor-search-page .search-campaign-list .grid span:last-child { font-size: 20px; }
+    }
+    @media (max-width: 639px) {
+        .donor-search-page #pilihanRangkulTrack > a { width: min(350px, 85vw); }
+        .donor-search-page .search-campaign-list > a > div:first-child { height: 210px; }
+        .donor-search-page .search-campaign-list h3 { font-size: 18px; }
+    }
+    .search-filter-bar { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; border: 1px solid #ffffff20; border-radius: 18px; background: #207466; box-shadow: 0 4px 14px #164f4310; }
+    .search-filter-menu { position: relative; min-width: 0; }
+    .search-filter-bar::after { content: ''; position: absolute; left: 50%; top: 18px; bottom: 18px; width: 1px; background: #ffffff35; }
+    .search-filter-trigger { display: flex; justify-content: center; align-items: center; gap: 10px; min-height: 48px; padding: 12px 18px; border-radius: 12px; list-style: none; cursor: pointer; color: #fff; font-size: 15px; font-weight: 600; transition: background .2s; }
+    .search-filter-trigger::-webkit-details-marker { display: none; }
+    .search-filter-trigger:hover, .search-filter-menu[open] .search-filter-trigger { background: #ffffff15; }
+    .search-filter-trigger:focus-visible { outline: 2px solid #d2f3e2; outline-offset: -3px; }
+    .search-filter-chevron { transition: transform .2s; }
+    .search-filter-menu[open] .search-filter-chevron { transform: rotate(180deg); }
+    .search-filter-popover { position: absolute; left: 50%; top: calc(100% + 18px); transform: translateX(-50%); z-index: 25; width: 300px; max-width: calc(100vw - 48px); padding: 22px; border: 1px solid #e1ece5; border-radius: 18px; background: white; color: #183b2c; box-shadow: 0 16px 40px #123d2920, 0 3px 8px #123d2908; }
+    .search-filter-popover label { margin-bottom: 12px; }
+    .search-filter-popover select { min-height: 46px; border-color: #dce7df; border-radius: 10px; background: #f8faf9; padding: 10px 12px; font-size: 14px; }
+    .search-filter-popover select:focus-visible { outline: 2px solid #258574; outline-offset: 2px; }
+    .search-filter-popover button { min-height: 44px; margin-top: 18px; border-radius: 10px; transition: background .2s; }
+    .search-filter-popover button:hover { background: #044023; }
+    @media (max-width: 640px) {
+        .search-filter-menu { position: static; }
+        .search-filter-popover { top: calc(100% + 10px); width: min(340px, calc(100% - 16px)); }
+        .search-filter-trigger { font-size: 14px; padding-inline: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .search-filter-trigger, .search-filter-chevron, .search-filter-popover button { transition: none; } }
     #pilihanRangkulTrack::-webkit-scrollbar {
         display: none;
     }
 </style>
 <script>
+    const donorFilters = document.getElementById('donor-search-filters');
+    if (donorFilters) {
+        const menus = [...donorFilters.querySelectorAll('details')];
+        menus.forEach(menu => menu.addEventListener('toggle', () => {
+            if (menu.open) menus.forEach(other => { if (other !== menu) other.open = false; });
+        }));
+        document.addEventListener('click', event => {
+            menus.forEach(menu => { if (!menu.contains(event.target)) menu.open = false; });
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') menus.forEach(menu => {
+                if (menu.open) { menu.open = false; menu.querySelector('summary').focus(); }
+            });
+        });
+    }
+
     function toggleSortDropdown() {
         const menu = document.getElementById('sortMenu');
         if (menu) {

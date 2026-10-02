@@ -37,12 +37,13 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
+            $existing = DB::table('categories')->where('name', $category['name'])->first();
             DB::table('categories')->updateOrInsert(
                 ['name' => $category['name']],
                 [
-                    'id'         => (string) Str::uuid(),
+                    'id'         => $existing?->id ?? (string) Str::uuid(),
                     'icon'       => $category['icon'],
-                    'created_at' => now(),
+                    'created_at' => $existing?->created_at ?? now(),
                     'updated_at' => now(),
                 ]
             );

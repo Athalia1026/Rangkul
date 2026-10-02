@@ -17,12 +17,16 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-[#f5f7f4] text-[#000000] font-['Plus_Jakarta_Sans',sans-serif] antialiased flex flex-col items-center">
+<body class="bg-[#f5f7f4] text-[#000000] font-['Plus_Jakarta_Sans',sans-serif] antialiased flex flex-col items-center"
+    @if (request()->routeIs('donatur.*')) data-donor-page data-login-url="{{ route('login') }}" @endif>
 
     <!-- Main Canvas Frame: 1200px Width -->
     <div class="w-full bg-[#F5F7F4] shadow-xl flex flex-col">
 
         <!-- NAVBAR -->
+        @if (request()->routeIs('donatur.*'))
+            <x-donor-navbar />
+        @else
         <header class="w-full bg-white border-b border-gray-100 sticky top-0 z-30 shadow-2xs">
             <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                 <a href="{{ url('/') }}" class="flex items-center gap-2.5">
@@ -92,6 +96,8 @@
             </div>
         </header>
 
+        @endif
+
         <!-- MAIN CONTENT INJECTION -->
         <main>
             @yield('content')
@@ -157,6 +163,9 @@
         </footer>
 
     </div>
+    @if (request()->routeIs('donatur.*'))
+        <x-donor-account-panel />
+    @endif
     @stack('scripts')
 </body>
 

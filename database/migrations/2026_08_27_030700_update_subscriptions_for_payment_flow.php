@@ -15,8 +15,13 @@ return new class extends Migration {
             $table->timestamp('expired_at')->nullable()->change();
             $table->string('transaction_id', 500)->nullable()->change();
             $table->timestamp('paid_at')->nullable()->change();
-            $table->timestamp('reminder_sent_at')->nullable();
         });
+
+        if (!Schema::hasColumn('subscriptions', 'reminder_sent_at')) {
+            Schema::table('subscriptions', function (Blueprint $table) {
+                $table->timestamp('reminder_sent_at')->nullable();
+            });
+        }
     }
 
     public function down(): void
