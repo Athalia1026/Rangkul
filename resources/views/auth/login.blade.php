@@ -143,7 +143,7 @@
                     </div>
 
                     <div class="mt-2 text-right">
-                        <a href="#"
+                        <a href="{{ route('password.request') }}"
                             class="text-[11px] sm:text-[11.5px] font-medium text-gray-500 hover:text-[#065e38] transition-colors">
                             Lupa password?
                         </a>

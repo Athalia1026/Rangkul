@@ -8,8 +8,7 @@
         <img src="{{ $campaign->foto_cover ? (preg_match('~^https?://~', $campaign->foto_cover) ? $campaign->foto_cover : asset('storage/' . $campaign->foto_cover)) : asset('images/hero/hero_children.jpg') }}" alt="">
         <div><h2>{{ $campaign->judul }}</h2><p>{{ $campaign->organization?->nama_lembaga }}</p></div>
     </div>
-    <p class="checkout-help">Preview tampilan — tidak ada transaksi atau pembayaran sungguhan.</p>
-    <form id="checkout-form" data-preview="true" data-title="{{ $campaign->judul }}" data-campaign="{{ $campaign->id }}" data-fee="{{ $fee }}">
+    <form id="checkout-form" data-title="{{ $campaign->judul }}" data-campaign="{{ $campaign->id }}" data-fee="{{ $fee }}">
         <fieldset><legend>Pilih Nominal Donasi</legend><div class="checkout-presets">
             @foreach([10000, 20000, 50000, 75000, 100000, 250000, 500000, 750000, 1000000] as $amount)
             <button type="button" data-amount="{{ $amount }}" aria-pressed="{{ $amount === 100000 ? 'true' : 'false' }}">Rp {{ number_format($amount, 0, ',', '.') }}</button>

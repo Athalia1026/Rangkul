@@ -28,10 +28,16 @@
                 <div id="donor-profile-dropdown" class="donor-dropdown" hidden>
                     <strong id="donor-name">Memuat akun...</strong>
                     <button type="button" data-donor-panel="profile">Profil saya</button>
-                    <button type="button" id="donor-logout">Keluar</button>
                     <p id="donor-account-error" role="status"></p>
                 </div>
             </div>
+            {{-- Keluar: cabut token API donatur lalu akhiri sesi web (lihat donor.js) --}}
+            <form id="donor-logout-form" method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="donor-logout" aria-label="Keluar" title="Keluar">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+                </button>
+            </form>
         </div>
     </div>
 </header>

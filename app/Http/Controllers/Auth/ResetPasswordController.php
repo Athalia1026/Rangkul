@@ -52,10 +52,16 @@ class ResetPasswordController extends Controller
 
     private function validateResetPasswordRequest(Request $request): void
     {
+        // Aturan password disamakan dengan registrasi: minimal 8 karakter, berisi huruf dan angka.
         $request->validate([
             'token' => 'required|string',
             'email' => 'required|email|exists:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[A-Za-z])(?=.*[0-9]).+$/'],
+        ], [
+            'email.exists' => 'Email ini tidak terdaftar di sistem kami.',
+            'password.min' => 'Password harus terdiri dari minimal 8 karakter, termasuk huruf dan angka.',
+            'password.regex' => 'Password harus terdiri dari minimal 8 karakter, termasuk huruf dan angka.',
+            'password.confirmed' => 'Password dan konfirmasi password tidak cocok.',
         ]);
     }
 

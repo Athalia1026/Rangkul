@@ -58,20 +58,26 @@ if (page) {
         if (visit.status === 'dikonfirmasi') {
             uploadForm = el('form'); uploadForm.id = 'visit-upload-form';
             const box = panel('Unggah Dokumentasi Kegiatan'); box.id = 'dokumentasi';
-            const drop = el('label', '↑ Tarik dan lepas foto di sini', 'visit-upload'); drop.append(el('span', 'Maks. 5 foto JPG/PNG, 2 MB per foto. Klik untuk memilih.'));
-            const input = el('input'); input.type = 'file'; input.accept = 'image/jpeg,image/png'; input.multiple = true; input.required = true; input.setAttribute('aria-label', 'Pilih dokumentasi kegiatan'); drop.append(input);
-            const previews = el('div', null, 'visit-gallery'), feedback = el('p'); feedback.setAttribute('role', 'status'); let selected = [];
+            const drop = el('label', null, 'visit-upload');
+            const icon = el('span', null, 'visit-upload-icon');
+            icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 16l-4-4-4 4M12 12v8" /><path d="M20 16.5a4.5 4.5 0 0 0-2.5-8.17A6 6 0 0 0 6.12 10 4 4 0 0 0 6 18h2" /></svg>';
+            drop.append(icon, el('strong', 'Pilih foto untuk diunggah', 'visit-upload-title'), el('span', 'JPG, PNG • Maks. 2MB per foto, hingga 5 foto', 'visit-upload-hint'), el('span', 'Klik atau tarik dan lepas foto ke sini', 'visit-upload-hint'));
+            // Input disembunyikan; validasi jumlah dilakukan di onsubmit agar tidak bentrok dengan validasi bawaan browser.
+            const input = el('input'); input.type = 'file'; input.accept = 'image/jpeg,image/png'; input.multiple = true; input.hidden = true; input.setAttribute('aria-label', 'Pilih dokumentasi kegiatan'); drop.append(input);
+            const chosen = el('p', null, 'visit-upload-selected'), previews = el('div', null, 'visit-gallery'), feedback = el('p'); feedback.setAttribute('role', 'status'); let selected = [];
             function select(files) {
-                selected = []; previews.replaceChildren(); urls.splice(0).forEach(URL.revokeObjectURL);
+                selected = []; chosen.textContent = ''; previews.replaceChildren(); urls.splice(0).forEach(URL.revokeObjectURL);
                 const entries = [...files];
                 if (entries.length > 5 || entries.some(file => !['image/jpeg', 'image/png'].includes(file.type) || file.size > 2 * 1024 * 1024)) { feedback.textContent = 'Pilih maksimal 5 foto JPG/PNG dengan ukuran maksimal 2 MB per foto.'; input.value = ''; return; }
                 selected = entries; feedback.textContent = '';
+                if (entries.length) chosen.textContent = `${entries.length} foto dipilih`;
                 entries.forEach(file => { const url = URL.createObjectURL(file); urls.push(url); const figure = el('figure'); figure.append(image(url, file.name), el('figcaption', file.name)); previews.append(figure); });
             }
             input.onchange = () => select(input.files);
-            drop.ondragover = event => event.preventDefault();
-            drop.ondrop = event => { event.preventDefault(); input.files = event.dataTransfer.files; select(input.files); };
-            box.append(drop, previews, feedback); uploadForm.append(box); left.append(uploadForm);
+            drop.ondragover = event => { event.preventDefault(); drop.classList.add('is-dragover'); };
+            drop.ondragleave = () => drop.classList.remove('is-dragover');
+            drop.ondrop = event => { event.preventDefault(); drop.classList.remove('is-dragover'); input.files = event.dataTransfer.files; select(input.files); };
+            box.append(drop, chosen, previews, feedback); uploadForm.append(box); left.append(uploadForm);
             uploadForm.onsubmit = async event => {
                 event.preventDefault(); if (!selected.length) { feedback.textContent = 'Pilih foto dokumentasi terlebih dahulu.'; return; }
                 const button = document.getElementById('visit-upload-submit'); if (button.disabled) return; button.disabled = true;

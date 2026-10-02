@@ -23,7 +23,10 @@ class AppServiceProvider extends ServiceProvider
     {
         
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
-            return 'http://127.0.0.1:8000/reset-password?token=' . $token . '&email=' . $notifiable->getEmailForPasswordReset();
+            return route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ]);
         });
         
     }

@@ -54,11 +54,14 @@ if (donorPage) {
     avatarButton.addEventListener('click', () => { dropdown.hidden = !dropdown.hidden; avatarButton.setAttribute('aria-expanded', String(!dropdown.hidden)); });
     document.addEventListener('click', event => { if (!event.target.closest('.donor-profile-menu')) closeDropdown(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') closeDropdown(); });
-    document.getElementById('donor-logout').addEventListener('click', async event => {
-        const button = event.currentTarget;
-        button.disabled = true;
-        try { await api('/api/logout', 'POST'); clearAuth(); goToLogin(); }
-        catch (error) { document.getElementById('donor-account-error').textContent = error.message; button.disabled = false; }
+    document.getElementById('donor-logout-form').addEventListener('submit', async event => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.querySelector('button').disabled = true;
+        // Token tetap dihapus dari browser walaupun pencabutan token di server gagal.
+        try { await api('/api/logout', 'POST'); } catch (_) { /* lanjutkan logout lokal */ }
+        clearAuth();
+        form.submit();
     });
 
     function paragraph(text, target = panelContent) {

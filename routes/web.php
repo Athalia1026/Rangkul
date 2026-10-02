@@ -63,6 +63,18 @@ Route::post('/login', [AuthController::class, 'loginWeb'])
     ->name('login.store');
 
 
+// Lupa & atur ulang password: halaman saja, proses dikirim ke /api/forgot-password dan /api/reset-password.
+Route::view('/lupa-password', 'auth.forgot-password')->name('password.request');
+Route::view('/lupa-password/cek-email', 'auth.forgot-password-sent')->name('password.sent');
+
+Route::get('/reset-password', function (\Illuminate\Http\Request $request) {
+    return view('auth.reset-password', [
+        'token' => (string) $request->query('token', ''),
+        'email' => (string) $request->query('email', ''),
+    ]);
+})->name('password.reset');
+
+
 Route::post('/logout', [AuthController::class, 'logoutWeb'])
     ->name('logout');
 

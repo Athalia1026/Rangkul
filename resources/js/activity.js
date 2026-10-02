@@ -4,6 +4,9 @@ if (page) {
     const date = value => value ? new Date(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
     const labels = { belum_bayar: 'Belum Dibayar', sudah_bayar: 'Sudah Dibayar', sudah_disalurkan: 'Sudah Disalurkan', terkirim: 'Terkirim', dikonfirmasi: 'Dikonfirmasi', ditolak: 'Ditolak', selesai: 'Selesai' };
     const filters = { donations: 'all', visits: 'all' };
+    // Hanya 3 riwayat terbaru yang tampil sampai pengguna menekan "Lihat Selengkapnya".
+    const PREVIEW_LIMIT = 3;
+    const expanded = { donations: false, visits: false };
     let data = null;
     const dialog = document.getElementById('activity-dialog');
     const content = document.getElementById('activity-dialog-content');
@@ -123,8 +126,19 @@ if (page) {
         for (const [kind, listId, records] of [['donations', 'activity-donations', data.riwayat_donasi], ['visits', 'activity-visit-list', data.riwayat_kunjungan]]) {
             const list = document.getElementById(listId);
             const items = records.filter(item => filters[kind] === 'all' || (kind === 'donations' ? item.display_status : item.status) === filters[kind]);
-            list.replaceChildren(...items.map(item => card(item, kind === 'visits')));
+            const shown = expanded[kind] ? items : items.slice(0, PREVIEW_LIMIT);
+            list.replaceChildren(...shown.map(item => card(item, kind === 'visits')));
             if (!items.length) list.append(el('p', `Belum ada riwayat ${kind === 'visits' ? 'kunjungan' : 'donasi'}${filters[kind] === 'all' ? '.' : ' dengan status ini.'}`, 'activity-empty'));
+            list.nextElementSibling?.classList.contains('activity-more') && list.nextElementSibling.remove();
+            if (items.length > PREVIEW_LIMIT) {
+                const more = el('div', null, 'activity-more');
+                const toggle = action(expanded[kind] ? 'Tampilkan Lebih Sedikit' : `Lihat Selengkapnya (${items.length - PREVIEW_LIMIT} lainnya)`, () => {
+                    expanded[kind] = !expanded[kind]; render();
+                    if (!expanded[kind]) list.closest('.activity-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+                toggle.setAttribute('aria-expanded', String(expanded[kind])); toggle.setAttribute('aria-controls', listId);
+                more.append(toggle); list.after(more);
+            }
         }
     }
     async function load() {
@@ -141,6 +155,7 @@ if (page) {
     document.querySelectorAll('[data-filter]').forEach(group => group.addEventListener('click', event => {
         const button = event.target.closest('button'); if (!button) return;
         filters[group.dataset.filter] = button.dataset.value;
+        expanded[group.dataset.filter] = false;
         group.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', String(item === button))); render();
     }));
     document.getElementById('activity-retry').onclick = load;

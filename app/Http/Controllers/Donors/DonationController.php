@@ -55,6 +55,7 @@ class DonationController extends Controller
         $donation = \App\Models\Donation::with('campaign')->where('id_donatur', $request->user()->donor->id)->findOrFail($id);
         if ($request->boolean('refresh')) $donation = $this->donationService->refreshPayment($donation)->load('campaign');
         return response()->json(['id' => $donation->id, 'campaign' => $donation->campaign?->judul,
+            'campaign_id' => $donation->id_campaign,
             'nominal' => (int) $donation->nominal, 'fee' => $donation->payment_fee,
             'status' => $donation->status, 'paid_at' => $donation->paid_at,
             'created_at' => $donation->created_at, 'snap_token' => $donation->snap_token,
