@@ -18,7 +18,7 @@ class Donation extends Model
 
     protected $fillable = [
         'id', 'id_campaign', 'id_donatur', 'nominal',
-        'note', 'status', 'anonim', 'transaction_id', 'paid_at'
+        'note', 'status', 'anonim', 'transaction_id', 'paid_at', 'snap_token', 'payment_url', 'payment_fee'
     ];
 
     protected static function boot()

@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             AdminUserSeeder::class,
         ]);
+        if (app()->environment('local', 'testing')) {
+            $this->call(DonorDemoSeeder::class);
+        }
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

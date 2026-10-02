@@ -1,457 +1,296 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Login</title>
+    <title>Login - Rangkul.com</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  >
+    <script src="https://cdn.tailwindcss.com"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    body {
-      min-height: 100vh;
-      font-family: "Plus Jakarta Sans", sans-serif;
-      background: #F5F7F4;
-      color: #171717;
-    }
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-    .login-page {
-      min-height: 100vh;
-      display: flex;
-    }
-
-    
-    .left-side {
-      width: 45%;
-      min-height: 100vh;
-      position: relative;
-
-      background:
-        linear-gradient(
-          rgba(255, 255, 255, 0.5),
-          rgba(255, 255, 255, 0.5)
-        ),
-        url("/images/background-login.jpg");
-
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-
-    .logo {
-      position: absolute;
-      top: 32px;
-      left: 40px;
-    }
-
-    .logo img {
-      width: 150px;
-      height: auto;
-    }
-
-    .brand-content {
-      position: absolute;
-      left: 40px;
-      bottom: 48px;
-      max-width: 420px;
-      color: white;
-    }
-
-    .brand-content h2 {
-      font-size: 30px;
-      line-height: 1.3;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-
-    .brand-content p {
-      font-size: 14px;
-      line-height: 1.7;
-      color: rgba(255, 255, 255, 0.85);
-    }
-
-
-    .right-side {
-      width: 55%;
-      min-height: 100vh;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      padding: 60px;
-      background: #F5F7F4;
-    }
-
-    .login-container {
-      width: 100%;
-      max-width: 600px;
-    }
-
-    .welcome-label {
-      margin-bottom: 10px;
-
-      font-size: 25px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-
-      color: #066939;
-    }
-
-    .login-container h1 {
-      font-size: 35px;
-      line-height: 1.2;
-      font-weight: 600;
-      letter-spacing: -0.03em;
-      text-align: center;
-    }
-
-    .description {
-      margin-top: 16px;
-      margin-bottom: 32px;
-
-      font-size: 15px;
-      line-height: 1.7;
-      color: #6b7280;
-      text-align: center;
-    }
-
-    .login-error {
-      display: none;
-      margin-bottom: 20px;
-      padding: 12px 16px;
-      border: 1px solid #f1b8b8;
-      border-radius: 8px;
-      background: #fff3f3;
-      color: #b42318;
-      font-size: 13px;
-      text-align: center;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-label {
-      display: block;
-      margin-bottom: 8px;
-
-      font-size: 15px;
-      font-weight: 600;
-      color: #272727;
-    }
-
-    .form-input {
-      width: 100%;
-      height: 50px;
-
-      padding: 0 16px;
-
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-
-      background: white;
-
-      font-family: Plus Jakarta Sans;
-      font-size: 15px;
-
-      outline: none;
-    }
-
-    .form-input:focus {
-      border-color: #066939;
-      box-shadow: 0 0 0 3px rgba(6, 105, 57, 0.08);
-    }
-
-    .password-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .password-header .form-label {
-      margin-bottom: 8px;
-    }
-
-    .forgot-password {
-      font-size: 10px;
-      color: #6b7280;
-      text-decoration: none;
-    }
-
-    .forgot-password:hover {
-      color: #066939;
-    }
-
-    .login-button {
-        width: 50%;
-        height: 50px;
-
-        margin: 4px auto 0;
-        display: block;
-
-      border: none;
-      border-radius: 8px;
-
-      background: #066939;
-      color: white;
-
-      font-family: Plus Jakarta Sans;
-      font-size: 15px;
-      font-weight: 600;
-
-      cursor: pointer;
-    }
-
-    .login-button:hover {
-      background: #05582f;
-    }
-
-    .register {
-      margin-top: 28px;
-      padding-top: 24px;
-
-      border-top: 1px solid #dfe4df;
-
-      text-align: center;
-
-      font-size: 13px;
-      color: #737373;
-    }
-
-    .register a {
-      color: #066939;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .register a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 900px) {
-      .left-side {
-        display: none;
-      }
-
-      .right-side {
-        width: 100%;
-        padding: 40px 24px;
-      }
-
-      .login-container h1 {
-        font-size: 32px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .right-side {
-        padding: 32px 20px;
-      }
-
-      .login-container h1 {
-        font-size: 28px;
-      }
-    }
-  </style>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
 </head>
 
-<body>
+<body
+    class="h-screen w-full bg-[#fcfdfd] text-[#000000] antialiased flex flex-row overflow-hidden relative selection:bg-[#d8f0e2] selection:text-[#05522d]">
 
-  <main class="login-page">
+    <!-- ============================================================ -->
+    <!-- LEFT COLUMN                                                -->
+    <!-- ============================================================ -->
 
-    <!-- PANEL KIRI -->
-    <section class="left-side">
+    <aside aria-label="Rangkul Banner"
+        class="relative w-[36%] sm:w-[40%] md:w-[44%] lg:w-[44%] xl:w-[44%] h-full shrink-0 overflow-hidden bg-gray-900 select-none z-20">
 
-      <div class="logo">
-        <img
-          src="/images/logo.png"
-          alt="Rangkul"
-        >
-      </div>
+        <!-- Background Image -->
+        <img src="{{ asset('images/register.png') }}" alt="Anak-anak Rangkul"
+            class="w-full h-full object-cover object-[center_20%] pointer-events-none" />
 
-      <div class="brand-content">
+        <!-- Logo -->
+        <div class="absolute top-5 left-5 sm:top-7 sm:left-7 z-10">
 
-        <h2>
+            <a href="{{ url('/') }}"
+                class="inline-flex cursor-pointer group text-left transition-opacity hover:opacity-90">
+                <img src="{{ asset('images/logo.png') }}" alt="Rangkul.com Donation Platform"
+                    class="w-44 sm:w-52 h-auto object-contain origin-left group-hover:scale-[1.02] transition-transform" />
+            </a>
 
-        </h2>
-
-        <p>
-
-        </p>
-
-      </div>
-
-    </section>
-
-
-   
-    <section class="right-side">
-
-      <div class="login-container">
-
-        <div class="welcome-label">
         </div>
 
-        <h1>
-          Selamat Datang Kembali!
-        </h1>
-
-        <p class="description">
-          Masuk ke akun Anda dan terus berikan dukungan terbaik bagi panti asuhan yang membutuhkan.
-        </p>
-
-        <div id="login-error" class="login-error" role="alert"></div>
-
-        <form id="login-form" action="/api/login" method="POST">
-
-          <div class="form-group">
-
-            <label
-              for="email"
-              class="form-label"
-            >
-              Email
-            </label>
-
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="form-input"
-              required
-            >
-
-          </div>
+    </aside>
 
 
-          <div class="form-group">
+    <!-- ============================================================ -->
+    <!-- RIGHT COLUMN                                               -->
+    <!-- ============================================================ -->
 
-            <div class="password-header">
+    <main
+        class="flex-1 h-full overflow-y-auto overflow-x-hidden relative isolate flex flex-col items-center pt-8 sm:pt-12 pb-14 px-4 sm:px-8 md:px-10 lg:px-14 xl:px-20 scroll-smooth">
 
-              <label
-                for="password"
-                class="form-label"
-              >
-                Password
-              </label>
+        <!-- Soft Background Decoration -->
+        <x-auth-background />
 
-              <a
-                href="#"
-                class="forgot-password"
-              >
-                Lupa password?
-              </a>
+        <!-- ============================================================ -->
+        <!-- LOGIN CONTAINER                                            -->
+        <!-- ============================================================ -->
+
+        <div class="w-full max-w-[450px] mx-auto z-10">
+
+            <!-- Header -->
+            <div class="text-center mb-6 sm:mb-7">
+
+                <h1 class="text-[27px] sm:text-[31px] font-bold text-gray-950 tracking-tight leading-tight">
+                    Selamat Datang Kembali!
+                </h1>
+
+                <p class="text-[13px] sm:text-[14px] text-gray-600 mt-2 leading-relaxed max-w-[430px] mx-auto">
+                    Masuk ke akun Anda dan terus berikan dukungan terbaik
+                    bagi panti asuhan yang membutuhkan.
+                </p>
 
             </div>
 
-            <input
-              type="password"
-              id="password"
-              name="password"
-              class="form-input"
-              required
-            >
 
-          </div>
+            <!-- Error Message -->
+            <div id="login-error" role="alert"
+                class="hidden mb-4 px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-700 text-[12.5px] font-medium leading-relaxed">
+            </div>
 
 
-          <button
-            type="submit"
-            class="login-button"
-          >
-            Masuk
-          </button>
+            <!-- ============================================================ -->
+            <!-- FORM                                                       -->
+            <!-- ============================================================ -->
 
-        </form>
+            <form id="login-form" action="{{ route('login.store') }}" method="POST" class="space-y-4">
+
+                <!-- EMAIL -->
+                <div>
+
+                    <label for="email" class="block text-[13.5px] font-medium text-gray-950 mb-1.5">
+                        Email
+                    </label>
+
+                    <input type="email" id="email" name="email" required placeholder="contoh@email.com"
+                        autocomplete="email"
+                        class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all" />
+
+                </div>
 
 
-        <div class="register">
-          Belum memiliki akun?
-          <a href="{{ route('register') }}">
-            Daftar sekarang
-          </a>
+                <!-- PASSWORD -->
+                <div>
+
+                    <div class="flex items-center justify-between mb-1.5">
+
+                        <label for="passwordInput" class="block text-[13.5px] font-medium text-gray-950">
+                            Password
+                        </label>
+
+                    </div>
+
+
+                    <div class="relative">
+
+                        <input type="password" id="passwordInput" name="password" required
+                            placeholder="Masukkan password anda" autocomplete="current-password"
+                            class="w-full px-4 py-2.5 sm:py-3 pr-11 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all" />
+
+
+                        <!-- Toggle Password -->
+                        <button type="button" onclick="togglePassword('passwordInput', this)"
+                            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-950 transition-colors cursor-pointer p-1"
+                            aria-label="Tampilkan password">
+
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" />
+
+                                <circle cx="12" cy="12" r="2.5" />
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                    <div class="mt-2 text-right">
+                        <a href="#"
+                            class="text-[11px] sm:text-[11.5px] font-medium text-gray-500 hover:text-[#065e38] transition-colors">
+                            Lupa password?
+                        </a>
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTON -->
+                <div class="pt-4 flex flex-col items-center">
+
+                    <button type="submit"
+                        class="login-button w-[260px] sm:w-[270px] py-3.5 px-6 rounded-xl bg-[#065e38] hover:bg-[#044a2c] text-white font-bold text-[15px] transition-all shadow-sm hover:shadow-md active:scale-[0.98] cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                        Masuk
+                    </button>
+
+
+                    <!-- REGISTER LINK -->
+                    <p class="mt-3.5 text-[13px] text-gray-950 text-center font-normal">
+                        Belum memiliki akun?
+
+                        <a href="{{ route('register') }}"
+                            class="font-bold underline text-gray-950 hover:text-[#065e38] cursor-pointer transition-colors">
+                            Daftar sekarang
+                        </a>
+                    </p>
+
+                </div>
+
+            </form>
+
         </div>
 
-      </div>
+    </main>
 
-    </section>
 
-  </main>
+    <!-- ============================================================ -->
+    <!-- SCRIPT                                                     -->
+    <!-- ============================================================ -->
 
-  <script>
-    document.getElementById('login-form').addEventListener('submit', async function (event) {
-      event.preventDefault();
+    <script>
+        /*
+        |--------------------------------------------------------------------------
+        | TOGGLE PASSWORD
+        |--------------------------------------------------------------------------
+        */
 
-      const button = this.querySelector('.login-button');
-      const errorMessage = document.getElementById('login-error');
-      const originalText = button.textContent;
-      errorMessage.style.display = 'none';
-      button.disabled = true;
-      button.textContent = 'Memproses...';
+        const eyeIcon = `
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" />
+                <circle cx="12" cy="12" r="2.5" />
+            </svg>`;
 
-      try {
-        const response = await fetch('{{ route('login.store') }}', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-          },
-          body: JSON.stringify({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value
-          })
+        const eyeOffIcon = `
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" />
+                <circle cx="12" cy="12" r="2.5" />
+                <path d="m4 4 16 16" />
+            </svg>`;
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const isHidden = input.type === 'password';
+
+            input.type = isHidden ? 'text' : 'password';
+            button.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Tampilkan password');
+            button.innerHTML = isHidden ? eyeOffIcon : eyeIcon;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOGIN
+        |--------------------------------------------------------------------------
+        */
+
+        document.getElementById('login-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const button = this.querySelector('.login-button');
+            const errorMessage = document.getElementById('login-error');
+            const originalText = button.textContent.trim();
+            const email = document.getElementById('email').value;
+
+            errorMessage.classList.add('hidden');
+            errorMessage.textContent = '';
+
+            button.disabled = true;
+            button.textContent = 'Memproses...';
+
+            try {
+                const response = await fetch('{{ route('login.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: document.getElementById('passwordInput').value
+                    })
+                });
+
+                const result = await response.json().catch(() => ({}));
+
+                if (result.code === 'ORGANIZATION_UNVERIFIED') {
+                    window.location.href = '{{ route('organization.pending') }}';
+                    return;
+                }
+
+                if (result.code === 'ORGANIZATION_REJECTED') {
+                    window.location.href = '{{ route('organization.rejected') }}' + '?email=' + encodeURIComponent(email);
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(result.message || 'Login gagal. Silakan periksa kembali data Anda.');
+                }
+
+                const authToken = result.access_token || result.token;
+
+                if (!authToken) {
+                    throw new Error('Token login tidak diterima dari server.');
+                }
+
+                localStorage.setItem('auth_token', authToken);
+                localStorage.setItem('auth_user', JSON.stringify(result.user));
+
+                const redirectByAccountType = {
+                    organisasi: '{{ route('organisasi.dashboard') }}',
+                    admin: '/manager/home',
+                    donatur: '{{ route('donatur.beranda') }}'
+                };
+
+                window.location.href = redirectByAccountType[result.user?.account_type] || '{{ route('donatur.beranda') }}';
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.classList.remove('hidden');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
         });
-
-        const result = await response.json();
-
-        if (result.code === 'ORGANIZATION_UNVERIFIED') {
-          window.location.href = '{{ route('organization.pending') }}';
-          return;
-        }
-
-        if (result.code === 'ORGANIZATION_REJECTED') {
-          window.location.href = '{{ route('organization.rejected') }}?email=' + encodeURIComponent(document.getElementById('email').value);
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error(result.message || 'Login gagal. Silakan periksa kembali data Anda.');
-        }
-
-        const authToken = result.access_token || result.token;
-        if (!authToken) {
-          throw new Error('Token login tidak diterima dari server.');
-        }
-
-        localStorage.setItem('auth_token', authToken);
-        localStorage.setItem('auth_user', JSON.stringify(result.user));
-        const redirectByAccountType = {
-          organisasi: '{{ route('organisasi.dashboard') }}',
-          admin: '/manager/home',
-          donatur: '/beranda'
-        };
-        window.location.href = redirectByAccountType[result.user?.account_type] || '/beranda';
-      } catch (error) {
-        errorMessage.textContent = error.message;
-        errorMessage.style.display = 'block';
-        button.disabled = false;
-        button.textContent = originalText;
-      }
-    });
-  </script>
+    </script>
 
 </body>
+
 </html>

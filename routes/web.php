@@ -19,6 +19,18 @@ use App\Http\Controllers\Organizations\OrganizationReportController;
 use App\Http\Controllers\Organizations\OrganizationVisitController;
 use App\Http\Middleware\EnsureOrganizationAccount;
 
+Route::view('/donatur/riwayat', 'donatur.riwayat')->name('donatur.riwayat');
+Route::view('/donatur/kunjungan/jadwalkan/{organization}', 'donatur.kunjungan', ['mode' => 'create'])->name('donatur.kunjungan.create');
+Route::view('/donatur/kunjungan/{id}/edit', 'donatur.kunjungan', ['mode' => 'edit'])->name('donatur.kunjungan.edit');
+Route::view('/donatur/kunjungan/{id}', 'donatur.kunjungan', ['mode' => 'detail'])->name('donatur.kunjungan.detail');
+Route::view('/donatur/notifikasi', 'donatur.notifikasi')->name('donatur.notifikasi');
+Route::view('/donatur/penyaluran/{id}', 'donatur.penyaluran')->name('donatur.penyaluran');
+Route::get('/donatur/donasi/{campaignId}', [\App\Http\Controllers\Donors\DonationController::class, 'checkout'])->name('donatur.donasi');
+Route::view('/donatur/pembayaran/{id}', 'donatur.donasi-pembayaran')->name('donatur.pembayaran');
+Route::view('/donatur/donasi-berhasil/{id}', 'donatur.donasi-berhasil')->name('donatur.donasi.berhasil');
+
+Route::get('/donatur/panti/{organizationId}', [OrganizationProfileController::class, 'page'])->name('donatur.panti.show');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -155,6 +167,9 @@ Route::get('/campaign/{id}/prayers', [CampaignController::class, 'prayers'])
 */
 
 Route::get('/beranda', [HomeController::class, 'index']);
+Route::get('/donatur/beranda', [HomeController::class, 'index'])->name('donatur.beranda');
+Route::get('/donatur/cari', [SearchController::class, 'page'])->name('donatur.cari');
+Route::get('/donatur/hasil-pencarian', [SearchController::class, 'results'])->name('donatur.search.results');
 
 
 /*

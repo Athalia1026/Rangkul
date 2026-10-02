@@ -19,11 +19,9 @@
     </aside>
 
     <main class="relative flex-1 min-h-screen overflow-hidden flex items-center justify-center px-8 sm:px-12 lg:px-20">
-        <div class="absolute -top-10 -right-10 w-60 h-60 rounded-full blur-[55px] pointer-events-none" style="background-color: rgba(72, 202, 154, 0.16);"></div>
-        <div class="absolute bottom-[-5rem] left-[18%] w-64 h-64 rounded-full blur-[60px] pointer-events-none" style="background-color: rgba(58, 191, 141, 0.18);"></div>
-        <div class="absolute top-[28%] right-[-3rem] w-52 h-52 rounded-full blur-[55px] pointer-events-none" style="background-color: rgba(86, 212, 166, 0.14);"></div>
+        <x-auth-background />
 
-        <a href="{{ url('/') }}" class="absolute top-7 right-8 sm:top-9 sm:right-12 z-10 transition-opacity hover:opacity-80">
+                <a href="{{ url('/') }}" class="absolute top-7 right-8 sm:top-9 sm:right-12 z-10 transition-opacity hover:opacity-80">
             <img src="{{ asset('images/logo.png') }}" alt="Rangkul.com Donation Platform" class="w-44 sm:w-52 h-auto object-contain">
         </a>
 

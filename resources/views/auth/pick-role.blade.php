@@ -16,13 +16,10 @@
 </head>
 <body class="min-h-screen w-full bg-[#fcfdfd] text-[#000000] antialiased flex flex-col items-center justify-center p-6 sm:p-10 relative overflow-hidden selection:bg-[#d8f0e2] selection:text-[#05522d]">
 
-    <!-- Subtle Hint Lingkaran Blur Tosca Sesuai Gambar Referensi -->
-    <div class="absolute -top-16 right-[28%] w-80 h-80 rounded-full bg-[#48ca9a]/18 blur-[70px] pointer-events-none"></div>
-    <div class="absolute top-1/2 -left-20 -translate-y-1/2 w-96 h-96 rounded-full bg-[#52d2a4]/22 blur-[80px] pointer-events-none"></div>
-    <div class="absolute top-[18%] -right-16 w-80 h-80 rounded-full bg-[#3abf8d]/18 blur-[75px] pointer-events-none"></div>
-    <div class="absolute -bottom-20 right-10 w-96 h-96 rounded-full bg-[#40c797]/16 blur-[85px] pointer-events-none"></div>
+    <!-- Lingkaran hijau transparan -->
+    <x-auth-background />
 
-    <!-- Optional Top Left Navigation back to Home -->
+            <!-- Optional Top Left Navigation back to Home -->
     <div class="absolute top-6 left-6 sm:top-8 sm:left-8 z-30">
         <a
             href="{{ url('/') }}"

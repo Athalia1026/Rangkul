@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/bank-accounts/{bankId}', [OrganizationVerificationController::class, 'verifyBankAccount']);
     });
     Route::get('/donors/activities', [ActivityHistoryController::class, 'index']);
+    Route::get('/donors/distributions/{id}', [ActivityHistoryController::class, 'distribution']);
     Route::prefix('premium')->group(function () {
         Route::post('/register', [PremiumController::class, 'register']);
         Route::get('/status', [PremiumController::class, 'status']);
@@ -95,6 +96,7 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group
 });
 
 Route::middleware('auth:sanctum')->prefix('visits')->group(function () {
+    Route::get('/{id}', [VisitController::class, 'show']);
     Route::get('/', [VisitController::class, 'index']);
     Route::post('/', [VisitController::class, 'store']); // Donatur submit
     Route::patch('/{id}/respond', [VisitController::class, 'respondVisit']); // Organisasi confirm/reject
@@ -122,5 +124,6 @@ Route::middleware('auth:sanctum')->prefix('notifications')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('donations')->group(function () {
+    Route::get('/{id}', [DonationController::class, 'status']);
     Route::post('/', [DonationController::class, 'store']);
 });

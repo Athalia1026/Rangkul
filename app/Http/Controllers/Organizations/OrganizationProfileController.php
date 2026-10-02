@@ -10,6 +10,18 @@ use Illuminate\Http\Request;
 
 class OrganizationProfileController extends Controller
 {
+    public function page(string $organizationId)
+    {
+        $organization = Organization::where('verification_status', 'disetujui')
+            ->with(['galleries', 'user'])->findOrFail($organizationId);
+        $campaigns = Campaign::where('id_organisasi', $organization->id)
+            ->where('status', 'aktif')
+            ->withSum(['donations as collected' => fn ($query) => $query->where('status', 'sudah_bayar')], 'nominal')
+            ->latest()->paginate(8);
+
+        return view('donatur.profil-panti', compact('organization', 'campaigns'));
+    }
+
     // 1. Ambil Profil & Status Verifikasi Saat Ini
     public function show(Request $request)
     {

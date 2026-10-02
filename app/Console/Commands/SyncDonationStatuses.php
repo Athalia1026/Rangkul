@@ -2,12 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Services\NotificationService;
-use App\Models\Campaign;
 use App\Models\Donation;
+use App\Services\DonationService;
 use Illuminate\Console\Command;
-use Midtrans\Config;
-use Midtrans\Transaction;
 
 class SyncDonationStatuses extends Command
 {
@@ -15,42 +12,12 @@ class SyncDonationStatuses extends Command
 
     protected $description = 'Synchronize unpaid donation statuses with Midtrans';
 
-    public function handle(): int
+    public function handle(DonationService $service): int
     {
-        Config::$serverKey = config('services.midtrans.server_key', env('MIDTRANS_SERVER_KEY'));
-        Config::$isProduction = config('services.midtrans.is_production', env('MIDTRANS_IS_PRODUCTION', false));
-
-        Donation::query()
-            ->where('status', 'belum_bayar')
-            ->whereNotNull('transaction_id')
-            ->each(function (Donation $donation): void {
-                try {
-                    $status = Transaction::status($donation->id);
-                    $transactionStatus = $status->transaction_status ?? null;
-
-                    if (in_array($transactionStatus, ['cancel', 'deny', 'expire', 'failure'], true)) {
-                        $donation->update([
-                            'status' => 'gagal',
-                            'transaction_id' => $status->transaction_id ?? $donation->transaction_id,
-                        ]);
-
-                        app(NotificationService::class)->donationFailed($donation);
-                    } elseif (in_array($transactionStatus, ['settlement', 'capture'], true)) {
-                        $donation->update([
-                            'status' => 'sudah_bayar',
-                            'transaction_id' => $status->transaction_id ?? $donation->transaction_id,
-                            'paid_at' => now(),
-                        ]);
-
-                        app(NotificationService::class)->donationPaid($donation);
-
-                        Campaign::where('id', $donation->id_campaign)
-                            ->increment('target_terkumpul', $donation->nominal);
-                    }
-                } catch (\Throwable $exception) {
-                    $this->warn("Failed to synchronize donation {$donation->id}: {$exception->getMessage()}");
-                }
-            });
+        // refreshPayment memproses lewat processDonationCallback, sehingga status,
+        // notifikasi berhasil/gagal, dan validasi nominal ikut ditangani di sana.
+        Donation::where('status', 'belum_bayar')->whereNotNull('snap_token')
+            ->each(fn (Donation $donation) => $service->refreshPayment($donation));
 
         return self::SUCCESS;
     }

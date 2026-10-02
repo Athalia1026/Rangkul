@@ -50,14 +50,10 @@
     <!-- ============================================================ -->
     <main class="flex-1 h-full overflow-y-auto overflow-x-hidden relative isolate flex flex-col items-center pt-8 sm:pt-12 pb-14 px-4 sm:px-8 md:px-10 lg:px-14 xl:px-20 scroll-smooth">
         
-        <!-- Subtle Hint Lingkaran Blur Tosca (Background Tetap Bersih & Dominan) -->
-        <div class="absolute -top-10 -right-10 z-0 w-60 h-60 rounded-full blur-[55px] pointer-events-none" style="background-color: rgba(72, 202, 154, 0.16);"></div>
-        <div class="absolute bottom-16 left-6 sm:left-12 z-0 w-56 h-56 rounded-full blur-[50px] pointer-events-none" style="background-color: rgba(58, 191, 141, 0.18);"></div>
-        <div class="absolute -bottom-10 -right-10 z-0 w-64 h-64 rounded-full blur-[60px] pointer-events-none" style="background-color: rgba(86, 212, 166, 0.14);"></div>
-        <div class="absolute left-[-2.5rem] top-[36%] z-0 hidden h-24 w-24 rounded-full blur-[35px] pointer-events-none lg:block" style="background-color: rgba(72, 202, 154, 0.12);"></div>
-        <div class="absolute right-[-2rem] top-[52%] z-0 hidden h-20 w-20 rounded-full blur-[30px] pointer-events-none lg:block" style="background-color: rgba(58, 191, 141, 0.14);"></div>
+        <!-- Lingkaran hijau transparan -->
+        <x-auth-background />
 
-        <!-- Form Card Container -->
+                <!-- Form Card Container -->
         <div class="w-full max-w-[450px] mx-auto z-10">
             
             <!-- Header -->
