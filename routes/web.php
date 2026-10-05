@@ -341,3 +341,17 @@ Route::prefix('organisasi')
             ->name('notifikasi');
 
     });
+
+/*
+|--------------------------------------------------------------------------
+| SUPER ADMIN
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/home', function () {
+        return view('super admin.home');
+    });
+
+});
