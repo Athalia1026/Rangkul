@@ -40,6 +40,7 @@ return [
     'premium' => [
         'price' => env('PREMIUM_PRICE', 1000000),
         'duration_months' => env('PREMIUM_DURATION_MONTHS', 12),
+        'tax_rate' => env('PREMIUM_TAX_RATE', 0.11),
     ],
 
 ];

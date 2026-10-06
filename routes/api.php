@@ -65,9 +65,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('premium')->group(function () {
         Route::post('/register', [PremiumController::class, 'register']);
         Route::get('/status', [PremiumController::class, 'status']);
+        Route::get('/subscriptions/{id}', [PremiumController::class, 'show']);
+        Route::get('/subscriptions/{id}/invoice', [PremiumController::class, 'invoice']);
     });
     Route::middleware(CheckPremium::class)->prefix('premium/dashboard')->group(function () {
         Route::get('/', [PremiumDashboardController::class, 'index']);
+        Route::get('/report', [PremiumDashboardController::class, 'report']);
         Route::get('/export', [PremiumDashboardController::class, 'export']);
     });
 });

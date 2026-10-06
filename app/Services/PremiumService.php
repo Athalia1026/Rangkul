@@ -22,6 +22,22 @@ class PremiumService
         Config::$is3ds = true;
     }
 
+    /** Rincian biaya langganan premium: harga paket + PPN, tanpa biaya layanan. */
+    public function pricing(): array
+    {
+        $price = (int) config('services.premium.price', 1000000);
+        $tax = (int) round($price * (float) config('services.premium.tax_rate', 0.11));
+
+        return [
+            'price' => $price,
+            'service_fee' => 0,
+            'tax_rate' => (float) config('services.premium.tax_rate', 0.11),
+            'tax' => $tax,
+            'total' => $price + $tax,
+            'duration_months' => (int) config('services.premium.duration_months', 12),
+        ];
+    }
+
     public function createRegistration(array $data, $user): array
     {
         return DB::transaction(function () use ($data, $user) {
@@ -51,28 +67,35 @@ class PremiumService
             $orderId = 'PREM-' . strtoupper(str_replace('-', '', $subscription->id));
             $subscription->update(['transaction_id' => $orderId]);
 
-            $price = (int) config('services.premium.price', 1000000);
+            $pricing = $this->pricing();
             $params = [
                 'transaction_details' => [
                     'order_id' => $orderId,
-                    'gross_amount' => $price,
+                    'gross_amount' => $pricing['total'],
+                ],
+                'item_details' => [
+                    ['id' => 'PREMIUM', 'price' => $pricing['price'], 'quantity' => 1, 'name' => 'Akun Premium Perusahaan'],
+                    ['id' => 'PPN', 'price' => $pricing['tax'], 'quantity' => 1, 'name' => 'Pajak (PPN 11%)'],
                 ],
                 'customer_details' => [
                     'first_name' => $data['nama_pic'],
                     'email' => $data['email_korporat'],
                     'phone' => $data['nomor_pic'],
                 ],
-                'enabled_payments' => ['gopay','qris'],
+                'enabled_payments' => ['gopay', 'qris'],
+                // Setelah bayar, Midtrans mengarahkan kembali ke halaman hasil premium (bukan Finish URL di dashboard Midtrans).
+                'callbacks' => ['finish' => route('donatur.premium.berhasil', $subscription->id)],
             ];
 
-            $snapToken = Snap::getSnapToken($params);
+            // Satu kali panggilan Snap: token & redirect_url berasal dari transaksi yang sama.
+            $transaction = Snap::createTransaction($params);
 
             return [
                 'company' => $company->fresh(),
                 'subscription' => $subscription->fresh(),
-                'price' => $price,
-                'snap_token' => $snapToken,
-                'redirect_url' => Snap::getSnapUrl($params),
+                'pricing' => $pricing,
+                'snap_token' => $transaction->token,
+                'redirect_url' => $transaction->redirect_url,
             ];
         });
     }
@@ -93,15 +116,43 @@ class PremiumService
             return ['statusCode' => 404, 'response' => ['status' => 'error', 'message' => 'Subscription tidak ditemukan.']];
         }
 
+        $this->applyPaymentStatus($subscription, $payload);
+
+        return ['statusCode' => 200, 'response' => ['status' => 'success', 'message' => 'Callback premium berhasil diproses.']];
+    }
+
+    /**
+     * Tanyakan status langsung ke Midtrans, agar langganan tetap aktif walaupun
+     * webhook tidak sampai (mis. saat aplikasi berjalan di localhost).
+     */
+    public function refreshPayment(Subscription $subscription): Subscription
+    {
+        if ($subscription->status !== 'menunggu_bayar' || !$subscription->transaction_id) {
+            return $subscription;
+        }
+
+        try {
+            $payload = (array) \Midtrans\Transaction::status($subscription->transaction_id);
+            if ((int) ($payload['gross_amount'] ?? 0) === $this->pricing()['total']) {
+                $this->applyPaymentStatus($subscription, $payload);
+            }
+        } catch (\Throwable $exception) {
+            // 404 dari Midtrans berarti donatur belum memilih metode pembayaran.
+            Log::info('Premium payment status unavailable', ['order_id' => $subscription->transaction_id, 'message' => $exception->getMessage()]);
+        }
+
+        return $subscription->fresh();
+    }
+
+    private function applyPaymentStatus(Subscription $subscription, array $payload): void
+    {
         $status = $payload['transaction_status'] ?? null;
         if (in_array($status, ['settlement', 'capture'], true)
             && in_array($payload['fraud_status'] ?? null, ['accept', null, ''], true)) {
-            $this->activate($subscription, $payload['transaction_id'] ?? $orderId);
-        } elseif (in_array($status, ['cancel', 'deny', 'expire', 'failure'], true)) {
+            $this->activate($subscription, $payload['transaction_id'] ?? $subscription->transaction_id);
+        } elseif (in_array($status, ['cancel', 'deny', 'expire', 'failure'], true) && $subscription->status === 'menunggu_bayar') {
             $subscription->update(['status' => 'nonaktif']);
         }
-
-        return ['statusCode' => 200, 'response' => ['status' => 'success', 'message' => 'Callback premium berhasil diproses.']];
     }
 
     public function activate(Subscription $subscription, ?string $midtransId = null): void

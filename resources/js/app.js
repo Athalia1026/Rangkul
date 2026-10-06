@@ -13,3 +13,5 @@ import './visits';
 import '../css/profile.css';
 import './profile';
 import './password';
+import '../css/premium.css';
+import './premium';
