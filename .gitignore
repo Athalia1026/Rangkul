@@ -40,3 +40,6 @@ desktop.ini
 # --- Database & Local Storage ---
 /database/*.sqlite
 /database/*.sqlite-journal
+# --- Meilisearch (data lokal, bisa dibuat ulang dengan scout:import) ---
+/data.ms
+meilisearch.exe
