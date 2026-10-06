@@ -4,8 +4,6 @@ if (donorPage) {
     const panel = document.getElementById('donor-panel');
     const panelTitle = document.getElementById('donor-panel-title');
     const panelContent = document.getElementById('donor-panel-content');
-    const dropdown = document.getElementById('donor-profile-dropdown');
-    const avatarButton = document.getElementById('donor-avatar-button');
     let currentUser = null;
     let panelRequest = 0;
     let previousOverflow = '';
@@ -33,7 +31,7 @@ if (donorPage) {
             return null;
         }
         currentUser = user;
-        document.getElementById('donor-name').textContent = user.nama;
+        document.getElementById('donor-avatar-button')?.setAttribute('title', user.nama);
         document.getElementById('donor-initials').textContent = (user.nama || 'D').split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
         if (user.profile_photo) {
             const image = document.getElementById('donor-avatar-image');
@@ -45,15 +43,69 @@ if (donorPage) {
         }
         return user;
     }).catch(error => {
-        document.getElementById('donor-name').textContent = 'Akun donatur';
-        document.getElementById('donor-account-error').textContent = error.message;
+        console.warn(error.message);
         return null;
     });
 
-    function closeDropdown() { dropdown.hidden = true; avatarButton.setAttribute('aria-expanded', 'false'); }
-    avatarButton.addEventListener('click', () => { dropdown.hidden = !dropdown.hidden; avatarButton.setAttribute('aria-expanded', String(!dropdown.hidden)); });
-    document.addEventListener('click', event => { if (!event.target.closest('.donor-profile-menu')) closeDropdown(); });
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeDropdown(); });
+    // Perusahaan premium mendapat tab Dashboard; yang belum premium mendapat tombol "Gabung Premium".
+    const premiumButton = document.getElementById('donor-premium-button');
+    const premiumDialog = document.getElementById('premium-dialog');
+    function showPremium(active) {
+        document.querySelectorAll('[data-premium-only]').forEach(link => { link.hidden = !active; });
+        if (premiumButton) premiumButton.hidden = active;
+    }
+    window.addEventListener('donor:premium-active', () => showPremium(true));
+    accountReady.then(user => user?.donor?.tipe === 'perusahaan' ? api('/api/premium/status') : null).then(status => {
+        if (!status) return;
+        const price = document.getElementById('premium-price');
+        if (price) price.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(status.price);
+        showPremium(status.is_premium);
+    }).catch(() => { /* navigasi premium opsional */ });
+
+    if (premiumButton && premiumDialog) {
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let closing = false;
+        // Tutup dengan animasi keluar; dialog baru benar-benar ditutup setelah animasi selesai.
+        function closePremium() {
+            if (!premiumDialog.open || closing) return;
+            if (reducedMotion.matches) { premiumDialog.close(); return; }
+            closing = true;
+            premiumDialog.classList.add('is-closing');
+            premiumDialog.addEventListener('animationend', () => {
+                closing = false;
+                premiumDialog.classList.remove('is-closing');
+                premiumDialog.close();
+            }, { once: true });
+        }
+        premiumButton.addEventListener('click', () => {
+            previousOverflow = document.documentElement.style.overflow;
+            document.documentElement.style.overflow = 'hidden';
+            premiumDialog.showModal();
+        });
+        premiumDialog.querySelector('[data-premium-close]').addEventListener('click', closePremium);
+        premiumDialog.addEventListener('cancel', event => { event.preventDefault(); closePremium(); });
+        premiumDialog.addEventListener('close', () => { document.documentElement.style.overflow = previousOverflow; });
+        premiumDialog.addEventListener('click', event => {
+            const bounds = premiumDialog.getBoundingClientRect();
+            if (event.target === premiumDialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) closePremium();
+        });
+    }
+
+    // Badge jumlah notifikasi belum dibaca di ikon lonceng.
+    const bell = document.getElementById('donor-bell');
+    const bellBadge = document.getElementById('donor-bell-badge');
+    function showUnread(count) {
+        if (!bellBadge) return;
+        bellBadge.hidden = !count;
+        bellBadge.textContent = count > 99 ? '99+' : String(count);
+        bell.setAttribute('aria-label', count ? `Notifikasi, ${count} belum dibaca` : 'Notifikasi');
+    }
+    window.addEventListener('donor:notifications-unread', event => showUnread(event.detail));
+    if (!document.getElementById('notifications-page')) {
+        accountReady.then(user => user && api('/api/notifications/unread-count'))
+            .then(result => result && showUnread(result.data.unread_count))
+            .catch(() => { /* badge opsional */ });
+    }
     document.getElementById('donor-logout-form').addEventListener('submit', async event => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -70,7 +122,6 @@ if (donorPage) {
         target.append(element);
     }
     document.querySelectorAll('[data-donor-panel]').forEach(button => button.addEventListener('click', async () => {
-        closeDropdown();
         const type = button.dataset.donorPanel;
         const request = ++panelRequest;
         panelTitle.textContent = { history: 'Riwayat Donasi', profile: 'Profil Donatur', notifications: 'Notifikasi', contact: 'Kontak', privacy: 'Kebijakan Privasi', terms: 'Syarat dan Ketentuan' }[type];

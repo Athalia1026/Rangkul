@@ -36,10 +36,7 @@
             </div>
 
 @guest
-<div class="flex items-center gap-2 sm:gap-3">
-    <a href="{{ route('login') }}" class="px-6 py-2 rounded-lg bg-[#05522d] hover:bg-[#044023] text-white font-semibold text-[15px] transition-colors">Masuk</a>
-    <a href="{{ route('register') }}" class="px-6 py-2 rounded-lg bg-[#d8f0e2] hover:bg-[#c4ebd3] text-[#05522d] font-semibold text-[15px] transition-colors">Daftar</a>
-    </div>
+    <x-public-auth-actions />
 @endguest
 @auth
     <button type="button" class="p-1 text-gray-800 hover:text-[#05522d] transition-colors" aria-label="Notifikasi">

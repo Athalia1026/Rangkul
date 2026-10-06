@@ -9,7 +9,7 @@
                 <a href="https://www.facebook.com/" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 22v-9h3l.5-4H14V7c0-1 .3-1.5 1.7-1.5H18V2h-3c-3.3 0-5 2-5 5v2H7v4h3v9Z"/></svg></a>
             </div>
         </div>
-        <div><h2>Navigasi</h2><a href="{{ route('donatur.beranda') }}">Beranda</a><a href="{{ route('search') }}">Cari</a><button type="button" data-donor-panel="history">Riwayat</button><button type="button" data-donor-panel="profile">Profil</button></div>
+        <div><h2>Navigasi</h2><a href="{{ route('donatur.beranda') }}">Beranda</a><a href="{{ route('search') }}">Cari</a><button type="button" data-donor-panel="history">Riwayat</button><a href="{{ route('donatur.dashboard') }}" data-premium-only hidden>Dashboard</a><a href="{{ route('donatur.profil') }}">Profil</a></div>
         <div><h2>Informasi</h2><a href="{{ url('/') }}">Tentang Kami</a><button type="button" data-donor-panel="contact">Kontak</button><button type="button" data-donor-panel="privacy">Kebijakan Privasi</button><button type="button" data-donor-panel="terms">Syarat dan Ketentuan</button></div>
     </div>
     <div class="donor-copyright"><div class="donor-shell">&copy; {{ date('Y') }} Rangkul. Hak cipta dilindungi undang-undang.</div></div>

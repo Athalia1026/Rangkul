@@ -27,7 +27,7 @@
         @if (request()->routeIs('donatur.*'))
             <x-donor-navbar />
         @else
-        <header class="w-full bg-white border-b border-gray-100 sticky top-0 z-30 shadow-2xs">
+        <header id="public-navbar" class="w-full bg-white border-b border-gray-100 sticky top-0 z-30 shadow-2xs">
             <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                 <a href="{{ url('/') }}" class="flex items-center gap-2.5">
                     <div class="flex flex-col leading-tight">
@@ -47,11 +47,7 @@
                 <div class="hidden md:flex items-center gap-4">
 
                     @guest
-                        {{-- Tampilan jika pengunjung BELUM login --}}
-                        <a href="{{ route('login') }}"
-                            class="px-6 py-2 rounded-lg bg-[#05522d] hover:bg-[#044023] text-white font-semibold text-[15px] transition-colors">Masuk</a>
-                        <a href="{{ route('register') }}"
-                            class="px-6 py-2 rounded-lg bg-[#d8f0e2] hover:bg-[#c4ebd3] text-[#05522d] font-semibold text-[15px] transition-colors">Daftar</a>
+                        <x-public-auth-actions />
                     @endguest
 
                     @auth
@@ -95,6 +91,30 @@
                 </div>
             </div>
         </header>
+
+        {{-- Donatur login lewat token API (localStorage), bukan sesi web, jadi server tidak tahu ia login.
+             Jika ada token donatur, navbar publik diganti navbar donatur (lonceng, avatar, keluar)
+             dan halaman diaktifkan sebagai halaman donatur agar donor.js mengisinya. --}}
+        <div id="public-donor-navbar" hidden>
+            <x-donor-navbar />
+        </div>
+        <script>
+            (function () {
+                try {
+                    var user = JSON.parse(localStorage.getItem('auth_user') || '{}');
+                    if (!localStorage.getItem('auth_token') || user.account_type !== 'donatur') return;
+
+                    document.body.setAttribute('data-donor-page', '');
+                    document.body.dataset.loginUrl = '{{ route('login') }}';
+                    document.getElementById('public-navbar').remove();
+                    var donorNavbar = document.getElementById('public-donor-navbar');
+                    donorNavbar.hidden = false;
+                    donorNavbar.style.display = 'contents';
+                } catch (error) {
+                    // Data login tidak terbaca: tetap tampilkan navbar publik.
+                }
+            })();
+        </script>
 
         @endif
 
@@ -163,9 +183,8 @@
         </footer>
 
     </div>
-    @if (request()->routeIs('donatur.*'))
-        <x-donor-account-panel />
-    @endif
+    {{-- Selalu dirender: halaman publik bisa menjadi halaman donatur saat donatur login (lihat di atas). --}}
+    <x-donor-account-panel />
     @stack('scripts')
 </body>
 
