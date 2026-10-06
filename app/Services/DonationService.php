@@ -66,6 +66,8 @@ class DonationService
                     'email' => $user->email,
                 ],
                 'enabled_payments' => ['gopay', 'qris'],
+                // Setelah bayar, Midtrans mengarahkan kembali ke halaman status donasi (bukan Finish URL di dashboard Midtrans).
+                'callbacks' => ['finish' => route('donatur.pembayaran', $donation->id)],
             ];
 
             $transaction = $this->createGatewayTransaction($params);
