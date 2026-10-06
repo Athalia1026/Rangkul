@@ -26,40 +26,88 @@ function icon(type) {
 if (notifications) {
     const list = document.getElementById('notification-list');
     const message = document.getElementById('updates-message');
-    let realItems = [], preview = false;
-    function render(items) {
+    const readAllButton = document.getElementById('notification-read-all');
+    const moreButton = document.getElementById('notification-more');
+    const types = { donation: 'donation', distribution: 'donation', visit: 'visit', subscription: 'campaign' };
+    let items = [], nextPage = null, unread = 0;
+
+    async function send(path, method) {
+        const token = localStorage.getItem('auth_token');
+        if (!token) { location.replace('/login'); throw new Error('Silakan masuk kembali.'); }
+        const response = await fetch(path, { method, headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } });
+        if (response.status === 401) location.replace('/login');
+        if (!response.ok) throw new Error('Notifikasi belum dapat diperbarui.');
+        return response.json();
+    }
+    // Tujuan klik berdasarkan jenis referensi notifikasi dari backend.
+    function target(item) {
+        const id = encodeURIComponent(item.reference_id || '');
+        if (item.reference_type === 'distribution') return `/donatur/penyaluran/${id}`;
+        if (item.reference_type === 'visit') return `/donatur/kunjungan/${id}`;
+        if (item.reference_type === 'donation') return '/donatur/riwayat';
+        return null;
+    }
+    function setUnread(count) {
+        unread = Math.max(0, count);
+        readAllButton.hidden = unread === 0;
+        window.dispatchEvent(new CustomEvent('donor:notifications-unread', { detail: unread }));
+    }
+    async function markRead(item) {
+        if (item.is_read) return;
+        item.is_read = true; setUnread(unread - 1);
+        try { await send(`/api/notifications/${encodeURIComponent(item.id)}/read`, 'PATCH'); } catch (_) { /* status baca tidak menghalangi navigasi */ }
+    }
+    function render() {
         list.replaceChildren();
         const groups = new Map();
         const today = new Date(), yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-        items.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(item => {
-            const date = new Date(item.date);
-            const label = date.toDateString() === today.toDateString() ? 'Hari Ini' : date.toDateString() === yesterday.toDateString() ? 'Kemarin' : fullDate(item.date);
+        items.forEach(item => {
+            const date = new Date(item.created_at);
+            const label = date.toDateString() === today.toDateString() ? 'Hari Ini' : date.toDateString() === yesterday.toDateString() ? 'Kemarin' : fullDate(item.created_at);
             if (!groups.has(label)) { const section = node('section', null, 'notification-group'); section.append(node('h2', label)); list.append(section); groups.set(label, section); }
-            const link = node('a', null, 'notification-item'); link.href = item.href;
-            const copy = node('div', null, 'notification-copy'); copy.append(node('h3', item.title), node('p', item.description));
+            const href = target(item);
+            const entry = node(href ? 'a' : 'button', null, 'notification-item' + (item.is_read ? '' : ' is-unread'));
+            if (href) entry.href = href; else entry.type = 'button';
+            const copy = node('div', null, 'notification-copy'); copy.append(node('h3', item.judul), node('p', item.deskripsi));
             const time = node('time', date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })); time.dateTime = date.toISOString();
-            link.append(icon(item.type), copy, time); groups.get(label).append(link);
+            if (!item.is_read) entry.append(node('span', 'Belum dibaca', 'sr-only'));
+            entry.append(icon(types[item.reference_type] || 'campaign'), copy, time);
+            entry.addEventListener('click', async event => {
+                if (item.is_read) return;
+                if (!href) { await markRead(item); render(); return; }
+                event.preventDefault();
+                await markRead(item);
+                location.assign(href);
+            });
+            groups.get(label).append(entry);
         });
         if (!items.length) list.append(node('p', 'Belum ada notifikasi. Perkembangan donasi dan kunjungan Anda akan tampil di sini.', 'updates-empty'));
+        moreButton.hidden = !nextPage;
     }
-    document.getElementById('notification-preview').onclick = event => {
-        preview = !preview;
-        event.currentTarget.textContent = preview ? 'Kembali ke notifikasi saya' : 'Lihat contoh tampilan';
-        message.textContent = preview ? 'Preview desain — notifikasi berikut adalah contoh.' : '';
-        const today = new Date(); today.setHours(10, 0, 0, 0);
-        const morning = new Date(today); morning.setHours(8);
-        const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1); yesterday.setHours(18);
-        render(preview ? [
-            { type: 'donation', title: 'Donasi Berhasil Disalurkan', description: 'Donasi Anda sebesar Rp 100.000 untuk kampanye “Bantuan Kebutuhan Pangan Anak Panti” telah berhasil disalurkan.', date: today, href: '/donatur/penyaluran/preview' },
-            { type: 'visit', title: 'Jadwal Kunjungan Dikonfirmasi', description: 'Jadwal kunjungan Anda ke Panti Asuhan Kasih Bunda telah dikonfirmasi.', date: morning, href: '/donatur/riwayat' },
-            { type: 'campaign', title: 'Kampanye Baru Tersedia', description: 'Ada kampanye yang mungkin Anda minati: “Renovasi Ruang Belajar yang Layak”.', date: yesterday, href: '/donatur/cari' },
-        ] : realItems);
+    async function load(page = 1) {
+        const result = await api(`/api/notifications?per_page=20&page=${page}`);
+        const pageData = result.data;
+        items = page === 1 ? pageData.data : items.concat(pageData.data);
+        nextPage = pageData.current_page < pageData.last_page ? pageData.current_page + 1 : null;
+        setUnread(result.unread_count);
+        message.textContent = '';
+        render();
+    }
+    readAllButton.onclick = async () => {
+        readAllButton.disabled = true;
+        try {
+            await send('/api/notifications/read-all', 'PATCH');
+            items.forEach(item => { item.is_read = true; });
+            setUnread(0); render();
+        } catch (error) { message.textContent = error.message; }
+        finally { readAllButton.disabled = false; }
     };
-    api('/api/donors/activities').then(({ data }) => {
-        realItems = data.riwayat_donasi.filter(item => item.status_asli === 'sudah_bayar').map(item => ({ type: 'donation', title: item.display_status === 'sudah_disalurkan' ? 'Laporan Penyaluran Tersedia' : 'Donasi Berhasil', description: `${rupiah(item.amount)} untuk kampanye “${item.campaign_name}”. ${item.display_status === 'sudah_disalurkan' ? 'Lihat laporan penggunaan dana kampanye dari panti.' : 'Terima kasih atas kebaikan Anda.'}`, date: item.distributed_at || item.paid_at || item.created_at, href: item.display_status === 'sudah_disalurkan' ? `/donatur/penyaluran/${encodeURIComponent(item.id)}` : '/donatur/riwayat' }));
-        data.riwayat_kunjungan.forEach(item => realItems.push({ type: 'visit', title: { terkirim: 'Pengajuan Kunjungan Terkirim', dikonfirmasi: 'Jadwal Kunjungan Dikonfirmasi', ditolak: 'Pengajuan Kunjungan Ditolak', selesai: 'Kunjungan Selesai' }[item.status] || 'Informasi Kunjungan', description: `${item.organization_name} — jadwal ${fullDate(item.date)}, ${(item.time || '').slice(0, 5)}. ${item.response || ''}`, date: item.updated_at, href: '/donatur/riwayat' }));
-        if (!preview) { message.textContent = ''; render(realItems); }
-    }).catch(error => { if (!preview) message.textContent = error.message; });
+    moreButton.onclick = async () => {
+        moreButton.disabled = true; moreButton.textContent = 'Memuat...';
+        try { await load(nextPage); } catch (error) { message.textContent = error.message; }
+        finally { moreButton.disabled = false; moreButton.textContent = 'Muat notifikasi sebelumnya'; }
+    };
+    load().catch(error => { message.textContent = error.message; });
 }
 if (distribution) {
     const content = document.getElementById('distribution-content');

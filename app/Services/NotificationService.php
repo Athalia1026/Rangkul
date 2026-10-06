@@ -246,6 +246,36 @@ class NotificationService
             'purchase_proof',
             $proof->id
         );
+
+        if ($approved) {
+            $this->donationsDistributed($proof);
+        }
+    }
+
+    /**
+     * Beri tahu donatur bahwa donasinya sudah disalurkan. Cukup satu kali per donasi,
+     * walaupun kampanye memiliki beberapa bukti penyaluran yang disetujui.
+     */
+    private function donationsDistributed(PurchaseProof $proof): void
+    {
+        $campaign = $proof->fundDisbursement?->campaign;
+        if (!$campaign) {
+            return;
+        }
+
+        Donation::with('donor')
+            ->where('id_campaign', $campaign->id)
+            ->where('status', 'sudah_bayar')
+            ->whereNotIn('id', Notification::select('reference_id')->where('reference_type', 'distribution'))
+            ->get()
+            ->each(fn (Donation $donation) => $this->send(
+                $donation->donor?->user_id,
+                'Donasi Berhasil Disalurkan',
+                'Donasi Anda sebesar ' . OrgFormat::rupiah($donation->nominal) . " untuk kampanye \"{$campaign->judul}\" telah disalurkan oleh "
+                    . ($campaign->organization?->nama_lembaga ?? 'panti asuhan') . '.',
+                'distribution',
+                $donation->id
+            ));
     }
 
     // =====================================================================
