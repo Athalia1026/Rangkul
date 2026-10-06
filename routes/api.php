@@ -62,6 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::get('/donors/activities', [ActivityHistoryController::class, 'index']);
     Route::get('/donors/distributions/{id}', [ActivityHistoryController::class, 'distribution']);
+    Route::get('/donors/donations/{id}/receipt', [ActivityHistoryController::class, 'receipt']);
     Route::prefix('premium')->group(function () {
         Route::post('/register', [PremiumController::class, 'register']);
         Route::get('/status', [PremiumController::class, 'status']);

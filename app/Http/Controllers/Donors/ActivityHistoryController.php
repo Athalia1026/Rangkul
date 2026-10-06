@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Donation;
 use App\Models\Visit; // Pastikan model Visit sudah ada
+use App\Services\DonationService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 
 class ActivityHistoryController extends Controller
@@ -23,6 +25,22 @@ class ActivityHistoryController extends Controller
                 'proofs' => $proofs->map(fn ($proof) => ['description' => $proof->deskripsi, 'amount' => (float) $proof->nominal, 'url' => asset('storage/' . $proof->lokasi_file)])->values()];
         })->filter()->values();
         return response()->json(['campaign' => $donation->campaign?->judul, 'organization' => $donation->campaign?->organization?->nama_lembaga, 'reports' => $reports]);
+    }
+
+    public function receipt(Request $request, string $id)
+    {
+        abort_unless($request->user()->account_type === 'donatur' && $request->user()->donor, 403);
+        $donation = Donation::with(['campaign.organization', 'donor.user'])
+            ->where('id_donatur', $request->user()->donor->id)->where('status', 'sudah_bayar')->findOrFail($id);
+        $invoiceId = $donation->transaction_id ?? 'D-NS-' . strtoupper(substr($donation->id, 0, 8));
+        $fee = (float) ($donation->payment_fee ?? DonationService::PAYMENT_FEE);
+
+        return Pdf::loadView('reports.donation-receipt', [
+            'donation' => $donation,
+            'invoiceId' => $invoiceId,
+            'fee' => $fee,
+            'total' => (float) $donation->nominal + $fee,
+        ])->setPaper('a5', 'portrait')->download('bukti-pembayaran-' . $invoiceId . '.pdf');
     }
 
     public function index(Request $request)

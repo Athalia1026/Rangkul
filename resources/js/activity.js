@@ -48,11 +48,19 @@ if (page) {
         if (!['http:', 'https:'].includes(parsed.protocol)) return el('p', 'Berkas tidak tersedia.');
         link.href = parsed.href; link.target = '_blank'; link.rel = 'noopener noreferrer'; return link;
     }
-    function receipt(item) {
-        const lines = ['RANGKUL — RINGKASAN DONASI', `ID: ${item.invoice_id}`, `Kampanye: ${item.campaign_name}`, `Organisasi: ${item.organization_name}`, `Tanggal: ${date(item.created_at)}`, `Nominal donasi: ${money(item.amount)}`, `Status: ${labels[item.display_status] || item.display_status}`, '', 'Ringkasan berdasarkan riwayat akun Rangkul. Bukan kuitansi dari penyedia pembayaran.'];
-        const url = URL.createObjectURL(new Blob([lines.join('\r\n')], { type: 'text/plain;charset=utf-8' }));
-        const link = el('a'); link.href = url; link.download = `ringkasan-donasi-${item.id}.txt`; link.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    async function receipt(item, button) {
+        const token = localStorage.getItem('auth_token');
+        if (!token) { window.location.replace('/login'); return; }
+        const label = button.textContent; button.disabled = true; button.textContent = 'Menyiapkan PDF...';
+        try {
+            const response = await fetch(`/api/donors/donations/${encodeURIComponent(item.id)}/receipt`, { headers: { Accept: 'application/pdf', Authorization: `Bearer ${token}` } });
+            if (response.status === 401) { window.location.replace('/login'); return; }
+            if (!response.ok) throw new Error('Bukti pembayaran belum dapat diunduh.');
+            const url = URL.createObjectURL(await response.blob());
+            const link = el('a'); link.href = url; link.download = `bukti-pembayaran-${item.invoice_id}.pdf`; link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) { alert(error.message); }
+        finally { button.disabled = false; button.textContent = label; }
     }
     function visitDetails(item) {
         open('Detail Kunjungan');
@@ -115,9 +123,10 @@ if (page) {
             if (status === 'dikonfirmasi') actions.append(action('Upload Dokumentasi', () => location.assign(`/donatur/kunjungan/${encodeURIComponent(item.id)}#dokumentasi`)));
         } else {
             info.append(el('span', 'Nominal Donasi', 'activity-label'), el('p', money(item.amount), 'activity-amount'));
-            if (item.status_asli === 'sudah_bayar') actions.append(action('Unduh Ringkasan Donasi', () => receipt(item)));
+            if (item.status_asli === 'sudah_bayar') actions.append(action('Unduh Bukti Pembayaran', event => receipt(item, event.currentTarget)));
             else actions.append(action('Lanjutkan Pembayaran', () => { location.assign(`/donatur/pembayaran/${encodeURIComponent(item.id)}`); }));
-            if (item.status_asli === 'sudah_bayar') actions.append(action('Lihat Bukti Penyaluran', () => { location.assign(`/donatur/penyaluran/${encodeURIComponent(item.id)}`); }, true));
+            // Bukti penyaluran hanya tersedia setelah panti mengunggah bukti yang diterima.
+            if (item.display_status === 'sudah_disalurkan') actions.append(action('Lihat Bukti Penyaluran', () => { location.assign(`/donatur/penyaluran/${encodeURIComponent(item.id)}`); }, true));
         }
         bottom.append(info, actions); body.append(bottom); card.append(image, body); return card;
     }
