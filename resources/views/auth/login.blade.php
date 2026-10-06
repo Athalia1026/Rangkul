@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-auth-session-guard />
 
     <title>Login - Rangkul.com</title>
 
@@ -142,7 +143,13 @@
 
                     </div>
 
-                    <div class="mt-2 text-right">
+                    <div class="mt-2 flex items-center justify-between gap-3">
+                        <label for="remember" class="inline-flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" id="remember" name="remember" value="1"
+                                class="w-4 h-4 rounded border-gray-300 accent-[#065e38] cursor-pointer" />
+                            <span class="text-[11.5px] sm:text-[12px] font-medium text-gray-700">Ingat saya</span>
+                        </label>
+
                         <a href="{{ route('password.request') }}"
                             class="text-[11px] sm:text-[11.5px] font-medium text-gray-500 hover:text-[#065e38] transition-colors">
                             Lupa password?
@@ -229,6 +236,7 @@
             const errorMessage = document.getElementById('login-error');
             const originalText = button.textContent.trim();
             const email = document.getElementById('email').value;
+            const remember = document.getElementById('remember').checked;
 
             errorMessage.classList.add('hidden');
             errorMessage.textContent = '';
@@ -246,7 +254,8 @@
                     },
                     body: JSON.stringify({
                         email: email,
-                        password: document.getElementById('passwordInput').value
+                        password: document.getElementById('passwordInput').value,
+                        remember: remember
                     })
                 });
 
@@ -274,6 +283,15 @@
 
                 localStorage.setItem('auth_token', authToken);
                 localStorage.setItem('auth_user', JSON.stringify(result.user));
+
+                // Penanda login untuk x-auth-session-guard:
+                // - rangkul_browser_session: cookie sesi (tanpa kedaluwarsa), dihapus browser saat ditutup.
+                // - rangkul_remember: hanya jika "Ingat saya" dicentang, bertahan 30 hari walau browser ditutup.
+                document.cookie = 'rangkul_browser_session=1; path=/; SameSite=Lax';
+                document.cookie = remember
+                    ? 'rangkul_remember=1; path=/; max-age=' + (60 * 60 * 24 * 30) + '; SameSite=Lax'
+                    : 'rangkul_remember=; path=/; max-age=0; SameSite=Lax';
+                localStorage.removeItem('auth_remember');
 
                 const redirectByAccountType = {
                     organisasi: '{{ route('organisasi.dashboard') }}',

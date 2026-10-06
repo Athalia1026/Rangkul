@@ -34,6 +34,7 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
+        'remember_token',
     ];
     /** URL foto profil (path storage atau URL penuh), null jika belum ada foto. */
     public function profilePhotoUrl(): ?string

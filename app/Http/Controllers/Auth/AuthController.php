@@ -157,16 +157,20 @@ class AuthController extends Controller
     /**
      * Login dari halaman web: respons JSON sama dengan API login, dan untuk akun
      * organisasi juga membuka sesi web agar halaman Blade organisasi bisa membaca data user.
+     * Tanpa "Ingat saya", sesi web berakhir saat browser ditutup (session.expire_on_close);
+     * dengan "Ingat saya", Laravel menanam cookie remember agar login tetap diingat.
      */
     public function loginWeb(Request $request)
     {
+        $request->validate(['remember' => 'nullable|boolean']);
+
         $response = $this->login($request);
 
         if ($response->getStatusCode() === 200) {
             $user = User::where('email', $request->input('email'))->first();
 
             if ($user?->account_type === 'organisasi') {
-                Auth::guard('web')->login($user);
+                Auth::guard('web')->login($user, $request->boolean('remember'));
                 $request->session()->regenerate();
             }
         }
