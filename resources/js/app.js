@@ -10,3 +10,6 @@ import '../css/donor-updates.css';
 import './donor-updates';
 import '../css/visits.css';
 import './visits';
+import '../css/profile.css';
+import './profile';
+import './password';

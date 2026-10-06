@@ -18,38 +18,33 @@ class ProfileController extends Controller
         ], 200);
     }
 
-    // 2. Update Profile Data
+    // 2. Update Profile Data (khusus donatur)
     public function update(Request $request)
     {
         $user = $request->user();
+        abort_unless($user->account_type === 'donatur', 403);
 
         $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'nama' => 'required|string|max:255',
+            'no_telp' => ['required', 'string', 'max:20', 'regex:/^[0-9+\-\s]{8,20}$/'],
+            'kota' => 'required|string|max:255',
+        ], [
+            'required' => 'Kolom ini wajib diisi.',
+            'max' => 'Maksimal :max karakter.',
+            'no_telp.regex' => 'Nomor telepon hanya boleh berisi angka, spasi, + atau -.',
         ]);
 
-        $validatedDonor = $request->validate([
-            'phone_number' => 'sometimes|string|max:20',
-            'city' => 'sometimes|string|max:255',
-        ]);
-
-        if (!empty($validatedUser)) {
-            $user->update($validatedUser);
-        }
-
-        if (!empty($validatedDonor)) {
+        // Email tidak dapat diubah dari halaman profil.
+        $user->update(['nama' => $validated['nama']]);
         $user->donor()->updateOrCreate(
-            ['user_id' => $user->id], // Kunci pencarian relasi
-            $validatedDonor
+            ['user_id' => $user->id],
+            ['no_telp' => $validated['no_telp'], 'kota' => $validated['kota']]
         );
-    }
-        $user->load('donor');
-        $user->update($validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Profil berhasil diperbarui',
-            'data' => $user
+            'data' => $user->fresh('donor'),
         ], 200);
     }
 

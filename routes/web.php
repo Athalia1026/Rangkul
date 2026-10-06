@@ -23,6 +23,8 @@ Route::view('/donatur/riwayat', 'donatur.riwayat')->name('donatur.riwayat');
 Route::view('/donatur/kunjungan/jadwalkan/{organization}', 'donatur.kunjungan', ['mode' => 'create'])->name('donatur.kunjungan.create');
 Route::view('/donatur/kunjungan/{id}/edit', 'donatur.kunjungan', ['mode' => 'edit'])->name('donatur.kunjungan.edit');
 Route::view('/donatur/kunjungan/{id}', 'donatur.kunjungan', ['mode' => 'detail'])->name('donatur.kunjungan.detail');
+Route::view('/donatur/profil', 'donatur.profil')->name('donatur.profil');
+Route::view('/donatur/profil/ubah-password', 'donatur.ubah-password')->name('donatur.password');
 Route::view('/donatur/notifikasi', 'donatur.notifikasi')->name('donatur.notifikasi');
 Route::view('/donatur/penyaluran/{id}', 'donatur.penyaluran')->name('donatur.penyaluran');
 Route::get('/donatur/donasi/{campaignId}', [\App\Http\Controllers\Donors\DonationController::class, 'checkout'])->name('donatur.donasi');
