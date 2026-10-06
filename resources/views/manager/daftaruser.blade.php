@@ -278,25 +278,42 @@
         </div>
 
         <table class="w-full text-left">
+            <table class="w-full text-left" style="table-layout: fixed;">
+            <colgroup>
+                <col style="width: 50px;">
+                <col style="width: 250px;">
+                <col style="width: 200px;">
+                <col style="width: 80px;">
+                <col style="width: 100px;">
+                <col style="width: 80px;">
+            </colgroup>
 
             <thead class="border-b border-gray-200">
 
                 <tr class="text-sm font-bold text-gray-800 text-center">
 
-                    <th class="px-2 py-2">
+                    <th class="px-6 py-2">
                         No.
                     </th>
 
-                    <th class="px-6 py-4 text-center">
+                    <th class="px-2 py-4 text-center">
                         Nama Donatur
+                    </th>
+
+                    <th class="px-2 py-4 text-center">
+                        Email
+                    </th>
+
+                    <th class="px-2 py-4 text-center">
+                        Kontak
+                    </th>
+
+                    <th class="px-2 py-4 text-center">
+                        Kota
                     </th>
 
                     <th class="px-6 py-4 text-center">
                         Jenis
-                    </th>
-
-                    <th class="px-6 py-4 text-center">
-                        Detail
                     </th>
 
                 </tr>
@@ -309,55 +326,115 @@
                 <!-- DATA DONATUR 1 -->
                 <tr class="border-b border-gray-200">
 
-                    <td class="px-2 py-4 text-center">
+                    <td class="px-6 py-4 text-center">
                         1.
                     </td>
 
-                    <td class="px-6 py-4 text-center">
-                        Ahmad Fauzi Ozi
+                    <td class="px-2 py-4">
+                        Ahmad Fauzil Ozi
+                    </td>
+
+                    <td class="px-2 py-4">
+                        ahmadfauzil@gmail.com
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
+                        081234567890
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
+                        Gresik
                     </td>
 
                     <td class="px-6 py-4 text-center">
                         Individu
                     </td>
 
-                    <td class="px-6 py-4 text-center">
-
-                        <a
-                            href="/manager/detailuser"
-                            class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                        >
-                            Detail
-                        </a>
-
-                    </td>
                 </tr>
 
 
                 <!-- DATA DONATUR 2 -->
                 <tr class="border-b border-gray-200">
 
-                    <td class="px-2 py-4 text-center">
+                    <td class="px-6 py-4 text-center">
                         2.
                     </td>
 
-                    <td class="px-6 py-4 text-center">
-                        Himpunan Mahasiswa Sistem Informasi
+                    <td class="px-2 py-4">
+                        Departemen Sosial Masyarakat HIMASIFO UPNVJT
+                    </td>
+
+                    <td class="px-2 py-4">
+                        sosmapan@gmail.com
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
+                        081234567890
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
+                        Surabaya
                     </td>
 
                     <td class="px-6 py-4 text-center">
                         Organisasi
                     </td>
 
+                </tr>
+
+                <!-- DATA DONATUR 3 -->
+                <tr class="border-b border-gray-200">
+
                     <td class="px-6 py-4 text-center">
+                        3.
+                    </td>
 
-                        <a
-                            href="/manager/detailuser"
-                            class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                        >
-                            Detail
-                        </a>
+                    <td class="px-2 py-4">
+                        Septia Tsabita Nabila
+                    </td>
 
+                    <td class="px-2 py-4">
+                        septiatsabita@gmail.com
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
+                        081547893560
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
+                        Lamongan
+                    </td>
+
+                    <td class="px-6 py-4 text-center">
+                        Individu
+                    </td>
+                </tr>
+
+                <!-- DATA DONATUR 4 -->
+                <tr class="border-b border-gray-200">
+
+                    <td class="px-6 py-4 text-center">
+                        4.
+                    </td>
+
+                    <td class="px-2 py-4">
+                        Naadzhifa Nurfathiina
+                    </td>
+
+                    <td class="px-2 py-4">
+                        naadzhifa@gmail.com
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
+                        082263547041
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
+                        Gresik
+                    </td>
+
+                    <td class="px-6 py-4 text-center">
+                        Individu
                     </td>
                 </tr>
 
