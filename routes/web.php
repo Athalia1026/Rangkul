@@ -351,7 +351,23 @@ Route::prefix('organisasi')
 Route::prefix('superadmin')->group(function () {
 
     Route::get('/home', function () {
-        return view('super admin.home');
+        return view('superadmin.home');
+    });
+
+});
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/daftarpengguna', function () {
+        return view('superadmin.daftarpengguna');
+    });
+
+});
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/laporantransaksi', function () {
+        return view('superadmin.laporantransaksi');
     });
 
 });
