@@ -25,8 +25,9 @@ class OrganizationDisbursementController extends Controller
             ->findOrFail($campaignId);
 
         $bankAccount = BankAccount::where('id_organisasi', $organization->id)->first();
+        $blockingDisbursement = FundDisbursement::blockingNewRequestFor($organization->id);
 
-        return view('organisasi.pencairan-ajukan', compact('campaign', 'bankAccount'));
+        return view('organisasi.pencairan-ajukan', compact('campaign', 'bankAccount', 'blockingDisbursement'));
     }
 
     // Halaman form upload bukti penyaluran untuk pencairan yang sudah disetujui (web)
@@ -70,22 +71,13 @@ class OrganizationDisbursementController extends Controller
 
         $organizationId = $organization->id;
 
-        // Guardrail: mencegah submit baru saat masih ada riwayat yang belum selesai
-        $hasPendingReports = FundDisbursement::whereHas('campaign', function ($q) use ($organizationId) {
-                $q->where('id_organisasi', $organizationId);
-            })
-            ->whereIn('status', ['menunggu', 'diterima'])
-            ->where(function ($query) {
-                $query->doesntHave('purchaseProofs')
-                    ->orWhereHas('purchaseProofs', function ($sub) {
-                        $sub->where('status', '!=', 'diterima');
-                    });
-            })->exists();
+        // Guardrail: pencairan sebelumnya harus sudah diunggah bukti penyalurannya
+        $blockingDisbursement = FundDisbursement::blockingNewRequestFor($organizationId);
 
-        if ($hasPendingReports) {
+        if ($blockingDisbursement) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Pengajuan diblokir: Anda masih memiliki pencairan yang belum selesai atau bukti belum diverifikasi.'
+                'message' => $blockingDisbursement->newRequestBlockMessage(),
             ], 403);
         }
 

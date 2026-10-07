@@ -100,6 +100,60 @@
     </p>
 
 
+    {{-- PENGAJUAN DIBLOKIR: bukti penyaluran pencairan sebelumnya belum diverifikasi admin --}}
+    @if ($blockingDisbursement)
+        @php
+            $blockReason = $blockingDisbursement->newRequestBlockReason();
+            [$blockActionUrl, $blockActionLabel] = match ($blockReason) {
+                'belum_upload_bukti' => [route('organisasi.kampanye.bukti.upload', $blockingDisbursement->id_campaign), 'Upload Bukti Penyaluran'],
+                'bukti_menunggu_verifikasi' => [route('organisasi.kampanye.detail', ['campaign' => $blockingDisbursement->id_campaign, 'tab' => 'bukti']), 'Lihat Bukti Penyaluran'],
+                default => [route('organisasi.kampanye.detail', ['campaign' => $blockingDisbursement->id_campaign, 'tab' => 'pencairan']), 'Lihat Pengajuan'],
+            };
+        @endphp
+        <section
+            class="mt-10
+                   flex flex-col
+                   lg:flex-row
+                   lg:items-center
+                   justify-between
+                   gap-6
+                   bg-red-50
+                   border border-red-200
+                   rounded-[20px]
+                   px-8
+                   py-6"
+        >
+
+            <div class="flex items-start gap-4">
+                <i class="fa-solid fa-triangle-exclamation text-[26px] text-red-500 mt-1"></i>
+
+                <p class="text-[20px] text-red-600 font-medium">
+                    {{ $blockingDisbursement->newRequestBlockMessage() }}
+                </p>
+            </div>
+
+            <a
+                href="{{ $blockActionUrl }}"
+                class="shrink-0
+                       inline-flex
+                       items-center
+                       justify-center
+                       px-8 py-4
+                       bg-[#08703F]
+                       hover:bg-[#065D35]
+                       text-white
+                       rounded-[14px]
+                       text-[20px]
+                       font-semibold
+                       transition"
+            >
+                {{ $blockActionLabel }}
+            </a>
+
+        </section>
+    @endif
+
+
     <form id="disbursementForm" enctype="multipart/form-data">
 
     <input type="hidden" name="id_campaign" value="{{ $campaign->id }}">
@@ -404,6 +458,7 @@
         <button
             type="submit"
             id="submitDisbursement"
+            @disabled($blockingDisbursement)
             class="min-w-[300px]
                    h-[76px]
                    bg-[#08703F]
@@ -413,6 +468,8 @@
                    font-semibold
                    hover:bg-[#065D35]
                    disabled:opacity-60
+                   disabled:cursor-not-allowed
+                   disabled:hover:bg-[#08703F]
                    transition"
         >
             Ajukan Verifikasi
