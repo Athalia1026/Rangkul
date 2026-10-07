@@ -54,7 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
     Route::put('/profile/change-password', [PasswordController::class, 'update'])
         ->middleware('throttle:5,1');
-    Route::prefix('admin/verifications')->group(function () {
+    Route::middleware(CheckIsAdmin::class)->prefix('admin/verifications')->group(function () {
         Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
         Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
         Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);

@@ -58,7 +58,7 @@ class Organization extends Model
 
 public function bankAccount()
 {
-    return $this->hasOne(BankAccount::class, 'id_organisasi', 'user_id');
+    return $this->hasOne(BankAccount::class, 'id_organisasi', 'id');
 }
 
 public function toSearchableArray(): array
