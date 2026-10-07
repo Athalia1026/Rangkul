@@ -144,6 +144,10 @@ class DonationService
         $fraudStatus = $payload['fraud_status'] ?? null;
         $transactionIdMidtrans = $payload['transaction_id'] ?? $donation->transaction_id;
 
+        if (!empty($payload['payment_type'])) {
+            $donation->payment_type = $payload['payment_type'];
+        }
+
         if ($this->isSuccessfulTransaction($transactionStatus, $fraudStatus)) {
             $this->markDonationPaid($donation, $transactionIdMidtrans);
 

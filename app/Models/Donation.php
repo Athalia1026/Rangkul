@@ -18,7 +18,7 @@ class Donation extends Model
 
     protected $fillable = [
         'id', 'id_campaign', 'id_donatur', 'nominal',
-        'note', 'status', 'anonim', 'transaction_id', 'paid_at', 'snap_token', 'payment_url', 'payment_fee'
+        'note', 'status', 'anonim', 'transaction_id', 'payment_type', 'paid_at', 'snap_token', 'payment_url', 'payment_fee'
     ];
 
     protected static function boot()
@@ -35,5 +35,24 @@ class Donation extends Model
     public function campaign()
     {
         return $this->belongsTo(Campaign::class, 'id_campaign');
+    }
+
+    /** Nama metode pembayaran yang mudah dibaca, dari payment_type Midtrans. */
+    public function paymentMethodLabel(): string
+    {
+        if (!$this->payment_type) {
+            return '-';
+        }
+
+        return [
+            'qris' => 'QRIS',
+            'gopay' => 'GoPay',
+            'shopeepay' => 'ShopeePay',
+            'bank_transfer' => 'Transfer Bank',
+            'echannel' => 'Transfer Bank',
+            'permata' => 'Transfer Bank',
+            'credit_card' => 'Kartu Kredit',
+            'cstore' => 'Gerai Retail',
+        ][$this->payment_type] ?? ucwords(str_replace('_', ' ', $this->payment_type));
     }
 }
