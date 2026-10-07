@@ -363,3 +363,12 @@ Route::prefix('superadmin')->group(function () {
     });
 
 });
+
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/laporantransaksi', function () {
+        return view('superadmin.laporantransaksi');
+    });
+
+});
