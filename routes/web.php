@@ -375,8 +375,8 @@ Route::prefix('superadmin')->group(function () {
 
 Route::prefix('superadmin')->group(function () {
 
-    Route::get('/detailpengajuan', function () {
-        return view('superadmin.detailpengajuan');
+    Route::get('/detailpengajuandana', function () {
+        return view('superadmin.detailpengajuandana');
     });
 
 });
