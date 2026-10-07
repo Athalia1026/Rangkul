@@ -43,44 +43,7 @@
 
 <body class="text-gray-800">
 
-    <!-- NAVIGATION BAR -->
-    <nav class="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between">
-
-        <!-- LOGO -->
-        <div class="flex items-center w-1/3">
-            <img
-                src="/images/logo.png"
-                alt="Rangkul"
-                class="h-10 w-auto"
-            >
-        </div>
-
-        <!-- MENU NAVBAR -->
-        <div class="flex gap-12 font-semibold text-sm">
-
-            <a href="#" class="hover:text-green-700">
-                Beranda
-            </a>
-
-            <a href="#" class="hover:text-green-700">
-                Daftar Pengguna
-            </a>
-
-            <a href="#" class="hover:text-green-700">
-                Laporan Transaksi
-            </a>
-
-        </div>
-
-        <!-- PROFILE -->
-        <div class="flex items-center justify-end w-1/3">
-            <div class="text-rangkul-green text-3xl cursor-pointer">
-                <i class="fa-solid fa-circle-user"></i>
-            </div>
-        </div>
-
-    </nav>
-
+    @include('manager.layouts.navbar')
 
     <!-- MAIN CONTENT -->
     <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
@@ -88,7 +51,7 @@
         <!-- TOMBOL KEMBALI -->
         <div>
             <a
-                href="/manager/home"
+                href="/manager/daftaruser"
                 class="inline-flex items-center gap-2 bg-[#d1e7dd] hover:bg-green-200 text-gray-800 px-6 py-2 rounded-lg shadow-sm font-bold text-sm transition active:scale-95"
             >
                 <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -304,7 +267,6 @@
                     <table class="w-full text-left">
 
                         <thead class="bg-[#d1e7dd]">
-
                             <tr class="text-sm font-bold text-gray-800">
 
                                 <th class="px-6 py-4 text-center">
@@ -316,7 +278,6 @@
                                 </th>
 
                             </tr>
-
                         </thead>
 
                         <tbody class="text-sm">
@@ -328,9 +289,13 @@
                                 </td>
 
                                 <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px]">
+                                    <a
+                                        href="/documents/SK%20Pendirian.pdf"
+                                        download
+                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
+                                    >
                                         SK Pendirian.pdf
-                                    </span>
+                                    </a>
                                 </td>
 
                             </tr>
@@ -343,9 +308,13 @@
                                 </td>
 
                                 <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px]">
+                                    <a
+                                        href="/documents/KTP.pdf"
+                                        download
+                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
+                                    >
                                         KTP.pdf
-                                    </span>
+                                    </a>
                                 </td>
 
                             </tr>
@@ -358,9 +327,13 @@
                                 </td>
 
                                 <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px]">
+                                    <a
+                                        href="/documents/Foto.jpg"
+                                        download
+                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
+                                    >
                                         Foto.jpg
-                                    </span>
+                                    </a>
                                 </td>
 
                             </tr>
@@ -387,7 +360,6 @@
                 </div>
 
             </section>
-
         </div>
 
     </main>
