@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-auth-session-guard />
     <title>Detail Pengajuan</title>
 
     <!-- Tailwind CSS CDN -->
@@ -53,6 +54,8 @@
             </a>
         </div>
 
+        <div id="pengajuan-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+
         <!-- Grid Layout 2 Kolom -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
@@ -70,9 +73,11 @@
                             Status
                         </label>
 
-                        <span class="text-orange-400 font-bold text-xl">
-                            Menunggu
+                        <span id="statusPengajuan" class="text-orange-400 font-bold text-xl">
+                            Memuat...
                         </span>
+
+                        <p id="alasanTolakInfo" class="hidden text-sm text-gray-600 mt-1"></p>
                     </div>
 
                     <div>
@@ -81,9 +86,10 @@
                         </label>
 
                         <input
+                            id="namaOrganisasi"
                             type="text"
                             readonly
-                            value="Asrama Pemberdayaan Yatim dan Dhuafa"
+                            value=""
                             class="w-full border border-black rounded-lg px-3 py-2 focus:outline-none"
                         >
                     </div>
@@ -94,9 +100,10 @@
                         </label>
 
                         <input
+                            id="jumlahDiajukan"
                             type="text"
                             readonly
-                            value="Rp 150.000"
+                            value=""
                             class="w-full border border-black rounded-lg px-3 py-2 focus:outline-none"
                         >
                     </div>
@@ -107,10 +114,11 @@
                         </label>
 
                         <textarea
+                            id="deskripsiPengajuan"
                             readonly
                             rows="4"
                             class="w-full border border-black rounded-lg px-3 py-2 focus:outline-none resize-none"
-                        >Butuh sembako</textarea>
+                        ></textarea>
                     </div>
 
                 </div>
@@ -124,7 +132,7 @@
                 </div>
 
                 <div class="p-8 h-full">
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg h-[350px] flex flex-col items-center justify-center text-gray-400">
+                    <div id="buktiPreview" class="border-2 border-dashed border-gray-300 rounded-lg h-[350px] flex flex-col items-center justify-center text-gray-400 overflow-hidden">
                         <i class="fa-regular fa-image text-6xl mb-3"></i>
 
                         <p class="font-medium">
@@ -138,7 +146,7 @@
         </div>
 
         <!-- Tombol Aksi di Bawah -->
-        <div class="w-[590px] flex gap-6 mt-10">
+        <div id="aksiPengajuan" class="hidden w-[590px] flex gap-6 mt-10">
 
             <!-- SETUJUI -->
             <button
@@ -285,11 +293,11 @@
                 </div>
             </div>
 
-            <h2 class="text-2xl font-bold text-gray-900 mb-3">
+            <h2 id="alertAlasanJudul" class="text-2xl font-bold text-gray-900 mb-3">
                 Alasan Belum Diisi
             </h2>
 
-            <p class="text-gray-600 text-base">
+            <p id="alertAlasanPesan" class="text-gray-600 text-base">
                 Silakan isi alasan penolakan terlebih dahulu
                 sebelum melanjutkan.
             </p>
@@ -341,6 +349,118 @@
     <!-- JAVASCRIPT -->
     <script>
 
+        const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
+        const disbursementId = @json($disbursementId);
+
+        const STATUS_TAMPIL = {
+            menunggu: { label: 'Menunggu', className: 'text-orange-400' },
+            diterima: { label: 'Disetujui', className: 'text-rangkul-green' },
+            ditolak: { label: 'Ditolak', className: 'text-rangkul-red' }
+        };
+
+        // ==========================
+        // DATA PENGAJUAN
+        // ==========================
+
+        function renderBukti(attachment) {
+
+            const preview = document.getElementById('buktiPreview');
+
+            if (!attachment) {
+                preview.innerHTML = `
+                    <i class="fa-regular fa-image text-6xl mb-3"></i>
+
+                    <p class="font-medium">
+                        Tidak ada lampiran
+                    </p>
+                `;
+                return;
+            }
+
+            if (attachment.is_image) {
+                preview.innerHTML = `
+                    <a href="${escapeHtml(attachment.url)}" target="_blank" rel="noopener" class="w-full h-full">
+                        <img src="${escapeHtml(attachment.url)}" alt="Bukti Pembelian" class="w-full h-full object-contain">
+                    </a>
+                `;
+                return;
+            }
+
+            preview.innerHTML = `
+                <i class="fa-regular fa-file-pdf text-6xl mb-3"></i>
+
+                <a href="${escapeHtml(attachment.url)}" target="_blank" rel="noopener" class="font-medium text-rangkul-green underline">
+                    Lihat Lampiran
+                </a>
+            `;
+
+        }
+
+        function renderPengajuan(data) {
+
+            const status = STATUS_TAMPIL[data.status] || { label: data.status, className: 'text-gray-700' };
+            const statusElement = document.getElementById('statusPengajuan');
+            const alasanTolakInfo = document.getElementById('alasanTolakInfo');
+
+            statusElement.textContent = status.label;
+            statusElement.className = status.className + ' font-bold text-xl';
+
+            alasanTolakInfo.textContent = data.alasan_tolak ? 'Alasan penolakan: ' + data.alasan_tolak : '';
+            alasanTolakInfo.classList.toggle('hidden', !data.alasan_tolak);
+
+            document.getElementById('namaOrganisasi').value = data.organization_name;
+            document.getElementById('jumlahDiajukan').value = formatRupiah(data.amount);
+            document.getElementById('deskripsiPengajuan').value = [data.alokasi_dana, data.alasan]
+                .filter(Boolean)
+                .join('\n\n');
+
+            renderBukti(data.attachment);
+
+            // Tombol aksi hanya untuk pengajuan yang belum diverifikasi
+            document.getElementById('aksiPengajuan').classList.toggle('hidden', data.status !== 'menunggu');
+
+        }
+
+        async function loadPengajuan() {
+
+            const error = document.getElementById('pengajuan-error');
+
+            try {
+                const { data } = await request('/api/admin/disbursements/' + encodeURIComponent(disbursementId));
+                error.classList.add('hidden');
+                renderPengajuan(data);
+            } catch (exception) {
+                error.textContent = exception.message;
+                error.classList.remove('hidden');
+                document.getElementById('statusPengajuan').textContent = '-';
+            }
+
+        }
+
+        async function verifikasiPengajuan(body) {
+            return request('/api/admin/disbursements/' + encodeURIComponent(disbursementId) + '/verify', {
+                method: 'PUT',
+                body
+            });
+        }
+
+        // ==========================
+        // POPUP PERINGATAN / GAGAL
+        // ==========================
+
+        const alertAlasan = document.getElementById('alertAlasan');
+        const btnTutupAlert = document.getElementById('btnTutupAlert');
+        const alertAlasanJudul = document.getElementById('alertAlasanJudul');
+        const alertAlasanPesan = document.getElementById('alertAlasanPesan');
+        const judulAlasanAwal = alertAlasanJudul.textContent;
+        const pesanAlasanAwal = alertAlasanPesan.textContent;
+
+        function tampilkanPeringatan(judul, pesan) {
+            alertAlasanJudul.textContent = judul || judulAlasanAwal;
+            alertAlasanPesan.textContent = pesan || pesanAlasanAwal;
+            alertAlasan.classList.remove('hidden');
+        }
+
         // ==========================
         // POPUP SETUJUI
         // ==========================
@@ -349,14 +469,26 @@
         const alertSetujui = document.getElementById('alertSetujui');
         const btnTutupAlertSetujui = document.getElementById('btnTutupAlertSetujui');
 
-        // Klik Setujui → tampilkan popup berhasil
-        btnSetujui.addEventListener('click', () => {
-            alertSetujui.classList.remove('hidden');
+        // Klik Setujui → simpan persetujuan lalu tampilkan popup berhasil
+        btnSetujui.addEventListener('click', async () => {
+
+            btnSetujui.disabled = true;
+
+            try {
+                await verifikasiPengajuan({ status: 'diterima' });
+                alertSetujui.classList.remove('hidden');
+            } catch (exception) {
+                tampilkanPeringatan('Gagal Menyetujui', exception.message);
+            } finally {
+                btnSetujui.disabled = false;
+            }
+
         });
 
         // Klik Mengerti → tutup popup
         btnTutupAlertSetujui.addEventListener('click', () => {
             alertSetujui.classList.add('hidden');
+            loadPengajuan();
         });
 
         // ==========================
@@ -368,10 +500,6 @@
         const btnBatalTolak = document.getElementById('btnBatalTolak');
         const btnConfirmTolak = document.getElementById('btnConfirmTolak');
         const alasanTolak = document.getElementById('alasanTolak');
-
-        // ALERT ALASAN BELUM DIISI
-        const alertAlasan = document.getElementById('alertAlasan');
-        const btnTutupAlert = document.getElementById('btnTutupAlert');
 
         const alertTolakBerhasil = document.getElementById('alertTolakBerhasil');
         const btnTutupAlertTolak = document.getElementById('btnTutupAlertTolak');
@@ -386,24 +514,33 @@
             modalTolak.classList.add('hidden');
         });
 
-        // Klik Tolak → cek alasan
-        btnConfirmTolak.addEventListener('click', () => {
+        // Klik Tolak → cek alasan lalu simpan penolakan
+        btnConfirmTolak.addEventListener('click', async () => {
 
             const alasan = alasanTolak.value.trim();
 
             // Kalau alasan kosong → tampilkan alert di halaman
             if (alasan === "") {
-                alertAlasan.classList.remove('hidden');
+                tampilkanPeringatan();
                 return;
             }
 
-            // Kalau alasan sudah diisi
-            modalTolak.classList.add('hidden');
+            btnConfirmTolak.disabled = true;
 
-            alertTolakBerhasil.classList.remove('hidden');
+            try {
+                await verifikasiPengajuan({ status: 'ditolak', alasan_tolak: alasan });
 
-            // Kosongkan alasan setelah berhasil
-            alasanTolak.value = '';
+                modalTolak.classList.add('hidden');
+                alertTolakBerhasil.classList.remove('hidden');
+
+                // Kosongkan alasan setelah berhasil
+                alasanTolak.value = '';
+            } catch (exception) {
+                tampilkanPeringatan('Gagal Menolak', exception.message);
+            } finally {
+                btnConfirmTolak.disabled = false;
+            }
+
         });
 
         // Tutup alert alasan
@@ -413,6 +550,7 @@
 
         btnTutupAlertTolak.addEventListener('click', () => {
             alertTolakBerhasil.classList.add('hidden');
+            loadPengajuan();
         });
 
         // ==========================
@@ -431,9 +569,17 @@
 
         if (e.target === alertTolakBerhasil) {
             alertTolakBerhasil.classList.add('hidden');
+            loadPengajuan();
+        }
+
+        if (e.target === alertSetujui) {
+            alertSetujui.classList.add('hidden');
+            loadPengajuan();
         }
 
     });
+
+        loadPengajuan();
 
     </script>
 

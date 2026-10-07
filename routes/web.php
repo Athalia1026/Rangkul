@@ -45,8 +45,9 @@ Route::get('/donatur/panti/{organizationId}', [OrganizationProfileController::cl
 */
 
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect('/manager/home');
+    // Sesi web hanya dibuat untuk akun organisasi (lihat AuthController::loginWeb).
+    if (auth()->user()?->account_type === 'organisasi') {
+        return redirect()->route('organisasi.dashboard');
     }
 
     return view('company-profile');
@@ -196,28 +197,15 @@ Route::get('/donatur/hasil-pencarian', [SearchController::class, 'results'])->na
 |--------------------------------------------------------------------------
 */
 
-Route::get('/manager/home', function () {
-    return view('manager.home');
-});
-
-
-Route::get('/manager/detail', function () {
-    return view('manager.detail');
-});
-
-
-Route::get('/manager/daftaruser', function () {
-    return view('manager.daftaruser');
-});
-
-
-Route::get('/manager/detailuser', function () {
-    return view('manager.detailuser');
-});
-
-
-Route::get('/manager/detailtransaksi', function () {
-    return view('manager.detailtransaksi');
+// Halaman manajer memuat datanya sendiri dari /api/admin/* memakai token login admin.
+Route::prefix('manager')->name('manager.')->group(function () {
+    Route::view('/home', 'manager.home')->name('home');
+    Route::view('/daftaruser', 'manager.daftaruser')->name('daftaruser');
+    Route::get('/detailuser/{organization}', fn (string $organization) => view('manager.detailuser', ['organizationId' => $organization]))
+        ->name('detailuser');
+    Route::view('/laporantransaksi', 'manager.laporantransaksi')->name('laporantransaksi');
+    Route::get('/detailpengajuan/{disbursement}', fn (string $disbursement) => view('manager.detailpengajuan', ['disbursementId' => $disbursement]))
+        ->name('detailpengajuan');
 });
 
 
@@ -374,14 +362,3 @@ Route::prefix('organisasi')
             ->name('notifikasi');
 
     });
-Route::get('/manager/laporantransaksi', function () {
-    return view('manager.laporantransaksi');
-});
-
-Route::get('/manager/detailpengajuan', function () {
-    return view('manager.detailpengajuan');
-});
-
-Route::get('/manager/detailuser', function () {
-    return view('manager.detailuser');
-});

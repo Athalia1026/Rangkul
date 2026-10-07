@@ -63,7 +63,8 @@
                 class="hidden absolute right-0 top-full mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-[9999]"
             >
                 <a
-                    href="/"
+                    href="{{ route('login') }}"
+                    data-rangkul-logout
                     class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                 >
                     <i class="fa-solid fa-right-from-bracket text-rangkul-green"></i>
@@ -77,10 +78,19 @@
 
 </nav>
 
+@include('manager.layouts.admin-api')
+
 <script>
 (function () {
 
     document.addEventListener('click', function (event) {
+
+        // Keluar: cabut token API admin lalu kembali ke halaman login
+        if (event.target.closest('[data-rangkul-logout]')) {
+            event.preventDefault();
+            window.RangkulAdmin.logout();
+            return;
+        }
 
         const button = event.target.closest('[data-rangkul-profile-button]');
         const dropdown = document.querySelector('[data-rangkul-profile-dropdown]');

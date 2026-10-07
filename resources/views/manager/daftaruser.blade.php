@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-auth-session-guard />
     <title>Daftar User</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,6 +44,8 @@
 
 <!-- MAIN CONTENT -->
 <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
+
+    <div id="daftaruser-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
 
     <!-- TOP SECTION -->
     <div class="flex justify-between items-start mb-10">
@@ -99,8 +102,8 @@
                     Total Organisasi
                 </p>
 
-                <div class="bg-white text-black text-3xl font-bold rounded-lg px-8 py-2">
-                    2
+                <div id="totalOrganisasi" class="bg-white text-black text-3xl font-bold rounded-lg px-8 py-2">
+                    0
                 </div>
             </div>
 
@@ -109,8 +112,8 @@
                     Total Donatur
                 </p>
 
-                <div class="bg-white text-black text-3xl font-bold rounded-lg px-8 py-2">
-                    2
+                <div id="totalDonatur" class="bg-white text-black text-3xl font-bold rounded-lg px-8 py-2">
+                    0
                 </div>
             </div>
 
@@ -178,83 +181,10 @@
                 class="text-sm text-gray-800"
             >
 
-                <!-- DATA ORGANISASI 1 -->
-                <tr
-                    class="border-b border-gray-200"
-                    data-jenis="sekolah"
-                >
-
-                    <td class="px-6 py-4">
-                        1.
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        Memuat data...
                     </td>
-
-                    <td class="px-6 py-4 text-center">
-                        19/02/2025
-                    </td>
-
-                    <td class="px-6 py-4">
-                        SD Harapan Bangsa
-                    </td>
-
-                    <td class="px-6 py-4">
-                        Jl. Raya Surabaya No. 10
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        Sekolah
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-
-                        <a
-                            href="/manager/detailuser"
-                            class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                        >
-                            Detail
-                        </a>
-
-                    </td>
-
-                </tr>
-
-
-                <!-- DATA ORGANISASI 2 -->
-                <tr
-                    class="border-b border-gray-200"
-                    data-jenis="panti"
-                >
-
-                    <td class="px-6 py-4">
-                        2.
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        08/11/2025
-                    </td>
-
-                    <td class="px-6 py-4">
-                        Asrama Pemberdayaan Yatim dan Dhuafa
-                    </td>
-
-                    <td class="px-6 py-4">
-                        Jl. Delta Raya III No.4, Sidoarjo
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        Panti
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-
-                        <a
-                            href="/manager/detailuser"
-                            class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                        >
-                            Detail
-                        </a>
-
-                    </td>
-
                 </tr>
 
             </tbody>
@@ -277,8 +207,7 @@
 
         </div>
 
-        <table class="w-full text-left">
-            <table class="w-full text-left" style="table-layout: fixed;">
+        <table class="w-full text-left" style="table-layout: fixed;">
             <colgroup>
                 <col style="width: 50px;">
                 <col style="width: 250px;">
@@ -321,120 +250,14 @@
             </thead>
 
 
-            <tbody class="text-sm text-gray-800">
+            <tbody
+                id="dataDonatur"
+                class="text-sm text-gray-800"
+            >
 
-                <!-- DATA DONATUR 1 -->
-                <tr class="border-b border-gray-200">
-
-                    <td class="px-6 py-4 text-center">
-                        1.
-                    </td>
-
-                    <td class="px-2 py-4">
-                        Ahmad Fauzil Ozi
-                    </td>
-
-                    <td class="px-2 py-4">
-                        ahmadfauzil@gmail.com
-                    </td>
-
-                    <td class="px-2 py-4 text-center">
-                        081234567890
-                    </td>
-
-                    <td class="px-2 py-4 text-center">
-                        Gresik
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        Individu
-                    </td>
-
-                </tr>
-
-
-                <!-- DATA DONATUR 2 -->
-                <tr class="border-b border-gray-200">
-
-                    <td class="px-6 py-4 text-center">
-                        2.
-                    </td>
-
-                    <td class="px-2 py-4">
-                        Departemen Sosial Masyarakat HIMASIFO UPNVJT
-                    </td>
-
-                    <td class="px-2 py-4">
-                        sosmapan@gmail.com
-                    </td>
-
-                    <td class="px-2 py-4 text-center">
-                        081234567890
-                    </td>
-
-                    <td class="px-2 py-4 text-center">
-                        Surabaya
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        Organisasi
-                    </td>
-
-                </tr>
-
-                <!-- DATA DONATUR 3 -->
-                <tr class="border-b border-gray-200">
-
-                    <td class="px-6 py-4 text-center">
-                        3.
-                    </td>
-
-                    <td class="px-2 py-4">
-                        Septia Tsabita Nabila
-                    </td>
-
-                    <td class="px-2 py-4">
-                        septiatsabita@gmail.com
-                    </td>
-
-                    <td class="px-2 py-4 text-center">
-                        081547893560
-                    </td>
-
-                    <td class="px-2 py-4 text-center">
-                        Lamongan
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        Individu
-                    </td>
-                </tr>
-
-                <!-- DATA DONATUR 4 -->
-                <tr class="border-b border-gray-200">
-
-                    <td class="px-6 py-4 text-center">
-                        4.
-                    </td>
-
-                    <td class="px-2 py-4">
-                        Naadzhifa Nurfathiina
-                    </td>
-
-                    <td class="px-2 py-4">
-                        naadzhifa@gmail.com
-                    </td>
-
-                    <td class="px-2 py-4 text-center">
-                        082263547041
-                    </td>
-
-                    <td class="px-2 py-4 text-center">
-                        Gresik
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        Individu
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        Memuat data...
                     </td>
                 </tr>
 
@@ -447,43 +270,156 @@
 </main>
 
 
-<!-- FILTER & SEARCH SCRIPT -->
+<!-- DATA, FILTER & SEARCH SCRIPT -->
 <script>
+    const { request, escapeHtml } = window.RangkulAdmin;
     const filterJenis = document.getElementById('filterJenis');
     const searchInput = document.getElementById('searchInput');
-    const rows = document.querySelectorAll('#dataOrganisasi tr');
+    const tabelOrganisasi = document.getElementById('dataOrganisasi');
+    const tabelDonatur = document.getElementById('dataDonatur');
 
+    function barisKosong(pesan) {
+        return `
+            <tr data-kosong>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                    ${escapeHtml(pesan)}
+                </td>
+            </tr>
+        `;
+    }
+
+    function renderOrganisasi(items) {
+        tabelOrganisasi.innerHTML = items.length ? items.map((item, index) => `
+            <tr
+                class="border-b border-gray-200"
+                data-jenis="${escapeHtml(item.type_key)}"
+            >
+
+                <td class="px-6 py-4">
+                    ${index + 1}.
+                </td>
+
+                <td class="px-6 py-4 text-center">
+                    ${escapeHtml(item.registered_at)}
+                </td>
+
+                <td class="px-6 py-4">
+                    ${escapeHtml(item.name)}
+                </td>
+
+                <td class="px-6 py-4">
+                    ${escapeHtml(item.address)}
+                </td>
+
+                <td class="px-6 py-4 text-center">
+                    ${escapeHtml(item.type)}
+                </td>
+
+                <td class="px-6 py-4 text-center">
+
+                    <a
+                        href="/manager/detailuser/${encodeURIComponent(item.id)}"
+                        class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
+                    >
+                        Detail
+                    </a>
+
+                </td>
+
+            </tr>
+        `).join('') : barisKosong('Belum ada data organisasi.');
+    }
+
+    function renderDonatur(items) {
+        tabelDonatur.innerHTML = items.length ? items.map((item, index) => `
+            <tr class="border-b border-gray-200">
+
+                <td class="px-6 py-4 text-center">
+                    ${index + 1}.
+                </td>
+
+                <td class="px-2 py-4">
+                    ${escapeHtml(item.name)}
+                </td>
+
+                <td class="px-2 py-4">
+                    ${escapeHtml(item.email)}
+                </td>
+
+                <td class="px-2 py-4 text-center">
+                    ${escapeHtml(item.phone)}
+                </td>
+
+                <td class="px-2 py-4 text-center">
+                    ${escapeHtml(item.city)}
+                </td>
+
+                <td class="px-6 py-4 text-center">
+                    ${escapeHtml(item.type)}
+                </td>
+
+            </tr>
+        `).join('') : barisKosong('Belum ada data donatur.');
+    }
+
+    // Jenis hanya menyaring organisasi; pencarian berlaku untuk kedua tabel.
     function filterData() {
         const selectedJenis = filterJenis.value.toLowerCase();
         const searchValue = searchInput.value.toLowerCase();
 
-        let nomor = 1;
+        [tabelOrganisasi, tabelDonatur].forEach(tabel => {
+            let nomor = 1;
 
-        rows.forEach(row => {
-            const jenis = row.dataset.jenis;
-            const rowText = row.textContent.toLowerCase();
+            tabel.querySelectorAll('tr:not([data-kosong])').forEach(row => {
+                const jenis = row.dataset.jenis;
+                const rowText = row.textContent.toLowerCase();
 
-            const sesuaiJenis =
-                selectedJenis === 'semua' ||
-                jenis === selectedJenis;
+                const sesuaiJenis =
+                    tabel !== tabelOrganisasi ||
+                    selectedJenis === 'semua' ||
+                    jenis === selectedJenis;
 
-            const sesuaiSearch =
-                rowText.includes(searchValue);
+                const sesuaiSearch =
+                    rowText.includes(searchValue);
 
-            if (sesuaiJenis && sesuaiSearch) {
-                row.style.display = '';
+                if (sesuaiJenis && sesuaiSearch) {
+                    row.style.display = '';
 
-                // Update nomor sesuai data yang tampil
-                row.querySelector('td:first-child').textContent = nomor + '.';
-                nomor++;
-            } else {
-                row.style.display = 'none';
-            }
+                    // Update nomor sesuai data yang tampil
+                    row.querySelector('td:first-child').textContent = nomor + '.';
+                    nomor++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         });
+    }
+
+    async function loadPengguna() {
+        const error = document.getElementById('daftaruser-error');
+
+        try {
+            const { data } = await request('/api/admin/users');
+
+            error.classList.add('hidden');
+            document.getElementById('totalOrganisasi').textContent = data.total_organisasi;
+            document.getElementById('totalDonatur').textContent = data.total_donatur;
+
+            renderOrganisasi(data.organizations);
+            renderDonatur(data.donors);
+            filterData();
+        } catch (exception) {
+            error.textContent = exception.message;
+            error.classList.remove('hidden');
+            tabelOrganisasi.innerHTML = barisKosong('Data organisasi gagal dimuat.');
+            tabelDonatur.innerHTML = barisKosong('Data donatur gagal dimuat.');
+        }
     }
 
     filterJenis.addEventListener('change', filterData);
     searchInput.addEventListener('input', filterData);
+
+    loadPengguna();
 </script>
 
 </body>

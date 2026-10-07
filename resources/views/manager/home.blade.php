@@ -76,12 +76,12 @@
             <div class="flex justify-between mt-8 px-12">
 
                 <div class="text-center">
-                    <p class="text-gray-500 font-medium">
+                    <p id="labelTotalPeriode" class="text-gray-500 font-medium">
                         Total Per Minggu
                     </p>
 
-                    <p class="text-2xl font-bold">
-                        Rp 2.130.000
+                    <p id="totalPeriode" class="text-2xl font-bold">
+                        Rp 0
                     </p>
                 </div>
 
@@ -90,8 +90,8 @@
                         Donasi Tertinggi
                     </p>
 
-                    <p class="text-2xl font-bold">
-                        Rp 600.000
+                    <p id="donasiTertinggi" class="text-2xl font-bold">
+                        Rp 0
                     </p>
                 </div>
 
@@ -128,10 +128,10 @@
 
                                 <div class="w-full bg-gray-100 rounded-full h-9 overflow-hidden">
 
-                                    <div class="bg-rangkul-green h-full w-[25%] flex items-center px-4">
+                                    <div id="pantiBulananBar" class="bg-rangkul-green h-full w-0 min-w-max flex items-center px-4">
 
-                                        <span class="text-sm font-bold text-white whitespace-nowrap">
-                                            Rp 1.000.000
+                                        <span id="pantiBulanan" class="text-sm font-bold text-white whitespace-nowrap">
+                                            Rp 0
                                         </span>
 
                                     </div>
@@ -148,10 +148,10 @@
 
                                 <div class="w-full bg-gray-100 rounded-full h-9 overflow-hidden">
 
-                                    <div class="bg-rangkul-green h-full w-[35%] flex items-center px-4">
+                                    <div id="pantiTahunanBar" class="bg-rangkul-green h-full w-0 min-w-max flex items-center px-4">
 
-                                        <span class="text-sm font-bold text-white whitespace-nowrap">
-                                            Rp 2.350.000
+                                        <span id="pantiTahunan" class="text-sm font-bold text-white whitespace-nowrap">
+                                            Rp 0
                                         </span>
 
                                     </div>
@@ -181,10 +181,10 @@
 
                                 <div class="w-full bg-gray-100 rounded-full h-9 overflow-hidden">
 
-                                    <div class="bg-rangkul-green h-full w-[65%] flex items-center px-4">
+                                    <div id="sekolahBulananBar" class="bg-rangkul-green h-full w-0 min-w-max flex items-center px-4">
 
-                                        <span class="text-sm font-bold text-white whitespace-nowrap">
-                                            Rp 50.000.000
+                                        <span id="sekolahBulanan" class="text-sm font-bold text-white whitespace-nowrap">
+                                            Rp 0
                                         </span>
 
                                     </div>
@@ -201,10 +201,10 @@
 
                                 <div class="w-full bg-gray-100 rounded-full h-9 overflow-hidden">
 
-                                    <div class="bg-rangkul-green h-full w-[70%] flex items-center px-4">
+                                    <div id="sekolahTahunanBar" class="bg-rangkul-green h-full w-0 min-w-max flex items-center px-4">
 
-                                        <span class="text-sm font-bold text-white whitespace-nowrap">
-                                            Rp 65.000.000
+                                        <span id="sekolahTahunan" class="text-sm font-bold text-white whitespace-nowrap">
+                                            Rp 0
                                         </span>
 
                                     </div>
@@ -233,8 +233,8 @@
                     <canvas id="gaugeChart"></canvas>
 
                     <div class="absolute inset-0 flex flex-col items-center justify-end pb-8">
-                        <span class="text-4xl font-bold">
-                            75%
+                        <span id="persentaseTersalurkan" class="text-4xl font-bold">
+                            0%
                         </span>
                     </div>
 
@@ -295,109 +295,12 @@
 
                     </thead>
 
-                    <tbody class="text-sm">
+                    <tbody id="disbursementRows" class="text-sm">
 
-                        <tr class="border-b hover:bg-gray-50 transition">
-
-                            <td class="px-6 py-4 text-center">
-                                1.
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                Memuat data...
                             </td>
-
-                            <td class="px-6 py-4">
-                                Panti Asuhan Kasih Bunda
-                            </td>
-
-                            <td class="px-6 py-4">
-                                Rp 500.000
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-                                Staff 2
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-                                18/02/2025
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-
-                                <a
-                                    href="/manager/detailpengajuan"
-                                    class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                                >
-                                    Detail
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-                        <tr class="border-b hover:bg-gray-50">
-
-                            <td class="px-6 py-4 text-center">
-                                2.
-                            </td>
-
-                            <td class="px-6 py-4">
-                                SD Harapan Bangsa
-                            </td>
-
-                            <td class="px-6 py-4">
-                                Rp 10.000.000
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-                                Staff 2
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-                                07/05/2025
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-
-                                <a href="/manager/detailpengajuan"
-                                class="bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold">
-                                    Detail
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-                        <tr class="border-b hover:bg-gray-50">
-
-                            <td class="px-6 py-4 text-center">
-                                3.
-                            </td>
-
-                            <td class="px-6 py-4">
-                                Panti Asuhan Cahaya Bangsa
-                            </td>
-
-                            <td class="px-6 py-4">
-                                Rp 850.000
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-                                Staff 1
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-                                29/08/2025
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-
-                                <a
-                                    href="/manager/detailpengajuan"
-                                    class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
-                                >
-                                    Detail
-                                </a>
-
-                            </td>
-
                         </tr>
 
                     </tbody>
@@ -412,123 +315,262 @@
 
     <script>
 
+        const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
+        const tanggalMulai = document.getElementById('tanggalMulai');
+        const tanggalSelesai = document.getElementById('tanggalSelesai');
+
+        let trenChart;
+        let gaugeChart;
+
         // TREN DONASI LINE CHART
-        const trenCtx = document.getElementById('trenDonasiChart').getContext('2d');
+        function renderTrenChart(trend) {
 
-        new Chart(trenCtx, {
+            if (trenChart) {
+                trenChart.destroy();
+            }
 
-            type: 'line',
+            trenChart = new Chart(document.getElementById('trenDonasiChart').getContext('2d'), {
 
-            data: {
+                type: 'line',
 
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                data: {
 
-                datasets: [{
+                    labels: trend.map((item) => item.label),
 
-                    label: 'Tren Donasi',
+                    datasets: [{
 
-                    data: [
-                        190000,
-                        350000,
-                        140000,
-                        240000,
-                        600000,
-                        440000,
-                        380000
-                    ],
+                        label: 'Tren Donasi',
 
-                    borderColor: '#4ade80',
-                    backgroundColor: 'transparent',
-                    borderWidth: 3,
+                        data: trend.map((item) => item.total),
 
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#4ade80',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
+                        borderColor: '#4ade80',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
 
-                    tension: 0
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#4ade80',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
 
-                }]
+                        tension: 0
 
-            },
+                    }]
 
-            options: {
-
-                responsive: true,
-                maintainAspectRatio: false,
-
-                plugins: {
-                    legend: {
-                        display: false
-                    }
                 },
 
-                scales: {
+                options: {
 
-                    y: {
-                        beginAtZero: true,
-                        max: 600000,
+                    responsive: true,
+                    maintainAspectRatio: false,
 
-                        ticks: {
-                            stepSize: 200000
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => formatRupiah(context.raw)
+                            }
                         }
                     },
 
-                    x: {
-                        grid: {
-                            display: false
+                    scales: {
+
+                        y: {
+                            beginAtZero: true,
+
+                            ticks: {
+                                maxTicksLimit: 4,
+                                callback: (value) => Number(value).toLocaleString('id-ID')
+                            }
+                        },
+
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+        // GAUGE CHART
+        function renderGaugeChart(percentage) {
+
+            if (gaugeChart) {
+                gaugeChart.destroy();
+            }
+
+            gaugeChart = new Chart(document.getElementById('gaugeChart').getContext('2d'), {
+
+                type: 'doughnut',
+
+                data: {
+
+                    datasets: [{
+
+                        data: [percentage, 100 - percentage],
+
+                        backgroundColor: [
+                            '#4ade80',
+                            '#f3f4f6'
+                        ],
+
+                        borderWidth: 0,
+                        circumference: 180,
+                        rotation: 270,
+                        cutout: '85%',
+                        borderRadius: 10
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        tooltip: {
+                            enabled: false
                         }
                     }
 
                 }
 
+            });
+
+        }
+
+        // TOTAL DONASI PER JENIS ORGANISASI
+        function renderOrganizationTotals(totals) {
+
+            const bars = [
+                ['pantiBulanan', totals.panti.monthly],
+                ['pantiTahunan', totals.panti.yearly],
+                ['sekolahBulanan', totals.sekolah.monthly],
+                ['sekolahTahunan', totals.sekolah.yearly]
+            ];
+            const maximum = Math.max(...bars.map(([, value]) => value), 1);
+
+            bars.forEach(([id, value]) => {
+                document.getElementById(id).textContent = formatRupiah(value);
+                document.getElementById(id + 'Bar').style.width = Math.round((value / maximum) * 100) + '%';
+            });
+
+        }
+
+        // DAFTAR PENCAIRAN DANA
+        function renderDisbursements(items) {
+
+            const rows = document.getElementById('disbursementRows');
+
+            if (!items.length) {
+                rows.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                            Belum ada data pencairan dana.
+                        </td>
+                    </tr>
+                `;
+                return;
             }
 
-        });
+            rows.innerHTML = items.map((item, index) => `
+                <tr class="border-b hover:bg-gray-50 transition">
 
-        // GAUGE CHART
-        const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+                    <td class="px-6 py-4 text-center">
+                        ${index + 1}.
+                    </td>
 
-        new Chart(gaugeCtx, {
+                    <td class="px-6 py-4">
+                        ${escapeHtml(item.organization_name)}
+                    </td>
 
-            type: 'doughnut',
+                    <td class="px-6 py-4">
+                        ${formatRupiah(item.amount)}
+                    </td>
 
-            data: {
+                    <td class="px-6 py-4 text-center">
+                        ${escapeHtml(item.verifier_name)}
+                    </td>
 
-                datasets: [{
+                    <td class="px-6 py-4 text-center">
+                        ${escapeHtml(item.submitted_at)}
+                    </td>
 
-                    data: [72, 28],
+                    <td class="px-6 py-4 text-center">
 
-                    backgroundColor: [
-                        '#4ade80',
-                        '#f3f4f6'
-                    ],
+                        <a
+                            href="/manager/detailpengajuan/${encodeURIComponent(item.id)}"
+                            class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90"
+                        >
+                            Detail
+                        </a>
 
-                    borderWidth: 0,
-                    circumference: 180,
-                    rotation: 270,
-                    cutout: '85%',
-                    borderRadius: 10
+                    </td>
 
-                }]
+                </tr>
+            `).join('');
 
-            },
+        }
 
-            options: {
+        function showDashboardError(message) {
+            const error = document.getElementById('dashboard-error');
+            error.textContent = message;
+            error.classList.toggle('hidden', !message);
+        }
 
-                responsive: true,
-                maintainAspectRatio: false,
+        async function loadDashboard() {
 
-                plugins: {
-                    tooltip: {
-                        enabled: false
-                    }
-                }
+            const params = new URLSearchParams();
 
+            // Tanpa rentang tanggal, server memakai minggu berjalan.
+            if (tanggalMulai.value && tanggalSelesai.value) {
+                params.set('tanggal_mulai', tanggalMulai.value);
+                params.set('tanggal_selesai', tanggalSelesai.value);
             }
 
-        });
+            try {
+                const { data } = await request('/api/admin/dashboard?' + params);
+                const summary = data.summary;
+                const percentage = Number(summary.persentase_tersalurkan) || 0;
+                const periodDays = Math.round(
+                    (new Date(data.period.tanggal_selesai) - new Date(data.period.tanggal_mulai)) / 86400000
+                ) + 1;
+
+                showDashboardError('');
+
+                tanggalMulai.value = data.period.tanggal_mulai;
+                tanggalSelesai.value = data.period.tanggal_selesai;
+
+                document.getElementById('labelTotalPeriode').textContent = periodDays === 7 ? 'Total Per Minggu' : 'Total Periode';
+                document.getElementById('totalPeriode').textContent = formatRupiah(summary.total_donasi);
+                document.getElementById('donasiTertinggi').textContent = formatRupiah(summary.donasi_tertinggi);
+                document.getElementById('persentaseTersalurkan').textContent =
+                    percentage.toLocaleString('id-ID', { maximumFractionDigits: 2 }) + '%';
+
+                renderTrenChart(data.trend);
+                renderGaugeChart(percentage);
+                renderOrganizationTotals(data.organization_totals);
+                renderDisbursements(data.disbursements);
+            } catch (error) {
+                showDashboardError(error.message);
+            }
+
+        }
+
+        tanggalMulai.addEventListener('change', loadDashboard);
+        tanggalSelesai.addEventListener('change', loadDashboard);
+
+        loadDashboard();
 
     </script>
 

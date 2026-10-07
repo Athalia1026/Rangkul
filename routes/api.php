@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\AdminCampaignVerificationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminDisbursementVerificationController;
 use App\Http\Controllers\Admin\AdminProofVerificationController;
+use App\Http\Controllers\Admin\AdminTransactionController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\OrganizationVerificationController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -91,12 +93,17 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group
     Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify'])
         ->middleware('throttle:10,1');
     Route::get('/disbursements/pending', [AdminDisbursementVerificationController::class, 'index']);
+    Route::get('/disbursements/{id}', [AdminDisbursementVerificationController::class, 'show']);
     Route::put('/disbursements/{id}/verify', [AdminDisbursementVerificationController::class, 'verify'])
         ->middleware('throttle:10,1');
     Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer'])
         ->middleware('throttle:10,1');
     Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof'])
         ->middleware('throttle:10,1');
+    Route::get('/users', [AdminUserController::class, 'index']);
+    Route::get('/users/organizations/{id}', [AdminUserController::class, 'showOrganization']);
+    Route::get('/transactions', [AdminTransactionController::class, 'index']);
+    Route::get('/transactions/{id}', [AdminTransactionController::class, 'show']);
 });
 
 Route::middleware('auth:sanctum')->prefix('visits')->group(function () {

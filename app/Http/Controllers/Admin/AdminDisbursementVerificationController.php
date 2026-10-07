@@ -25,6 +25,37 @@ class AdminDisbursementVerificationController extends Controller
         ]);
     }
 
+    // Detail satu pengajuan pencairan untuk halaman detail pengajuan manajer
+    public function show($id)
+    {
+        $disbursement = FundDisbursement::with(['campaign.organization', 'verifier.user', 'purchaseProofs'])
+            ->findOrFail($id);
+
+        // Bukti pembelian: lampiran saat pengajuan, atau bukti pembelian terbaru yang diunggah setelah dana cair.
+        $attachment = $disbursement->lampiran_pendukung
+            ?? $disbursement->purchaseProofs->sortByDesc('uploaded_at')->first()?->lokasi_file;
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'id' => $disbursement->id,
+                'status' => $disbursement->status,
+                'organization_name' => $disbursement->campaign?->organization?->nama_lembaga ?? '-',
+                'campaign_title' => $disbursement->campaign?->judul,
+                'amount' => (float) $disbursement->nominal_diajukan,
+                'alokasi_dana' => $disbursement->alokasi_dana,
+                'alasan' => $disbursement->alasan,
+                'alasan_tolak' => $disbursement->alasan_tolak,
+                'verifier_name' => $disbursement->verifier?->user?->nama,
+                'submitted_at' => optional($disbursement->created_at)->format('d/m/Y'),
+                'attachment' => $attachment ? [
+                    'url' => asset('storage/' . ltrim($attachment, '/')),
+                    'is_image' => (bool) preg_match('/\.(jpe?g|png|gif|webp)$/i', $attachment),
+                ] : null,
+            ],
+        ]);
+    }
+
     public function verify(Request $request, $id)
     {
         $request->validate([
