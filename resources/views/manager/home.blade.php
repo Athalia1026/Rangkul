@@ -265,29 +265,29 @@
 
                     <thead>
 
-                        <tr class="text-gray-800 text-sm border-b text-center">
+                        <tr class="text-black text-sm border-b text-center">
 
-                            <th class="px-6 py-4 font-semibold">
+                            <th class="px-6 py-4 font-bold">
                                 No.
                             </th>
 
-                            <th class="px-6 py-4 font-semibold">
+                            <th class="px-2 py-4 font-bold">
                                 Nama Organisasi
                             </th>
 
-                            <th class="px-6 py-4 font-semibold">
+                            <th class="px-2 py-4 font-bold">
                                 Nominal Dana
                             </th>
 
-                            <th class="px-6 py-4 font-semibold">
+                            <th class="px-2 py-4 font-bold">
                                 Verifikator
                             </th>
 
-                            <th class="px-6 py-4 font-semibold">
+                            <th class="px-2 py-4 font-bold">
                                 Tanggal Pengajuan
                             </th>
 
-                            <th class="px-6 py-4 font-semibold">
+                            <th class="px-2 py-4 font-bold">
                                 Aksi
                             </th>
 

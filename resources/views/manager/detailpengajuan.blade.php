@@ -296,6 +296,40 @@
 
             <button
                 id="btnTutupAlert"
+                class="mt-6 px-8 py-3 bg-gray-600 hover:bg-green-900 text-white font-bold rounded-xl transition shadow-md"
+            >
+                Mengerti
+            </button>
+
+        </div>
+    </div>
+
+    <!-- ====================================== -->
+    <!-- ALERT BERHASIL DITOLAK -->
+    <!-- ====================================== -->
+
+    <div
+        id="alertTolakBerhasil"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden"
+    >
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
+
+            <div class="flex justify-center mb-4">
+                <div class="text-rangkul-green text-5xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">
+                Pengajuan Ditolak
+            </h2>
+
+            <p class="text-gray-600 text-base">
+                Permohonan pencairan dana berhasil ditolak.
+            </p>
+
+            <button
+                id="btnTutupAlertTolak"
                 class="mt-6 px-8 py-3 bg-rangkul-green hover:bg-green-900 text-white font-bold rounded-xl transition shadow-md"
             >
                 Mengerti
@@ -339,6 +373,9 @@
         const alertAlasan = document.getElementById('alertAlasan');
         const btnTutupAlert = document.getElementById('btnTutupAlert');
 
+        const alertTolakBerhasil = document.getElementById('alertTolakBerhasil');
+        const btnTutupAlertTolak = document.getElementById('btnTutupAlertTolak');
+
         // Klik Tolak → buka popup
         btnTolak.addEventListener('click', () => {
             modalTolak.classList.remove('hidden');
@@ -361,9 +398,9 @@
             }
 
             // Kalau alasan sudah diisi
-            alert('Permohonan berhasil ditolak!');
-
             modalTolak.classList.add('hidden');
+
+            alertTolakBerhasil.classList.remove('hidden');
 
             // Kosongkan alasan setelah berhasil
             alasanTolak.value = '';
@@ -374,25 +411,29 @@
             alertAlasan.classList.add('hidden');
         });
 
+        btnTutupAlertTolak.addEventListener('click', () => {
+            alertTolakBerhasil.classList.add('hidden');
+        });
+
         // ==========================
         // KLIK DI LUAR POPUP
         // ==========================
 
         window.addEventListener('click', (e) => {
 
-            if (e.target === modalKonfirmasi) {
-                modalKonfirmasi.classList.add('hidden');
-            }
+        if (e.target === modalTolak) {
+            modalTolak.classList.add('hidden');
+        }
 
-            if (e.target === modalTolak) {
-                modalTolak.classList.add('hidden');
-            }
+        if (e.target === alertAlasan) {
+            alertAlasan.classList.add('hidden');
+        }
 
-            if (e.target === alertAlasan) {
-                alertAlasan.classList.add('hidden');
-            }
+        if (e.target === alertTolakBerhasil) {
+            alertTolakBerhasil.classList.add('hidden');
+        }
 
-        });
+    });
 
     </script>
 
