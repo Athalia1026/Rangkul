@@ -372,3 +372,11 @@ Route::prefix('superadmin')->group(function () {
     });
 
 });
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/detailpengajuan', function () {
+        return view('superadmin.detailpengajuan');
+    });
+
+});
