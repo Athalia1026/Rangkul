@@ -355,3 +355,11 @@ Route::prefix('superadmin')->group(function () {
     });
 
 });
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/daftarpengguna', function () {
+        return view('super admin.daftarpengguna');
+    });
+
+});
