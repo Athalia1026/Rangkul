@@ -93,11 +93,12 @@ class AdminDashboardController extends Controller
 
     private function buildTrend($donations, Carbon $startDate, Carbon $endDate): array
     {
-        $days = $startDate->diffInDays($endDate) + 1;
+        // Carbon 3 mengembalikan pecahan hari (mis. 6.99 untuk Senin 00:00 - Minggu 23:59).
+        $days = (int) $startDate->diffInDays($endDate) + 1;
 
         if ($days > 31) {
             $grouped = $donations->groupBy(fn ($donation) => Carbon::parse($donation->paid_at)->format('Y-m'));
-            $months = $startDate->copy()->startOfMonth()->diffInMonths($endDate->copy()->startOfMonth()) + 1;
+            $months = (int) $startDate->copy()->startOfMonth()->diffInMonths($endDate->copy()->startOfMonth()) + 1;
 
             return collect(range(0, $months - 1))->map(function (int $offset) use ($grouped, $startDate) {
                 $month = $startDate->copy()->startOfMonth()->addMonths($offset);
