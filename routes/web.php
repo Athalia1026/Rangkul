@@ -380,3 +380,12 @@ Route::prefix('superadmin')->group(function () {
     });
 
 });
+
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/detailinformasi', function () {
+        return view('superadmin.detailinformasi');
+    });
+
+});
