@@ -362,3 +362,42 @@ Route::prefix('organisasi')
             ->name('notifikasi');
 
     });
+
+/*
+|--------------------------------------------------------------------------
+| SUPER ADMIN
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/home', function () {
+        return view('superadmin.home');
+    });
+
+});
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/daftarpengguna', function () {
+        return view('superadmin.daftarpengguna');
+    });
+
+});
+
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/laporantransaksi', function () {
+        return view('superadmin.laporantransaksi');
+    });
+
+});
+
+Route::prefix('superadmin')->group(function () {
+
+    Route::get('/detailinformasi', function () {
+        return view('superadmin.detailinformasi');
+    });
+
+});
