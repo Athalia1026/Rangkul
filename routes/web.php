@@ -384,3 +384,7 @@ Route::prefix('organisasi')
 Route::get('/staff/beranda', function () {
     return view('staff.beranda');
 });
+
+Route::get('/staff/pengajuandanauser', function () {
+    return view('staff.pengajuandanauser');
+});

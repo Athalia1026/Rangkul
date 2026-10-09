@@ -42,10 +42,7 @@
         <!-- DROPDOWN -->
         <div
             data-rangkul-profile-dropdown
-            class="hidden absolute right-0 top-full mt-2
-                   w-44 bg-white rounded-xl shadow-lg
-                   border border-gray-200 py-2 z-[9999]"
-        >
+            class="hidden absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
 
