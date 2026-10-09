@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F5F7F4; }
     </style>
@@ -138,9 +140,9 @@
                     <thead>
                         <tr class="border-b border-gray-200 text-sm font-bold text-gray-900 bg-white text-center">
                             <th class="py-3 px-6 w-16">No.</th>
-                            <th class="py-3 px-6 text-left">Nama Organisasi</th>
-                            <th class="py-3 px-6 w-48 text-left">Kategori</th>
-                            <th class="py-3 px-6 w-48 text-left">Wilayah</th>
+                            <th class="py-3 px-6 ">Nama Organisasi</th>
+                            <th class="py-3 px-6 w-48">Kategori</th>
+                            <th class="py-3 px-6 w-48">Wilayah</th>
                             <th class="py-3 px-6 w-40">Tanggal Daftar</th>
                             <th class="py-3 px-6 w-32">Aksi</th>
                         </tr>
@@ -149,7 +151,7 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">1.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Asrama Pemberdayaan Yatim dan Dhuafa</td>
-                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-cat">Panti Asuhan</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Panti Asuhan</td>
                             <td class="py-3.5 px-6 text-gray-600 cell-loc">Sidoarjo</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">16/02/2026</td>
                             <td class="py-3.5 px-6 text-center">
@@ -162,7 +164,7 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">2.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Sekolah Dasar Negeri Gebang 2</td>
-                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-cat">Sekolah Dasar</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Sekolah Dasar</td>
                             <td class="py-3.5 px-6 text-gray-600 cell-loc">Sidoarjo</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">08/05/2026</td>
                             <td class="py-3.5 px-6 text-center">
@@ -175,7 +177,7 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">3.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Panti Asuhan Ruhamaa</td>
-                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-cat">Panti Asuhan</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Panti Asuhan</td>
                             <td class="py-3.5 px-6 text-gray-600 cell-loc">Surabaya</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">27/06/2026</td>
                             <td class="py-3.5 px-6 text-center">
@@ -188,7 +190,7 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">4.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Yayasan Panti Asuhan Nur Iman</td>
-                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-cat">Panti Asuhan</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Panti Asuhan</td>
                             <td class="py-3.5 px-6 text-gray-600 cell-loc">Surabaya</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">19/10/2026</td>
                             <td class="py-3.5 px-6 text-center">
@@ -201,7 +203,7 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">5.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Panti Asuhan Arrohman</td>
-                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-cat">Panti Asuhan</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Panti Asuhan</td>
                             <td class="py-3.5 px-6 text-gray-600 cell-loc">Surabaya</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">15/11/2026</td>
                             <td class="py-3.5 px-6 text-center">
@@ -222,7 +224,7 @@
             <div id="section-table-bukti" class="hidden overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-gray-200 text-xs font-bold text-gray-900 bg-white">
+                        <tr class="border-b border-gray-200 text-sm font-bold text-gray-900 bg-white text-center">
                             <th class="py-3 px-6 w-16 text-center">No.</th>
                             <th class="py-3 px-6">Nama Organisasi</th>
                             <th class="py-3 px-6">Keterangan Penyaluran</th>

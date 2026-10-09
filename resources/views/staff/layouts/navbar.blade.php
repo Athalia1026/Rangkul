@@ -24,35 +24,43 @@
     </div>
 
     <!-- PROFILE -->
-    <div class="flex items-center justify-end w-1/3">
+<div class="flex items-center justify-end w-1/3">
+    <div class="relative">
 
-        <div class="relative">
+        <!-- TOMBOL PROFILE -->
+        <button
+            type="button"
+            data-rangkul-profile-button
+            class="text-[#086538] text-3xl cursor-pointer
+                   hover:text-green-800 focus:outline-none"
+            aria-label="Menu profil"
+            aria-expanded="false"
+        >
+            <i class="fa-solid fa-circle-user"></i>
+        </button>
 
-            <button
-                type="button"
-                data-rangkul-profile-button
-                class="text-rangkul-green text-3xl cursor-pointer focus:outline-none"
-            >
-                <i class="fa-solid fa-circle-user"></i>
-            </button>
+        <!-- DROPDOWN -->
+        <div
+            data-rangkul-profile-dropdown
+            class="hidden absolute right-0 top-full mt-2
+                   w-44 bg-white rounded-xl shadow-lg
+                   border border-gray-200 py-2 z-[9999]"
+        >
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
 
-            <!-- DROPDOWN -->
-            <div
-                data-rangkul-profile-dropdown
-                class="hidden absolute right-0 top-full mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-[9999]"
-            >
-                <a
-                    href="/superadmin/logout"
-                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                    <i class="fa-solid fa-right-from-bracket text-rangkul-green"></i>
+                <button
+                    type="submit"
+                    class="w-full flex items-center gap-3 px-4 py-2.5
+                           text-sm text-gray-700 hover:bg-gray-50">
+                    <i class="fa-solid fa-right-from-bracket text-[#086538]"></i>
                     <span>Keluar</span>
-                </a>
-            </div>
-
+                </button>
+            </form>
         </div>
 
     </div>
+</div>
 
 </nav>
 
