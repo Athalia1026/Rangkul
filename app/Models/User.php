@@ -48,9 +48,10 @@ class User extends Authenticatable
             : asset('storage/' . ltrim($this->profile_photo, '/'));
     }
 
+    // withTrashed: profil admin yang dihapus tetap terbaca agar status 'dihapus' ikut dicek CheckIsAdmin.
     public function adminProfile()
     {
-        return $this->hasOne(Admin::class, 'user_id');
+        return $this->hasOne(Admin::class, 'user_id')->withTrashed();
     }
 
     public function donor(): HasOne
@@ -65,7 +66,7 @@ class User extends Authenticatable
 
     public function admin(): HasOne
     {
-        return $this->hasOne(Admin::class, 'user_id', 'id');
+        return $this->hasOne(Admin::class, 'user_id', 'id')->withTrashed();
     }
 
     public function companyPremium(): HasOneThrough

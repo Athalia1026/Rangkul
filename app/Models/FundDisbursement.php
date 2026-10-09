@@ -45,7 +45,8 @@ class FundDisbursement extends Model
         return $this->hasMany(PurchaseProof::class, 'id_pencairan', 'id'); 
     }
     public function verifier() {
-        return $this->belongsTo(Admin::class, 'verified_by', 'id');
+        // withTrashed: akun admin yang dihapus tetap tampil sebagai verifikator di riwayat.
+        return $this->belongsTo(Admin::class, 'verified_by', 'id')->withTrashed();
     }
 
     /**

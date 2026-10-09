@@ -15,10 +15,17 @@ class Admin extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    // Nilai kolom tipe: super admin mengelola akun staf/manajer, manager & staff mengelola operasional.
+    public const TIPE_SUPER_ADMIN = 'super admin';
+    public const TIPE_MANAGER = 'manager';
+    public const TIPE_STAFF = 'staff';
+
     protected $fillable = [
         'user_id',
         'tipe',
         'status_akun',
+        'alasan_status',
+        'no_telp',
     ];
 
     public function user(): BelongsTo

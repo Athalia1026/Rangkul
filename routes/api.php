@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAccountController;
 use App\Http\Controllers\Admin\AdminCampaignVerificationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminDisbursementVerificationController;
@@ -19,7 +20,9 @@ use App\Http\Controllers\Organizations\CampaignController;
 use App\Http\Controllers\Organizations\OrganizationDisbursementController;
 use App\Http\Controllers\Organizations\OrganizationGalleryController;
 use App\Http\Controllers\Organizations\OrganizationProfileController;
+use App\Http\Middleware\CheckAdminRole;
 use App\Http\Middleware\CheckIsAdmin;
+use App\Models\Admin;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Donors\ActivityHistoryController;
 use App\Http\Controllers\Donors\SearchController;
@@ -56,7 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
     Route::put('/profile/change-password', [PasswordController::class, 'update'])
         ->middleware('throttle:5,1');
-    Route::middleware(CheckIsAdmin::class)->prefix('admin/verifications')->group(function () {
+    Route::middleware([CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER . ',' . Admin::TIPE_STAFF])->prefix('admin/verifications')->group(function () {
         Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
         Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
         Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
@@ -87,8 +90,17 @@ Route::middleware('auth:sanctum')->prefix('organizations')->group(function () {
     Route::post('/disbursements/{disbursementId}/proofs', [OrganizationDisbursementController::class, 'uploadProof']);
 });
 
+// Data bersama halaman manajer dan super admin (beranda, daftar pengguna, laporan transaksi).
 Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+    Route::get('/users', [AdminUserController::class, 'index']);
+    Route::get('/users/organizations/{id}', [AdminUserController::class, 'showOrganization']);
+    Route::get('/transactions', [AdminTransactionController::class, 'index']);
+    Route::get('/transactions/{id}', [AdminTransactionController::class, 'show']);
+});
+
+// Verifikasi operasional: hanya manajer & staf, super admin tidak ikut memverifikasi.
+Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER . ',' . Admin::TIPE_STAFF])->prefix('admin')->group(function () {
     Route::get('/campaigns/pending', [AdminCampaignVerificationController::class, 'index']);
     Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify'])
         ->middleware('throttle:10,1');
@@ -100,10 +112,21 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group
         ->middleware('throttle:10,1');
     Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof'])
         ->middleware('throttle:10,1');
-    Route::get('/users', [AdminUserController::class, 'index']);
-    Route::get('/users/organizations/{id}', [AdminUserController::class, 'showOrganization']);
-    Route::get('/transactions', [AdminTransactionController::class, 'index']);
-    Route::get('/transactions/{id}', [AdminTransactionController::class, 'show']);
+});
+
+// Kelola akun staf & manajer: khusus super admin.
+Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_SUPER_ADMIN])->prefix('admin/accounts')->group(function () {
+    Route::get('/', [AdminAccountController::class, 'index']);
+    // Kuota throttle dihitung per user, bukan per route: prefix 'admin-accounts' memisahkan kuota
+    // kelola akun (30/menit) dari route lain seperti logout agar tidak saling menghabiskan.
+    Route::middleware('throttle:30,1,admin-accounts')->group(function () {
+        Route::post('/', [AdminAccountController::class, 'store']);
+        Route::put('/{id}', [AdminAccountController::class, 'update']);
+        Route::put('/{id}/password', [AdminAccountController::class, 'resetPassword']);
+        Route::patch('/{id}/deactivate', [AdminAccountController::class, 'deactivate']);
+        Route::patch('/{id}/activate', [AdminAccountController::class, 'activate']);
+        Route::delete('/{id}', [AdminAccountController::class, 'destroy']);
+    });
 });
 
 Route::middleware('auth:sanctum')->prefix('visits')->group(function () {

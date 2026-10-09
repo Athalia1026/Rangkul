@@ -39,9 +39,9 @@ class ProofVerification extends Model
         return $this->belongsTo(PurchaseProof::class, 'id_bukti', 'id'); 
     }
     public function staff() { 
-        return $this->belongsTo(Admin::class, 'staff_id', 'id'); 
+        return $this->belongsTo(Admin::class, 'staff_id', 'id')->withTrashed(); 
     }
     public function manager() { 
-        return $this->belongsTo(Admin::class, 'manager_id', 'id'); 
+        return $this->belongsTo(Admin::class, 'manager_id', 'id')->withTrashed(); 
     }
 }

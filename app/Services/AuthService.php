@@ -249,6 +249,13 @@ class AuthService
                 'email' => ['Akun Anda dinonaktifkan. Hubungi admin.'],
             ]);
         }
+
+        // Akun yang dihapus permanen tetap tersimpan (status 'dihapus') tetapi tidak bisa login lagi.
+        if ($user->status === 'dihapus') {
+            throw ValidationException::withMessages([
+                'email' => ['Akun Anda telah dihapus. Hubungi admin.'],
+            ]);
+        }
     }
 
     private function resolveOrganizationVerificationBlock(User $user): ?array

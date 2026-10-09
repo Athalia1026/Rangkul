@@ -77,7 +77,8 @@ class Campaign extends Model
     }
     public function verifier()
     {
-        return $this->belongsTo(Admin::class, 'verified_by', 'id');
+        // withTrashed: akun admin yang dihapus tetap tampil sebagai verifikator di riwayat.
+        return $this->belongsTo(Admin::class, 'verified_by', 'id')->withTrashed();
     }
 public function fundDisbursements()
     {
