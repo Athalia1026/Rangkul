@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda Staff - Rangkul.com</title>
+    <title>Dashboard Staff</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Font Plus Jakarta Sans -->
@@ -188,7 +188,7 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">4.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Yayasan Panti Asuhan Nur Iman</td>
-                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-cat">Yayasan Panti</td>
+                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-cat">Panti Asuhan</td>
                             <td class="py-3.5 px-6 text-gray-600 cell-loc">Surabaya</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">19/10/2026</td>
                             <td class="py-3.5 px-6 text-center">
