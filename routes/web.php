@@ -369,35 +369,11 @@ Route::prefix('organisasi')
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('superadmin')->group(function () {
-
-    Route::get('/home', function () {
-        return view('superadmin.home');
-    });
-
-});
-
-Route::prefix('superadmin')->group(function () {
-
-    Route::get('/daftarpengguna', function () {
-        return view('superadmin.daftarpengguna');
-    });
-
-});
-
-
-Route::prefix('superadmin')->group(function () {
-
-    Route::get('/laporantransaksi', function () {
-        return view('superadmin.laporantransaksi');
-    });
-
-});
-
-Route::prefix('superadmin')->group(function () {
-
-    Route::get('/detailinformasi', function () {
-        return view('superadmin.detailinformasi');
-    });
-
+// Seperti halaman manajer, datanya dimuat dari /api/admin/* memakai token login super admin.
+Route::prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::view('/home', 'superadmin.home')->name('home');
+    Route::view('/daftarpengguna', 'superadmin.daftarpengguna')->name('daftarpengguna');
+    Route::get('/detailinformasi/{organization}', fn (string $organization) => view('superadmin.detailinformasi', ['organizationId' => $organization]))
+        ->name('detailinformasi');
+    Route::view('/laporantransaksi', 'superadmin.laporantransaksi')->name('laporantransaksi');
 });

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-auth-session-guard />
     <title>Dashboard Super Admin</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,7 +43,7 @@
                 <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm px-5 py-3.5 w-60 flex items-center justify-between">
                     <div>
                         <span class="text-sm font-semibold text-gray-800 block">Total Staff</span>
-                        <span id="count-staff" class="text-2xl font-bold text-gray-900 leading-none mt-1.5 block">2</span>
+                        <span id="count-staff" class="text-2xl font-bold text-gray-900 leading-none mt-1.5 block">0</span>
                     </div>
                     <div class="text-[#0d4a32] pl-2">
                         <svg class="w-9 h-9 fill-[#0d4a32]" viewBox="0 0 24 24">
@@ -55,7 +56,7 @@
                 <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm px-5 py-3.5 w-60 flex items-center justify-between">
                     <div>
                         <span class="text-sm font-semibold text-gray-800 block">Total Manager</span>
-                        <span id="count-manager" class="text-2xl font-bold text-gray-900 leading-none mt-1.5 block">1</span>
+                        <span id="count-manager" class="text-2xl font-bold text-gray-900 leading-none mt-1.5 block">0</span>
                     </div>
                     <div class="text-[#0d4a32] pl-2">
                         <svg class="w-9 h-9 fill-[#0d4a32]" viewBox="0 0 24 24">
@@ -83,7 +84,7 @@
 
             <div class="flex justify-between mt-8 px-12">
                 <div class="text-center">
-                    <p class="text-gray-500 font-medium">Total Per Minggu</p>
+                    <p id="labelTotalPeriode" class="text-gray-500 font-medium">Total Per Minggu</p>
                     <p id="totalPeriode" class="text-2xl font-bold">Rp 0</p>
                 </div>
                 <div class="text-center">
@@ -106,7 +107,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-2">Per Bulan</p>
                                 <div class="w-full bg-gray-100 rounded-full h-9 overflow-hidden">
-                                    <div id="pantiBulananBar" class="bg-rangkul-green h-full w-0 flex items-center px-4">
+                                    <div id="pantiBulananBar" class="bg-rangkul-green h-full w-0 min-w-max flex items-center px-4">
                                         <span id="pantiBulanan" class="text-sm font-bold text-white whitespace-nowrap">Rp 0</span>
                                     </div>
                                 </div>
@@ -114,7 +115,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-2">Per Tahun</p>
                                 <div class="w-full bg-gray-100 rounded-full h-9 overflow-hidden">
-                                    <div id="pantiTahunanBar" class="bg-rangkul-green h-full w-0 flex items-center px-4">
+                                    <div id="pantiTahunanBar" class="bg-rangkul-green h-full w-0 min-w-max flex items-center px-4">
                                         <span id="pantiTahunan" class="text-sm font-bold text-white whitespace-nowrap">Rp 0</span>
                                     </div>
                                 </div>
@@ -129,7 +130,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-2">Per Bulan</p>
                                 <div class="w-full bg-gray-100 rounded-full h-9 overflow-hidden">
-                                    <div id="sekolahBulananBar" class="bg-rangkul-green h-full w-0 flex items-center px-4">
+                                    <div id="sekolahBulananBar" class="bg-rangkul-green h-full w-0 min-w-max flex items-center px-4">
                                         <span id="sekolahBulanan" class="text-sm font-bold text-white whitespace-nowrap">Rp 0</span>
                                     </div>
                                 </div>
@@ -137,7 +138,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-2">Per Tahun</p>
                                 <div class="w-full bg-gray-100 rounded-full h-9 overflow-hidden">
-                                    <div id="sekolahTahunanBar" class="bg-rangkul-green h-full w-0 flex items-center px-4">
+                                    <div id="sekolahTahunanBar" class="bg-rangkul-green h-full w-0 min-w-max flex items-center px-4">
                                         <span id="sekolahTahunan" class="text-sm font-bold text-white whitespace-nowrap">Rp 0</span>
                                     </div>
                                 </div>
@@ -162,6 +163,8 @@
                 </div>
             </section>
         </div>
+
+        <div id="account-notice" class="hidden rounded-lg border px-4 py-3 text-center text-sm"></div>
 
         <!-- TABEL 1: DAFTAR AKUN STAFF & MANAGER -->
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200/80">
@@ -188,7 +191,7 @@
                         </tr>
                     </thead>
                     <tbody id="table-staff-body" class="divide-y divide-gray-200/80 text-sm">
-                        <!-- Data dirender oleh JavaScript -->
+                        <tr><td colspan="6" class="py-6 text-center text-gray-500">Memuat data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -214,7 +217,7 @@
                         </tr>
                     </thead>
                     <tbody id="table-nonaktif-body" class="divide-y divide-gray-200/80 text-sm">
-                        <!-- Data dirender oleh JavaScript -->
+                        <tr><td colspan="6" class="py-6 text-center text-gray-500">Memuat data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -240,10 +243,11 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-800 mb-1.5">Role</label>
                     <select id="input-role" class="w-full px-4 py-2.5 border border-gray-400 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#086538]">
-                        <option value="Staff">Staff</option>
-                        <option value="Manager">Manager</option>
+                        <option value="staff">Staff</option>
+                        <option value="manager">Manager</option>
                     </select>
                 </div>
+                <p data-modal-error class="hidden text-sm text-red-600 mb-3"></p>
                 <div class="pt-4 flex items-center justify-end gap-3">
                     <button type="button" onclick="closeModal('modal-tambah')" class="px-8 py-2.5 bg-[#d8dbdf] text-gray-800 text-sm font-semibold rounded-xl hover:bg-[#cbd0d6] transition-all shadow-sm">Batal</button>
                     <button type="submit" class="px-8 py-2.5 bg-[#086538] text-white text-sm font-semibold rounded-xl hover:bg-[#064e2b] transition-all shadow-sm">Simpan Akun</button>
@@ -272,6 +276,7 @@
                     <label class="block text-sm font-semibold text-gray-800 mb-1.5">Nomor Telepon</label>
                     <input type="text" id="edit-telepon" placeholder="Masukkan nomor telepon (opsional)" class="w-full px-4 py-2.5 border border-gray-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]">
                 </div>
+                <p data-modal-error class="hidden text-sm text-red-600 mb-3"></p>
                 <div class="pt-4 flex items-center justify-end gap-3">
                     <button type="button" onclick="closeModal('modal-edit')" class="px-8 py-2.5 bg-[#d8dbdf] text-gray-800 text-sm font-semibold rounded-xl hover:bg-[#cbd0d6] transition-all shadow-sm">Batal</button>
                     <button type="submit" class="px-8 py-2.5 bg-[#086538] text-white text-sm font-semibold rounded-xl hover:bg-[#064e2b] transition-all shadow-sm">Konfirmasi</button>
@@ -287,7 +292,7 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Reset Password</h2>
             <form onsubmit="handleSimpanReset(event)" class="space-y-4">
-                <input type="hidden" id="reset-email-target">
+                <input type="hidden" id="reset-id-target">
                 
                 <!-- Password Baru dengan Toggle Mata -->
                 <div>
@@ -311,7 +316,8 @@
                     </div>
                 </div>
 
-                <p class="text-xs text-gray-400">User akan menerima notifikasi email setelah password berhasil diubah.</p>
+                <p class="text-xs text-gray-400">Password minimal 8 karakter, berisi huruf dan angka. User akan menerima notifikasi email setelah password berhasil diubah.</p>
+                <p data-modal-error class="hidden text-sm text-red-600 mb-3"></p>
                 <div class="pt-4 flex items-center justify-end gap-3">
                     <button type="button" onclick="closeModal('modal-reset')" class="px-8 py-2.5 bg-[#d8dbdf] text-gray-800 text-sm font-semibold rounded-xl hover:bg-[#cbd0d6] transition-all shadow-sm">Batal</button>
                     <button type="submit" class="px-8 py-2.5 bg-[#086538] text-white text-sm font-semibold rounded-xl hover:bg-[#064e2b] transition-all shadow-sm">Reset Password</button>
@@ -328,6 +334,7 @@
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Konfirmasi Pengaktifan</h2>
             <p class="text-sm text-gray-700 mb-8">Apakah Anda yakin ingin mengaktifkan kembali akun ini?</p>
             <input type="hidden" id="aktifkan-id-target">
+            <p data-modal-error class="hidden text-sm text-red-600 mb-3"></p>
             <div class="flex items-center justify-end gap-3">
                 <button type="button" onclick="closeModal('modal-aktifkan')" class="px-8 py-2.5 bg-[#d8dbdf] text-gray-800 text-sm font-semibold rounded-xl hover:bg-[#cbd0d6] transition-all shadow-sm">Batal</button>
                 <button type="button" onclick="handleSimpanAktifkan()" class="px-8 py-2.5 bg-[#086538] text-white text-sm font-semibold rounded-xl hover:bg-[#064e2b] transition-all shadow-sm">Aktifkan</button>
@@ -355,9 +362,10 @@
             <form onsubmit="handleSimpanNonaktifkan(event)" class="text-left">
                 <input type="hidden" id="nonaktifkan-id-target">
                 <label class="block text-sm font-bold text-gray-900 mb-1.5">Alasan Penonaktifan</label>
-                <textarea id="alasan-nonaktif" required rows="4" placeholder="Tuliskan alasan penolakan disini......" class="w-full px-4 py-2.5 border border-gray-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8b1814]"></textarea>
+                <textarea id="alasan-nonaktif" required rows="4" placeholder="Tuliskan alasan penonaktifan disini......" class="w-full px-4 py-2.5 border border-gray-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8b1814]"></textarea>
                 <p class="text-xs text-gray-500 mt-1 mb-6">Kolom ini wajib diisi untuk melanjutkan proses.</p>
 
+                <p data-modal-error class="hidden text-sm text-red-600 mb-3"></p>
                 <div class="flex items-center justify-center gap-4">
                     <button type="button" onclick="closeModal('modal-nonaktifkan')" class="px-8 py-2.5 bg-[#d8dbdf] text-gray-800 text-sm font-semibold rounded-xl hover:bg-[#cbd0d6] transition-all shadow-sm">Batal</button>
                     <button type="submit" class="px-8 py-2.5 bg-[#8b1814] text-white text-sm font-semibold rounded-xl hover:bg-[#70120f] transition-all shadow-sm">Nonaktifkan Akun</button>
@@ -389,6 +397,7 @@
                 <textarea id="alasan-hapus" required rows="4" placeholder="Tuliskan alasan penghapusan disini......" class="w-full px-4 py-2.5 border border-gray-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#8b1814]"></textarea>
                 <p class="text-xs text-gray-500 mt-1 mb-6">Kolom ini wajib diisi untuk melanjutkan proses.</p>
 
+                <p data-modal-error class="hidden text-sm text-red-600 mb-3"></p>
                 <div class="flex items-center justify-center gap-4">
                     <button type="button" onclick="closeModal('modal-hapus')" class="px-8 py-2.5 bg-[#d8dbdf] text-gray-800 text-sm font-semibold rounded-xl hover:bg-[#cbd0d6] transition-all shadow-sm">Batal</button>
                     <button type="submit" class="px-8 py-2.5 bg-[#8b1814] text-white text-sm font-semibold rounded-xl hover:bg-[#70120f] transition-all shadow-sm">Hapus Permanen</button>
@@ -401,25 +410,16 @@
     <!-- JAVASCRIPT LOGIC -->
     <!-- ========================================================= -->
     <script>
-        // Data Akun Awal
-        let dataAkun = [
-            { id: 1, nama: 'Manager', email: 'manager@rangkul.com', telepon: '081234567890', role: 'Manager', status: 'Aktif' },
-            { id: 2, nama: 'Staff 1', email: 'staff123@rangkul.com', telepon: '081298765432', role: 'Staff', status: 'Aktif' },
-            { id: 3, nama: 'Staff 2', email: 'staff456@rangkul.com', telepon: '', role: 'Staff', status: 'Aktif' },
-            { id: 4, nama: 'Staff 3', email: 'staff789@rangkul.com', telepon: '', role: 'Staff', status: 'Nonaktif' }
-        ];
+        const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
 
-        // Format Angka ke Rupiah
-        const formatRupiah = (value) => new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            maximumFractionDigits: 0
-        }).format(value || 0);
+        // Akun staf & manajer dari /api/admin/accounts
+        let dataAkun = [];
 
         // Buka & Tutup Modal Pop-up
         function openModal(modalId) {
             const el = document.getElementById(modalId);
             if (el) {
+                setModalError(el, '');
                 el.classList.remove('hidden');
                 el.classList.add('flex');
             }
@@ -430,6 +430,44 @@
             if (el) {
                 el.classList.add('hidden');
                 el.classList.remove('flex');
+            }
+        }
+
+        function setModalError(modal, message) {
+            const error = modal.querySelector('[data-modal-error]');
+            if (!error) return;
+            error.textContent = message;
+            error.classList.toggle('hidden', !message);
+        }
+
+        function showNotice(message, isError = false) {
+            const notice = document.getElementById('account-notice');
+            notice.textContent = message;
+            notice.className = 'rounded-lg border px-4 py-3 text-center text-sm ' + (isError
+                ? 'border-red-200 bg-red-50 text-red-700'
+                : 'border-green-200 bg-green-50 text-green-800');
+            notice.classList.toggle('hidden', !message);
+        }
+
+        // Kirim aksi akun dari dalam modal: tombol dikunci selama proses, galat tampil di modal.
+        async function submitAkun(modalId, path, method, body, button) {
+            const modal = document.getElementById(modalId);
+            const submitButton = button || modal.querySelector('button[type="submit"]');
+
+            setModalError(modal, '');
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-60', 'cursor-wait');
+
+            try {
+                const result = await request(path, { method, body });
+                closeModal(modalId);
+                showNotice(result.message);
+                await loadAkun();
+            } catch (error) {
+                setModalError(modal, error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-60', 'cursor-wait');
             }
         }
 
@@ -450,70 +488,69 @@
             }
         }
 
+        function barisKosong(pesan) {
+            return `<tr><td colspan="6" class="py-6 text-center text-gray-500">${escapeHtml(pesan)}</td></tr>`;
+        }
+
+        function tombolAksi(aksi, id, label, className, disabled) {
+            return `
+                <button type="button" data-aksi="${aksi}" data-id="${escapeHtml(id)}" ${disabled ? 'disabled' : ''}
+                    class="${className} rounded-full text-xs font-medium ${disabled ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : ''}">
+                    ${label}
+                </button>
+            `;
+        }
+
+        function barisAkun(item, index, aksi) {
+            return `
+                <tr class="hover:bg-gray-50/70">
+                    <td class="py-3 px-6 text-gray-800">${index + 1}.</td>
+                    <td class="py-3 px-6 font-medium text-gray-900">${escapeHtml(item.name)}</td>
+                    <td class="py-3 px-6 text-gray-800">${escapeHtml(item.email)}</td>
+                    <td class="py-3 px-6 text-gray-800">${escapeHtml(item.role_label)}</td>
+                    <td class="py-3 px-6 text-gray-800">${escapeHtml(item.status_label)}</td>
+                    <td class="py-3 px-6 text-center">
+                        <div class="flex items-center justify-center gap-2">${aksi}</div>
+                    </td>
+                </tr>
+            `;
+        }
+
         // Render Tabel Akun Aktif & Nonaktif
         function renderTabel() {
             const tbodyStaff = document.getElementById('table-staff-body');
             const tbodyNonaktif = document.getElementById('table-nonaktif-body');
 
-            const totalStaff = dataAkun.filter(a => a.role === 'Staff' && a.status === 'Aktif').length;
-            const totalManager = dataAkun.filter(a => a.role === 'Manager' && a.status === 'Aktif').length;
-
-            document.getElementById('count-staff').textContent = totalStaff;
-            document.getElementById('count-manager').textContent = totalManager;
-
             // Render Tabel 1
-            tbodyStaff.innerHTML = dataAkun.map((item, index) => {
-                const isNonaktif = item.status === 'Nonaktif';
-                return `
-                    <tr class="hover:bg-gray-50/70">
-                        <td class="py-3 px-6 text-gray-800">${index + 1}.</td>
-                        <td class="py-3 px-6 font-medium text-gray-900">${item.nama}</td>
-                        <td class="py-3 px-6 text-gray-800">${item.email}</td>
-                        <td class="py-3 px-6 text-gray-800">${item.role}</td>
-                        <td class="py-3 px-6 text-gray-800">${item.status}</td>
-                        <td class="py-3 px-6 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <button
-                                    ${isNonaktif ? 'disabled' : `onclick="aksiEdit(${item.id})"`}
-                                    class="px-4 py-1 rounded-full text-xs font-medium ${isNonaktif ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-[#fef3c7] text-[#92400e] hover:bg-[#fde68a]'}">
-                                    Edit
-                                </button>
-                                <button
-                                    ${isNonaktif ? 'disabled' : `onclick="aksiReset('${item.email}')"`}
-                                    class="px-4 py-1 rounded-full text-xs font-medium ${isNonaktif ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-[#e0f2fe] text-[#0369a1] hover:bg-[#bae6fd]'}">
-                                    Reset
-                                </button>
-                                <button
-                                    ${isNonaktif ? 'disabled' : `onclick="aksiNonaktifkan(${item.id})"`}
-                                    class="px-3 py-1 rounded-full text-xs font-medium ${isNonaktif ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-[#fee2e2] text-[#b91c1c] hover:bg-[#fecaca]'}">
-                                    Nonaktifkan
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbodyStaff.innerHTML = dataAkun.length ? dataAkun.map((item, index) => {
+                const isNonaktif = item.status === 'nonaktif';
+                return barisAkun(item, index, [
+                    tombolAksi('edit', item.id, 'Edit', isNonaktif ? 'px-4 py-1' : 'px-4 py-1 bg-[#fef3c7] text-[#92400e] hover:bg-[#fde68a]', isNonaktif),
+                    tombolAksi('reset', item.id, 'Reset', isNonaktif ? 'px-4 py-1' : 'px-4 py-1 bg-[#e0f2fe] text-[#0369a1] hover:bg-[#bae6fd]', isNonaktif),
+                    tombolAksi('nonaktifkan', item.id, 'Nonaktifkan', isNonaktif ? 'px-3 py-1' : 'px-3 py-1 bg-[#fee2e2] text-[#b91c1c] hover:bg-[#fecaca]', isNonaktif)
+                ].join(''));
+            }).join('') : barisKosong('Belum ada akun staff atau manager.');
 
             // Render Tabel 2
-            const nonaktifList = dataAkun.filter(a => a.status === 'Nonaktif');
-            if (nonaktifList.length === 0) {
-                tbodyNonaktif.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-gray-500">Tidak ada akun nonaktif.</td></tr>`;
-            } else {
-                tbodyNonaktif.innerHTML = nonaktifList.map((item, index) => `
-                    <tr class="hover:bg-gray-50/70">
-                        <td class="py-3 px-6 text-gray-800">${index + 1}.</td>
-                        <td class="py-3 px-6 font-medium text-gray-900">${item.nama}</td>
-                        <td class="py-3 px-6 text-gray-800">${item.email}</td>
-                        <td class="py-3 px-6 text-gray-800">${item.role}</td>
-                        <td class="py-3 px-6 text-gray-800">${item.status}</td>
-                        <td class="py-3 px-6 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="aksiAktifkan(${item.id})" class="px-4 py-1 rounded-full bg-[#e0f2fe] text-[#0284c7] hover:bg-[#bae6fd] text-xs font-medium">Aktifkan</button>
-                                <button onclick="aksiHapus(${item.id})" class="px-3.5 py-1 rounded-full bg-[#fee2e2] text-[#b91c1c] hover:bg-[#fecaca] text-xs font-medium">Hapus Permanen</button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
+            const nonaktifList = dataAkun.filter(a => a.status === 'nonaktif');
+            tbodyNonaktif.innerHTML = nonaktifList.length ? nonaktifList.map((item, index) => barisAkun(item, index, [
+                tombolAksi('aktifkan', item.id, 'Aktifkan', 'px-4 py-1 bg-[#e0f2fe] text-[#0284c7] hover:bg-[#bae6fd]', false),
+                tombolAksi('hapus', item.id, 'Hapus Permanen', 'px-3.5 py-1 bg-[#fee2e2] text-[#b91c1c] hover:bg-[#fecaca]', false)
+            ].join(''))).join('') : barisKosong('Tidak ada akun nonaktif.');
+        }
+
+        async function loadAkun() {
+            try {
+                const { data } = await request('/api/admin/accounts');
+
+                dataAkun = data.accounts;
+                document.getElementById('count-staff').textContent = data.total_staff;
+                document.getElementById('count-manager').textContent = data.total_manager;
+                renderTabel();
+            } catch (error) {
+                showNotice(error.message, true);
+                document.getElementById('table-staff-body').innerHTML = barisKosong('Data akun gagal dimuat.');
+                document.getElementById('table-nonaktif-body').innerHTML = barisKosong('Data akun gagal dimuat.');
             }
         }
 
@@ -523,46 +560,41 @@
         function openModalTambah() {
             document.getElementById('input-nama').value = '';
             document.getElementById('input-email').value = '';
-            document.getElementById('input-role').value = 'Staff';
+            document.getElementById('input-role').value = 'staff';
             openModal('modal-tambah');
         }
 
         function handleSimpanTambah(e) {
             e.preventDefault();
-            const nama = document.getElementById('input-nama').value;
-            const email = document.getElementById('input-email').value;
-            const role = document.getElementById('input-role').value;
-
-            dataAkun.push({ id: Date.now(), nama, email, telepon: '', role, status: 'Aktif' });
-            closeModal('modal-tambah');
-            renderTabel();
+            submitAkun('modal-tambah', '/api/admin/accounts', 'POST', {
+                nama: document.getElementById('input-nama').value,
+                email: document.getElementById('input-email').value,
+                role: document.getElementById('input-role').value
+            });
         }
 
         function aksiEdit(id) {
             const item = dataAkun.find(a => a.id === id);
             if (!item) return;
             document.getElementById('edit-id').value = item.id;
-            document.getElementById('edit-nama').value = item.nama;
+            document.getElementById('edit-nama').value = item.name;
             document.getElementById('edit-email').value = item.email;
-            document.getElementById('edit-telepon').value = item.telepon || '';
+            document.getElementById('edit-telepon').value = item.phone || '';
             openModal('modal-edit');
         }
 
         function handleSimpanEdit(e) {
             e.preventDefault();
-            const id = Number(document.getElementById('edit-id').value);
-            const item = dataAkun.find(a => a.id === id);
-            if (item) {
-                item.nama = document.getElementById('edit-nama').value;
-                item.email = document.getElementById('edit-email').value;
-                item.telepon = document.getElementById('edit-telepon').value;
-            }
-            closeModal('modal-edit');
-            renderTabel();
+            const id = document.getElementById('edit-id').value;
+            submitAkun('modal-edit', '/api/admin/accounts/' + encodeURIComponent(id), 'PUT', {
+                nama: document.getElementById('edit-nama').value,
+                email: document.getElementById('edit-email').value,
+                no_telp: document.getElementById('edit-telepon').value || null
+            });
         }
 
-        function aksiReset(email) {
-            document.getElementById('reset-email-target').value = email;
+        function aksiReset(id) {
+            document.getElementById('reset-id-target').value = id;
             const passBaru = document.getElementById('reset-pass-baru');
             const passConfirm = document.getElementById('reset-pass-confirm');
             passBaru.value = '';
@@ -581,11 +613,15 @@
             const passBaru = document.getElementById('reset-pass-baru').value;
             const passConfirm = document.getElementById('reset-pass-confirm').value;
             if (passBaru !== passConfirm) {
-                alert('Password baru dan konfirmasi password tidak sesuai!');
+                setModalError(document.getElementById('modal-reset'), 'Password baru dan konfirmasi password tidak sesuai!');
                 return;
             }
-            closeModal('modal-reset');
-            alert('Password berhasil diubah!');
+
+            const id = document.getElementById('reset-id-target').value;
+            submitAkun('modal-reset', '/api/admin/accounts/' + encodeURIComponent(id) + '/password', 'PUT', {
+                password: passBaru,
+                password_confirmation: passConfirm
+            });
         }
 
         function aksiAktifkan(id) {
@@ -594,13 +630,9 @@
         }
 
         function handleSimpanAktifkan() {
-            const id = Number(document.getElementById('aktifkan-id-target').value);
-            const item = dataAkun.find(a => a.id === id);
-            if (item) {
-                item.status = 'Aktif';
-            }
-            closeModal('modal-aktifkan');
-            renderTabel();
+            const id = document.getElementById('aktifkan-id-target').value;
+            const button = document.querySelector('#modal-aktifkan button[onclick="handleSimpanAktifkan()"]');
+            submitAkun('modal-aktifkan', '/api/admin/accounts/' + encodeURIComponent(id) + '/activate', 'PATCH', null, button);
         }
 
         function aksiNonaktifkan(id) {
@@ -611,13 +643,10 @@
 
         function handleSimpanNonaktifkan(e) {
             e.preventDefault();
-            const id = Number(document.getElementById('nonaktifkan-id-target').value);
-            const item = dataAkun.find(a => a.id === id);
-            if (item) {
-                item.status = 'Nonaktif';
-            }
-            closeModal('modal-nonaktifkan');
-            renderTabel();
+            const id = document.getElementById('nonaktifkan-id-target').value;
+            submitAkun('modal-nonaktifkan', '/api/admin/accounts/' + encodeURIComponent(id) + '/deactivate', 'PATCH', {
+                alasan: document.getElementById('alasan-nonaktif').value
+            });
         }
 
         function aksiHapus(id) {
@@ -628,50 +657,47 @@
 
         function handleSimpanHapus(e) {
             e.preventDefault();
-            const id = Number(document.getElementById('hapus-id-target').value);
-            dataAkun = dataAkun.filter(a => a.id !== id);
-            closeModal('modal-hapus');
-            renderTabel();
+            const id = document.getElementById('hapus-id-target').value;
+            submitAkun('modal-hapus', '/api/admin/accounts/' + encodeURIComponent(id), 'DELETE', {
+                alasan: document.getElementById('alasan-hapus').value
+            });
         }
+
+        // Tombol aksi di tabel memakai data-aksi agar ID akun (UUID) tidak disisipkan ke onclick.
+        const AKSI_AKUN = {
+            edit: aksiEdit,
+            reset: aksiReset,
+            nonaktifkan: aksiNonaktifkan,
+            aktifkan: aksiAktifkan,
+            hapus: aksiHapus
+        };
+
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-aksi]');
+            if (button && !button.disabled) {
+                AKSI_AKUN[button.dataset.aksi]?.(button.dataset.id);
+            }
+        });
 
         // =====================================================
         // DASHBOARD & CHARTS
         // =====================================================
+        const tanggalMulai = document.getElementById('tanggalMulai');
+        const tanggalSelesai = document.getElementById('tanggalSelesai');
         let trendChart = null;
         let gaugeChart = null;
-
-        const dashboardDummy = {
-            period: {
-                tanggal_mulai: '2026-10-01',
-                tanggal_selesai: '2026-10-07'
-            },
-            summary: {
-                total_donasi: 2130000,
-                donasi_tertinggi: 600000,
-                persentase_tersalurkan: 72
-            },
-            organization_totals: {
-                panti: { monthly: 1000000, yearly: 2350000 },
-                sekolah: { monthly: 50000000, yearly: 65000000 }
-            },
-            trend: [
-                { label: 'Mon', total: 190000 },
-                { label: 'Tue', total: 350000 },
-                { label: 'Wed', total: 140000 },
-                { label: 'Thu', total: 240000 },
-                { label: 'Fri', total: 600000 },
-                { label: 'Sat', total: 440000 },
-                { label: 'Sun', total: 380000 }
-            ]
-        };
 
         function renderDashboard(data) {
             const summary = data.summary;
             const organizationTotals = data.organization_totals;
+            const periodDays = Math.round(
+                (new Date(data.period.tanggal_selesai) - new Date(data.period.tanggal_mulai)) / 86400000
+            ) + 1;
 
-            document.getElementById('tanggalMulai').value = data.period.tanggal_mulai;
-            document.getElementById('tanggalSelesai').value = data.period.tanggal_selesai;
+            tanggalMulai.value = data.period.tanggal_mulai;
+            tanggalSelesai.value = data.period.tanggal_selesai;
 
+            document.getElementById('labelTotalPeriode').textContent = periodDays === 7 ? 'Total Per Minggu' : 'Total Periode';
             document.getElementById('totalPeriode').textContent = formatRupiah(summary.total_donasi);
             document.getElementById('donasiTertinggi').textContent = formatRupiah(summary.donasi_tertinggi);
 
@@ -719,9 +745,15 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${formatRupiah(c.raw)}` } }
+                        tooltip: { callbacks: { label: (c) => formatRupiah(c.raw) } }
                     },
-                    scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { maxTicksLimit: 4, callback: (value) => Number(value).toLocaleString('id-ID') }
+                        },
+                        x: { grid: { display: false } }
+                    }
                 }
             });
 
@@ -747,42 +779,35 @@
             });
         }
 
+        function showDashboardError(message) {
+            const error = document.getElementById('dashboard-error');
+            error.textContent = message;
+            error.classList.toggle('hidden', !message);
+        }
+
         async function loadDashboard() {
-            const authToken = localStorage.getItem('rangkul_access_token') || localStorage.getItem('auth_token');
-            if (!authToken) {
-                renderDashboard(dashboardDummy);
-                return;
+            const params = new URLSearchParams();
+
+            // Tanpa rentang tanggal, server memakai minggu berjalan.
+            if (tanggalMulai.value && tanggalSelesai.value) {
+                params.set('tanggal_mulai', tanggalMulai.value);
+                params.set('tanggal_selesai', tanggalSelesai.value);
             }
 
             try {
-                const tanggalMulai = document.getElementById('tanggalMulai').value;
-                const tanggalSelesai = document.getElementById('tanggalSelesai').value;
-                const params = new URLSearchParams({ tanggal_mulai: tanggalMulai, tanggal_selesai: tanggalSelesai });
-                const response = await fetch(`/api/admin/dashboard?${params.toString()}`, {
-                    headers: { Authorization: `Bearer ${authToken}`, Accept: 'application/json' }
-                });
-
-                if (response.status === 401) {
-                    localStorage.removeItem('rangkul_access_token');
-                    localStorage.removeItem('rangkul_user');
-                    renderDashboard(dashboardDummy);
-                    return;
-                }
-
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.message || 'Gagal memuat.');
-                renderDashboard(result.data);
-            } catch (err) {
-                console.error(err);
-                renderDashboard(dashboardDummy);
+                const { data } = await request('/api/admin/dashboard?' + params);
+                showDashboardError('');
+                renderDashboard(data);
+            } catch (error) {
+                showDashboardError(error.message);
             }
         }
 
-        document.getElementById('tanggalMulai').addEventListener('change', loadDashboard);
-        document.getElementById('tanggalSelesai').addEventListener('change', loadDashboard);
+        tanggalMulai.addEventListener('change', loadDashboard);
+        tanggalSelesai.addEventListener('change', loadDashboard);
 
         // Jalankan saat halaman pertama kali dimuat
-        renderTabel();
+        loadAkun();
         loadDashboard();
     </script>
 </body>

@@ -1,13 +1,19 @@
 {{--
-    Helper bersama halaman manajer: memastikan yang membuka halaman adalah akun admin,
-    memanggil /api/admin/* dengan token login (localStorage), dan logout.
+    Helper bersama halaman manajer dan super admin: memastikan yang membuka halaman adalah akun admin
+    dengan peran yang sesuai ($area: 'manager' atau 'superadmin'), memanggil /api/admin/* dengan token
+    login (localStorage), dan logout. Pembatasan sebenarnya tetap di server (CheckIsAdmin & CheckAdminRole).
 --}}
 <script>
 window.RangkulAdmin = (function () {
     const LOGIN_URL = @json(route('login'));
+    const AREA = @json($area);
     const HOME_BY_ACCOUNT_TYPE = {
         organisasi: @json(route('organisasi.dashboard')),
         donatur: @json(route('donatur.beranda'))
+    };
+    const HOME_BY_ADMIN_AREA = {
+        manager: @json(route('manager.home')),
+        superadmin: @json(route('superadmin.home'))
     };
 
     function readUser() {
@@ -18,6 +24,11 @@ window.RangkulAdmin = (function () {
         }
     }
 
+    // Super admin memakai halaman /superadmin, manajer dan staf memakai halaman /manager.
+    function adminAreaOf(user) {
+        return user && user.admin && user.admin.tipe === 'super admin' ? 'superadmin' : 'manager';
+    }
+
     function clearAuth() {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
@@ -26,8 +37,15 @@ window.RangkulAdmin = (function () {
         document.cookie = 'rangkul_remember=; path=/; max-age=0; SameSite=Lax';
     }
 
+    let redirecting = false;
+
+    function redirectTo(url) {
+        redirecting = true;
+        window.location.replace(url);
+    }
+
     function goToLogin() {
-        window.location.replace(LOGIN_URL);
+        redirectTo(LOGIN_URL);
     }
 
     const token = localStorage.getItem('auth_token');
@@ -36,13 +54,15 @@ window.RangkulAdmin = (function () {
     if (!token) {
         goToLogin();
     } else if (user && user.account_type !== 'admin') {
-        window.location.replace(HOME_BY_ACCOUNT_TYPE[user.account_type] || LOGIN_URL);
+        redirectTo(HOME_BY_ACCOUNT_TYPE[user.account_type] || LOGIN_URL);
+    } else if (user && adminAreaOf(user) !== AREA) {
+        redirectTo(HOME_BY_ADMIN_AREA[adminAreaOf(user)]);
     }
 
     async function request(path, options = {}) {
-        if (!token) {
-            goToLogin();
-            throw new Error('Silakan masuk sebagai admin.');
+        // Halaman sedang dialihkan: jangan memuat data atau menampilkan pesan galat.
+        if (redirecting) {
+            return new Promise(() => {});
         }
 
         const headers = {

@@ -22,7 +22,10 @@
             if (!localStorage.getItem('auth_token')) return;
             var user = JSON.parse(localStorage.getItem('auth_user') || '{}');
             var name = user.nama || user.name || 'Akun Saya';
-            var homeByType = { organisasi: '{{ route('organisasi.dashboard') }}', admin: '/manager/home' };
+            var homeByType = {
+                organisasi: '{{ route('organisasi.dashboard') }}',
+                admin: user.admin && user.admin.tipe === 'super admin' ? '{{ route('superadmin.home') }}' : '{{ route('manager.home') }}'
+            };
             var link = document.getElementById('public-user-actions');
 
             link.href = homeByType[user.account_type] || link.href;

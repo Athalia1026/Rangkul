@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-auth-session-guard />
 
     <title>Detail Information</title>
 
@@ -60,25 +61,23 @@
         </div>
 
 
+        <div id="detailinformasi-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+
         <!-- INFORMASI ASRAMA -->
         <section class="w-full max-w-[1200px] mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
             <div class="grid grid-cols-1 md:grid-cols-2">
 
                 <!-- FOTO -->
-                <div class="h-[320px]">
-                    <img
-                        src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"
-                        alt="Foto Asrama"
-                        class="w-full h-full object-cover"
-                    >
+                <div id="fotoOrganisasi" class="h-[320px] bg-gray-100 flex items-center justify-center text-gray-400">
+                    <i class="fa-regular fa-image text-6xl"></i>
                 </div>
 
                 <!-- INFORMASI -->
                 <div class="px-8 py-4 flex flex-col">
 
-                    <h1 class="text-2xl font-bold text-gray-900 mb-8">
-                        Asrama Pemberdayaan Yatim dan Dhuafa
+                    <h1 id="namaOrganisasi" class="text-2xl font-bold text-gray-900 mb-8">
+                        Memuat...
                     </h1>
 
                     <div class="grid grid-cols-2 gap-y-7">
@@ -87,8 +86,8 @@
                             <p class="text-sm text-gray-500 mb-1">
                                 Jenis
                             </p>
-                            <p class="text-lg font-bold">
-                                Panti
+                            <p id="jenisOrganisasi" class="text-lg font-bold">
+                                -
                             </p>
                         </div>
 
@@ -96,8 +95,8 @@
                             <p class="text-sm text-gray-500 mb-1">
                                 Status
                             </p>
-                            <p class="text-lg font-bold text-orange-400">
-                                Menunggu
+                            <p id="statusOrganisasi" class="text-lg font-bold text-orange-400">
+                                -
                             </p>
                         </div>
 
@@ -105,8 +104,8 @@
                             <p class="text-sm text-gray-500 mb-1">
                                 Jumlah Anak Asuh
                             </p>
-                            <p class="text-lg font-bold">
-                                50
+                            <p id="jumlahAnak" class="text-lg font-bold">
+                                -
                             </p>
                         </div>
 
@@ -114,8 +113,8 @@
                             <p class="text-sm text-gray-500 mb-1">
                                 Tanggal Daftar
                             </p>
-                            <p class="text-lg font-bold">
-                                3 Februari 2026
+                            <p id="tanggalDaftar" class="text-lg font-bold">
+                                -
                             </p>
                         </div>
 
@@ -157,9 +156,8 @@
                                     Alamat
                                 </p>
 
-                                <p class="text-sm text-gray-600 leading-relaxed">
-                                    Jl. Delta Raya III No.4, Ngingas, Kec. Waru,
-                                    Kabupaten Sidoarjo, Jawa Timur 61256
+                                <p id="alamatOrganisasi" class="text-sm text-gray-600 leading-relaxed">
+                                    -
                                 </p>
                             </div>
                         </div>
@@ -174,8 +172,8 @@
                                     Kota
                                 </p>
 
-                                <p class="text-sm text-gray-600">
-                                    Sidoarjo
+                                <p id="kotaOrganisasi" class="text-sm text-gray-600">
+                                    -
                                 </p>
                             </div>
                         </div>
@@ -196,9 +194,8 @@
                                     Kontak
                                 </p>
 
-                                <p class="text-sm text-gray-600 leading-relaxed">
-                                    (031) 8552980<br>
-                                    Asrama Yatim dan Dhuafa
+                                <p id="kontakOrganisasi" class="text-sm text-gray-600 leading-relaxed">
+                                    -
                                 </p>
                             </div>
                         </div>
@@ -213,8 +210,8 @@
                                     Email
                                 </p>
 
-                                <p class="text-sm text-gray-600">
-                                    PYIindonesia@gmail.com
+                                <p id="emailOrganisasi" class="text-sm text-gray-600 break-all">
+                                    -
                                 </p>
                             </div>
                         </div>
@@ -236,13 +233,8 @@
                                     Deskripsi
                                 </p>
 
-                                <p class="text-sm text-gray-600 leading-relaxed">
-                                    Panti Asuhan kami merupakan lembaga sosial yang
-                                    berkomitmen memberikan pengasuhan, pendidikan,
-                                    serta pembinaan kepada anak-anak yang membutuhkan.
-                                    Kami berupaya menciptakan lingkungan yang aman,
-                                    nyaman, dan penuh kasih sayang guna mendukung
-                                    tumbuh kembang anak secara optimal.
+                                <p id="deskripsiOrganisasi" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                                    -
                                 </p>
                             </div>
 
@@ -280,77 +272,12 @@
                             </tr>
                         </thead>
 
-                        <tbody class="text-sm">
+                        <tbody id="dokumenRows" class="text-sm">
 
                             <tr class="border-t border-gray-200">
-
-                                <td class="px-6 py-5">
-                                    SK Pendirian / SK Operasional
+                                <td colspan="2" class="px-6 py-5 text-center text-gray-500">
+                                    Memuat data...
                                 </td>
-
-                                <td class="px-6 py-5">
-                                    <a
-                                        href="/documents/SK%20Pendirian.pdf"
-                                        download
-                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
-                                    >
-                                        SK Pendirian.pdf
-                                    </a>
-                                </td>
-
-                            </tr>
-
-
-                            <tr class="border-t border-gray-200">
-
-                                <td class="px-6 py-5">
-                                    KTP Penanggung Jawab
-                                </td>
-
-                                <td class="px-6 py-5">
-                                    <a
-                                        href="/documents/KTP.pdf"
-                                        download
-                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
-                                    >
-                                        KTP.pdf
-                                    </a>
-                                </td>
-
-                            </tr>
-
-
-                            <tr class="border-t border-gray-200">
-
-                                <td class="px-6 py-5">
-                                    Foto Kegiatan dan Penerima Manfaat
-                                </td>
-
-                                <td class="px-6 py-5">
-                                    <a
-                                        href="/documents/Foto.jpg"
-                                        download
-                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
-                                    >
-                                        Foto.jpg
-                                    </a>
-                                </td>
-
-                            </tr>
-
-
-                            <tr class="border-t border-gray-200">
-
-                                <td class="px-6 py-5">
-                                    Rekening Lembaga
-                                </td>
-
-                                <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px]">
-                                        (Mandiri) 1420026154855
-                                    </span>
-                                </td>
-
                             </tr>
 
                         </tbody>
@@ -363,6 +290,123 @@
         </div>
 
     </main>
+
+    <script>
+
+        const { request, escapeHtml } = window.RangkulAdmin;
+        const organizationId = @json($organizationId);
+
+        const STATUS_TAMPIL = {
+            menunggu: { label: 'Menunggu', className: 'text-orange-400' },
+            disetujui: { label: 'Disetujui', className: 'text-rangkul-green' },
+            ditolak: { label: 'Ditolak', className: 'text-rangkul-red' }
+        };
+
+        function setText(id, value) {
+            document.getElementById(id).textContent = value || value === 0 ? value : '-';
+        }
+
+        function renderFoto(url) {
+            if (!url) {
+                return;
+            }
+
+            const foto = document.getElementById('fotoOrganisasi');
+            foto.className = 'h-[320px]';
+            foto.innerHTML = `
+                <img
+                    src="${escapeHtml(url)}"
+                    alt="Foto Organisasi"
+                    class="w-full h-full object-cover"
+                >
+            `;
+        }
+
+        function renderDokumen(documents, bankAccount) {
+            const rows = documents.map((dokumen) => `
+                <tr class="border-t border-gray-200">
+
+                    <td class="px-6 py-5">
+                        ${escapeHtml(dokumen.label)}
+                    </td>
+
+                    <td class="px-6 py-5">
+                        <a
+                            href="${escapeHtml(dokumen.url)}"
+                            download="${escapeHtml(dokumen.file_name)}"
+                            title="${escapeHtml(dokumen.file_name)}"
+                            class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
+                        >
+                            <span class="truncate">${escapeHtml(dokumen.file_name)}</span>
+                        </a>
+                    </td>
+
+                </tr>
+            `);
+
+            rows.push(`
+                <tr class="border-t border-gray-200">
+
+                    <td class="px-6 py-5">
+                        Rekening Lembaga
+                    </td>
+
+                    <td class="px-6 py-5">
+                        <span class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px]">
+                            ${bankAccount
+                                ? `(${escapeHtml(bankAccount.bank)}) ${escapeHtml(bankAccount.no_rekening)}`
+                                : 'Belum ada rekening'}
+                        </span>
+                    </td>
+
+                </tr>
+            `);
+
+            document.getElementById('dokumenRows').innerHTML = rows.join('');
+        }
+
+        function renderOrganisasi(data) {
+            const status = STATUS_TAMPIL[data.verification_status] || { label: data.verification_status, className: 'text-gray-700' };
+            const statusElement = document.getElementById('statusOrganisasi');
+
+            setText('namaOrganisasi', data.name);
+            setText('jenisOrganisasi', data.type);
+            statusElement.textContent = status.label;
+            statusElement.className = 'text-lg font-bold ' + status.className;
+            setText('jumlahAnak', data.jumlah_anak);
+            setText('tanggalDaftar', data.registered_at);
+
+            setText('alamatOrganisasi', data.address);
+            setText('kotaOrganisasi', data.city);
+            document.getElementById('kontakOrganisasi').innerHTML = [data.phone, data.contact_name]
+                .filter(Boolean)
+                .map(escapeHtml)
+                .join('<br>') || '-';
+            setText('emailOrganisasi', data.email);
+            setText('deskripsiOrganisasi', data.description);
+
+            renderFoto(data.photo_url);
+            renderDokumen(data.documents, data.bank_account);
+        }
+
+        async function loadOrganisasi() {
+            const error = document.getElementById('detailinformasi-error');
+
+            try {
+                const { data } = await request('/api/admin/users/organizations/' + encodeURIComponent(organizationId));
+                error.classList.add('hidden');
+                renderOrganisasi(data);
+            } catch (exception) {
+                error.textContent = exception.message;
+                error.classList.remove('hidden');
+                setText('namaOrganisasi', '-');
+                document.getElementById('dokumenRows').innerHTML = '';
+            }
+        }
+
+        loadOrganisasi();
+
+    </script>
 
 </body>
 </html>
