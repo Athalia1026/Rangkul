@@ -44,13 +44,17 @@
                 data-rangkul-profile-dropdown
                 class="hidden absolute right-0 top-full mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-[9999]"
             >
-                <a
-                    href="/staff/logout"
-                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                <form action="{{ route('logout') }}" method="POST">
+                @csrf
+
+                <button
+                    type="submit"
+                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full"
                 >
-                    <i class="fa-solid fa-right-from-bracket text-rangkul-green"></i>
+                    <i class="fa-solid fa-right-from-bracket text-[#086538]"></i>
                     <span>Keluar</span>
-                </a>
+                </button>
+            </form>
             </div>
 
     </div>

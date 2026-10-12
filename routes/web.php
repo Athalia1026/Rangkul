@@ -38,6 +38,10 @@ Route::view('/donatur/donasi-berhasil/{id}', 'donatur.donasi-berhasil')->name('d
 Route::get('/donatur/panti/{organizationId}', [OrganizationProfileController::class, 'page'])->name('donatur.panti.show');
 
 
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC / COMPANY PROFILE
