@@ -23,7 +23,7 @@
     <!-- KONTEN BERANDA STAFF -->
     <main class="max-w-[1200px] mx-auto px-6 py-8 space-y-6">
 
-        <!-- 3 KARTU METRIK DI ATAS (MURNI STATIS / UNABLE DIPENCET) -->
+        <!-- 3 KARTU METRIK DI ATAS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 select-none">
             <!-- 1. Total Antrian Verifikasi Panti -->
             <div class="bg-white rounded-2xl border border-gray-300 shadow-sm px-6 py-4 flex items-center justify-between cursor-default">
@@ -151,21 +151,21 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">1.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Asrama Pemberdayaan Yatim dan Dhuafa</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Panti Asuhan</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc">Sidoarjo</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Panti Asuhan</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Sidoarjo</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">16/02/2026</td>
                             <td class="py-3.5 px-6 text-center">
-                                <button onclick="openModalOrg('Asrama Pemberdayaan Yatim dan Dhuafa', 'Panti Asuhan', 'Sidoarjo', '16/02/2026')"
-                                    class="px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
+                                <a href="/staff/detailpengajuanuser"
+                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
                                     Detail
-                                </button>
+                                </a>
                             </td>
                         </tr>
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">2.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Sekolah Dasar Negeri Gebang 2</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Sekolah Dasar</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc">Sidoarjo</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Sekolah</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Sidoarjo</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">08/05/2026</td>
                             <td class="py-3.5 px-6 text-center">
                                 <button onclick="openModalOrg('Sekolah Dasar Negeri Gebang 2', 'Sekolah Dasar', 'Sidoarjo', '08/05/2026')"
@@ -177,8 +177,8 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">3.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Panti Asuhan Ruhamaa</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Panti Asuhan</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc">Surabaya</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Panti Asuhan</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Surabaya</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">27/06/2026</td>
                             <td class="py-3.5 px-6 text-center">
                                 <button onclick="openModalOrg('Panti Asuhan Ruhamaa', 'Panti Asuhan', 'Surabaya', '27/06/2026')"
@@ -190,8 +190,8 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">4.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Yayasan Panti Asuhan Nur Iman</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Panti Asuhan</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc">Surabaya</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Panti Asuhan</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Surabaya</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">19/10/2026</td>
                             <td class="py-3.5 px-6 text-center">
                                 <button onclick="openModalOrg('Yayasan Panti Asuhan Nur Iman', 'Yayasan Panti', 'Surabaya', '19/10/2026')"
@@ -203,8 +203,8 @@
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">5.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Panti Asuhan Arrohman</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat">Panti Asuhan</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc">Surabaya</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Panti Asuhan</td>
+                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Surabaya</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">15/11/2026</td>
                             <td class="py-3.5 px-6 text-center">
                                 <button onclick="openModalOrg('Panti Asuhan Arrohman', 'Panti Asuhan', 'Surabaya', '15/11/2026')"
@@ -236,7 +236,7 @@
                         <tr class="bukti-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">1.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Asrama Pemberdayaan Yatim dan Dhuafa</td>
-                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-desc">Kebutuhan sandang pangan & sembako santunan</td>
+                            <td class="py-3.5 px-6 text-sm text-gray-600 cell-desc">Kebutuhan sandang pangan & sembako santunan</td>
                             <td class="py-3.5 px-6 text-gray-900 font-semibold cell-nominal">Rp 600.000</td>
                             <td class="py-3.5 px-6 text-center">
                                 <button onclick="openModalBukti('Asrama Pemberdayaan Yatim dan Dhuafa', 'Kebutuhan sandang pangan & sembako santunan', 'Rp 600.000')"
@@ -248,8 +248,8 @@
                         <tr class="bukti-row hover:bg-gray-50/70 transition-colors">
                             <td class="py-3.5 px-6 text-gray-800 text-center">2.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Sekolah Dasar Negeri Gebang 2</td>
-                            <td class="py-3.5 px-6 text-xs text-gray-600 cell-desc">Pengadaan bangku sekolah & papan tulis kelas</td>
-                            <td class="py-3.5 px-6 text-gray-900 font-semibold cell-nominal">Rp 50.000.000</td>
+                            <td class="py-3.5 px-6 text-sm text-gray-600 cell-desc">Pengadaan bangku sekolah & papan tulis kelas</td>
+                            <td class="py-3.5 px-6 text-gray-900 font-semibold cell-nominal">Rp 500.000.000.000</td>
                             <td class="py-3.5 px-6 text-center">
                                 <button onclick="openModalBukti('Sekolah Dasar Negeri Gebang 2', 'Pengadaan bangku sekolah & papan tulis kelas', 'Rp 50.000.000')"
                                     class="px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
@@ -338,7 +338,11 @@
                 <button onclick="closeModal()" class="px-5 py-2 border border-gray-300 text-gray-700 text-xs font-semibold rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
                     Tutup
                 </button>
-                <button onclick="closeModal()" class="px-5 py-2 bg-[#086538] text-white text-xs font-semibold rounded-xl hover:bg-[#064e2b] transition-colors cursor-pointer">
+                <button
+                    type="button"
+                    onclick="prosesVerifikasi()"
+                    class="px-5 py-2 bg-[#086538] text-white text-xs font-semibold rounded-xl hover:bg-[#064e2b] transition-colors cursor-pointer"
+                >
                     Proses Verifikasi
                 </button>
             </div>
@@ -483,6 +487,10 @@
 
         function closeModal() {
             document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        function prosesVerifikasi() {
+            window.location.href = '/staff/detailpengajuanuser';
         }
     </script>
 </body>

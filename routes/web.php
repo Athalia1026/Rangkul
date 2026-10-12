@@ -387,4 +387,4 @@ Route::get('/staff/beranda', function () {
 
 Route::get('/staff/pengajuandanauser', function () {
     return view('staff.pengajuandanauser');
-});
+})->name('staff.pengajuandanauser');
