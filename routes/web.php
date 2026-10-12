@@ -38,6 +38,10 @@ Route::view('/donatur/donasi-berhasil/{id}', 'donatur.donasi-berhasil')->name('d
 Route::get('/donatur/panti/{organizationId}', [OrganizationProfileController::class, 'page'])->name('donatur.panti.show');
 
 
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC / COMPANY PROFILE
@@ -376,4 +380,22 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/detailinformasi/{organization}', fn (string $organization) => view('superadmin.detailinformasi', ['organizationId' => $organization]))
         ->name('detailinformasi');
     Route::view('/laporantransaksi', 'superadmin.laporantransaksi')->name('laporantransaksi');
+| STAFF
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/staff/beranda', function () {
+    return view('staff.beranda');
+});
+
+Route::get('/staff/pengajuandanauser', function () {
+    return view('staff.pengajuandanauser');
+});
+
+Route::get('/staff/beranda', function () {
+    return view('staff.beranda');
+});
+
+Route::get('/staff/ajuanpencairandana', function () {
+    return view('staff.ajuanpencairandana');
 });
