@@ -387,4 +387,12 @@ Route::get('/staff/beranda', function () {
 
 Route::get('/staff/pengajuandanauser', function () {
     return view('staff.pengajuandanauser');
-})->name('staff.pengajuandanauser');
+});
+
+Route::get('/staff/beranda', function () {
+    return view('staff.beranda');
+});
+
+Route::get('/staff/ajuanpencairandana', function () {
+    return view('staff.ajuanpencairandana');
+});

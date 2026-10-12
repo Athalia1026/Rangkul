@@ -155,7 +155,7 @@
                             <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Sidoarjo</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">16/02/2026</td>
                             <td class="py-3.5 px-6 text-center">
-                                <a href="/staff/detailpengajuanuser"
+                                <a href="/staff/pengajuandanauser"
                                     class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
                                     Detail
                                 </a>
@@ -168,10 +168,10 @@
                             <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Sidoarjo</td>
                             <td class="py-3.5 px-6 text-gray-800 text-center">08/05/2026</td>
                             <td class="py-3.5 px-6 text-center">
-                                <button onclick="openModalOrg('Sekolah Dasar Negeri Gebang 2', 'Sekolah Dasar', 'Sidoarjo', '08/05/2026')"
-                                    class="px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
+                                <a href="/staff/ajuanpencairandana"
+                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
                                     Detail
-                                </button>
+                                </a>
                             </td>
                         </tr>
                         <tr class="org-row hover:bg-gray-50/70 transition-colors">
@@ -249,7 +249,7 @@
                             <td class="py-3.5 px-6 text-gray-800 text-center">2.</td>
                             <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Sekolah Dasar Negeri Gebang 2</td>
                             <td class="py-3.5 px-6 text-sm text-gray-600 cell-desc">Pengadaan bangku sekolah & papan tulis kelas</td>
-                            <td class="py-3.5 px-6 text-gray-900 font-semibold cell-nominal">Rp 500.000.000.000</td>
+                            <td class="py-3.5 px-6 text-gray-900 font-semibold cell-nominal">Rp 50.000.000</td>
                             <td class="py-3.5 px-6 text-center">
                                 <button onclick="openModalBukti('Sekolah Dasar Negeri Gebang 2', 'Pengadaan bangku sekolah & papan tulis kelas', 'Rp 50.000.000')"
                                     class="px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
