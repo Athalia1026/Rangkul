@@ -96,8 +96,11 @@
 
                     @foreach ($notifications as $notification)
                         @php([$icon, $iconClass] = $notificationIcons[$notification->reference_type] ?? ['fa-regular fa-circle-check', 'bg-[#DDF0E9] text-[#08703F]'])
+                        @php($tag = $notification->url ? 'a' : 'div')
 
-                        <div
+                        {{-- Notifikasi yang punya halaman tujuan bisa diklik --}}
+                        <{{ $tag }}
+                            @if ($notification->url) href="{{ $notification->url }}" @endif
                             class="w-full
                                    min-h-[135px]
                                    {{ $notification->is_read ? 'bg-white' : 'bg-[#F0F8F4]' }}
@@ -108,7 +111,8 @@
                                    py-6
                                    flex
                                    items-center
-                                   gap-6"
+                                   gap-6
+                                   {{ $notification->url ? 'cursor-pointer transition hover:bg-[#F7FBF8] hover:border-[#08703F]' : '' }}"
                         >
 
                             <div
@@ -155,7 +159,7 @@
                                 {{ \Carbon\Carbon::parse($notification->created_at)->format('H:i') }}
                             </span>
 
-                        </div>
+                        </{{ $tag }}>
                     @endforeach
 
                 </div>

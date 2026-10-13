@@ -45,6 +45,7 @@ if (notifications) {
         if (item.reference_type === 'distribution') return `/donatur/penyaluran/${id}`;
         if (item.reference_type === 'visit') return `/donatur/kunjungan/${id}`;
         if (item.reference_type === 'donation') return '/donatur/riwayat';
+        if (item.reference_type === 'subscription') return '/donatur/dashboard';
         return null;
     }
     function setUnread(count) {
