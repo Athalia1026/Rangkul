@@ -295,9 +295,10 @@
 
                 const redirectByAccountType = {
                     organisasi: '{{ route('organisasi.dashboard') }}',
-                    admin: result.user?.admin?.tipe === 'super admin'
-                        ? '{{ route('superadmin.home') }}'
-                        : '{{ route('manager.home') }}',
+                    admin: {
+                        'super admin': '{{ route('superadmin.home') }}',
+                        staff: '{{ route('staff.beranda') }}'
+                    }[result.user?.admin?.tipe] || '{{ route('manager.home') }}',
                     donatur: '{{ route('donatur.beranda') }}'
                 };
 

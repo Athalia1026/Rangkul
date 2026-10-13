@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-auth-session-guard />
 
     <title>Detail Information</title>
 
@@ -54,25 +55,28 @@
     <!-- MAIN CONTENT -->
     <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
         
+        <div id="pendaftaran-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+
         <!-- INFORMASI ASRAMA -->
         <section class="w-full max-w-[1200px] mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
             <div class="grid grid-cols-1 md:grid-cols-2">
 
                 <!-- FOTO -->
-                <div class="h-[320px]">
+                <div class="h-[320px] bg-gray-100 flex items-center justify-center text-gray-400">
                     <img
-                        src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"
+                        id="org-photo"
                         alt="Foto Asrama"
-                        class="w-full h-full object-cover"
+                        class="hidden w-full h-full object-cover"
                     >
+                    <i id="org-photo-placeholder" class="fa-regular fa-image text-6xl"></i>
                 </div>
 
                 <!-- INFORMASI -->
                 <div class="px-8 py-4 flex flex-col">
 
-                    <h1 class="text-2xl font-bold text-gray-900 mb-8">
-                        Asrama Pemberdayaan Yatim dan Dhuafa
+                    <h1 id="org-name" class="text-2xl font-bold text-gray-900 mb-8">
+                        -
                     </h1>
 
                     <div class="grid grid-cols-2 gap-y-7">
@@ -81,8 +85,8 @@
                             <p class="text-sm text-gray-500 mb-1">
                                 Jenis
                             </p>
-                            <p class="text-lg font-bold">
-                                Panti
+                            <p id="org-type" class="text-lg font-bold">
+                                -
                             </p>
                         </div>
 
@@ -90,17 +94,18 @@
                             <p class="text-sm text-gray-500 mb-1">
                                 Status
                             </p>
-                            <p class="text-lg font-bold text-orange-400">
-                                Menunggu
+                            <p id="badge-status" class="text-lg font-bold text-orange-400">
+                                -
                             </p>
+                            <p id="org-rejection-reason" class="hidden text-sm text-rangkul-red mt-1"></p>
                         </div>
 
                         <div>
                             <p class="text-sm text-gray-500 mb-1">
                                 Jumlah Anak Asuh
                             </p>
-                            <p class="text-lg font-bold">
-                                50
+                            <p id="org-children" class="text-lg font-bold">
+                                -
                             </p>
                         </div>
 
@@ -108,8 +113,8 @@
                             <p class="text-sm text-gray-500 mb-1">
                                 Tanggal Daftar
                             </p>
-                            <p class="text-lg font-bold">
-                                3 Februari 2026
+                            <p id="org-registered" class="text-lg font-bold">
+                                -
                             </p>
                         </div>
 
@@ -150,9 +155,8 @@
                                     Alamat
                                 </p>
 
-                                <p class="text-sm text-gray-600 leading-relaxed">
-                                    Jl. Delta Raya III No.4, Ngingas, Kec. Waru,
-                                    Kabupaten Sidoarjo, Jawa Timur 61256
+                                <p id="org-address" class="text-sm text-gray-600 leading-relaxed">
+                                    -
                                 </p>
                             </div>
                         </div>
@@ -167,8 +171,8 @@
                                     Kota
                                 </p>
 
-                                <p class="text-sm text-gray-600">
-                                    Sidoarjo
+                                <p id="org-city" class="text-sm text-gray-600">
+                                    -
                                 </p>
                             </div>
                         </div>
@@ -190,8 +194,8 @@
                                 </p>
 
                                 <p class="text-sm text-gray-600 leading-relaxed">
-                                    (031) 8552980<br>
-                                    Asrama Yatim dan Dhuafa
+                                    <span id="org-phone">-</span><br>
+                                    <span id="org-contact">-</span>
                                 </p>
                             </div>
                         </div>
@@ -206,8 +210,8 @@
                                     Email
                                 </p>
 
-                                <p class="text-sm text-gray-600">
-                                    PYIindonesia@gmail.com
+                                <p id="org-email" class="text-sm text-gray-600 break-all">
+                                    -
                                 </p>
                             </div>
                         </div>
@@ -229,13 +233,8 @@
                                     Deskripsi
                                 </p>
 
-                                <p class="text-sm text-gray-600 leading-relaxed">
-                                    Panti Asuhan kami merupakan lembaga sosial yang
-                                    berkomitmen memberikan pengasuhan, pendidikan,
-                                    serta pembinaan kepada anak-anak yang membutuhkan.
-                                    Kami berupaya menciptakan lingkungan yang aman,
-                                    nyaman, dan penuh kasih sayang guna mendukung
-                                    tumbuh kembang anak secara optimal.
+                                <p id="org-description" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                                    -
                                 </p>
                             </div>
 
@@ -273,78 +272,7 @@
                             </tr>
                         </thead>
 
-                        <tbody class="text-sm">
-
-                            <tr class="border-t border-gray-200">
-
-                                <td class="px-6 py-5">
-                                    SK Pendirian / SK Operasional
-                                </td>
-
-                                <td class="px-6 py-5">
-                                    <a
-                                        href="/documents/SK%20Pendirian.pdf"
-                                        download
-                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
-                                    >
-                                        SK Pendirian.pdf
-                                    </a>
-                                </td>
-
-                            </tr>
-
-
-                            <tr class="border-t border-gray-200">
-
-                                <td class="px-6 py-5">
-                                    KTP Penanggung Jawab
-                                </td>
-
-                                <td class="px-6 py-5">
-                                    <a
-                                        href="/documents/KTP.pdf"
-                                        download
-                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
-                                    >
-                                        KTP.pdf
-                                    </a>
-                                </td>
-
-                            </tr>
-
-
-                            <tr class="border-t border-gray-200">
-
-                                <td class="px-6 py-5">
-                                    Foto Kegiatan dan Penerima Manfaat
-                                </td>
-
-                                <td class="px-6 py-5">
-                                    <a
-                                        href="/documents/Foto.jpg"
-                                        download
-                                        class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
-                                    >
-                                        Foto.jpg
-                                    </a>
-                                </td>
-
-                            </tr>
-
-
-                            <tr class="border-t border-gray-200">
-
-                                <td class="px-6 py-5">
-                                    Rekening Lembaga
-                                </td>
-
-                                <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px]">
-                                        (Mandiri) 1420026154855
-                                    </span>
-                                </td>
-
-                            </tr>
+                        <tbody id="documents-body" class="text-sm">
 
                         </tbody>
 
@@ -353,7 +281,7 @@
                 </div>
 
                 <!-- SECTION AKSI (3 TOMBOL) -->
-                <section class="pt-2">
+                <section id="aksi-pendaftaran" class="hidden pt-2">
 
                     <h2 class="text-2xl font-bold text-gray-900 mb-4">
                         Aksi
@@ -363,7 +291,7 @@
 
                         <!-- 1. TOMBOL BATAL (BALIK KE BERANDA STAFF) -->
                         <a
-                            href="/staff/beranda"
+                            href="{{ route('staff.beranda') }}"
                             class="flex-1 py-3 px-6 bg-[#D9D9D9] hover:bg-gray-300 text-gray-900 font-bold rounded-xl text-center text-sm shadow-xs transition active:scale-98"
                         >
                             Batal
@@ -425,6 +353,7 @@
                 </button>
                 <button
                     type="button"
+                    id="btnConfirmSetujui"
                     onclick="confirmSetujui()"
                     class="px-7 py-2.5 bg-rangkul-green hover:bg-[#064e2b] text-white font-semibold rounded-xl text-sm transition active:scale-95 cursor-pointer shadow-xs"
                 >
@@ -479,6 +408,7 @@
                 </button>
                 <button
                     type="button"
+                    id="btnConfirmTolak"
                     onclick="confirmTolak()"
                     class="px-7 py-2.5 bg-rangkul-red hover:bg-[#721513] text-white font-semibold rounded-xl text-sm transition active:scale-95 cursor-pointer shadow-xs"
                 >
@@ -494,6 +424,126 @@
     <!-- JAVASCRIPT MODAL & AKSI                                  -->
     <!-- ======================================================== -->
     <script>
+        const { request, escapeHtml } = window.RangkulAdmin;
+        const organizationId = @json($organizationId);
+        const BERANDA_URL = @json(route('staff.beranda'));
+
+        const STATUS_TAMPIL = {
+            menunggu: { label: 'Menunggu', className: 'text-orange-400' },
+            disetujui: { label: 'Disetujui', className: 'text-rangkul-green' },
+            ditolak: { label: 'Ditolak', className: 'text-rangkul-red' }
+        };
+
+        // ==========================
+        // DATA PENDAFTARAN
+        // ==========================
+
+        function setText(id, value) {
+            document.getElementById(id).textContent = value ?? '-';
+        }
+
+        function renderDokumen(documents, bankAccount) {
+            const rows = documents.map((dokumen) => `
+                <tr class="border-t border-gray-200">
+                    <td class="px-6 py-5">
+                        ${escapeHtml(dokumen.label)}
+                    </td>
+                    <td class="px-6 py-5">
+                        <a
+                            href="${escapeHtml(dokumen.url)}"
+                            target="_blank"
+                            rel="noopener"
+                            class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px] hover:bg-[#c3dfd3] transition cursor-pointer"
+                        >
+                            <span class="truncate">${escapeHtml(dokumen.file_name)}</span>
+                        </a>
+                    </td>
+                </tr>
+            `);
+
+            rows.push(`
+                <tr class="border-t border-gray-200">
+                    <td class="px-6 py-5">
+                        Rekening Lembaga
+                    </td>
+                    <td class="px-6 py-5">
+                        <span class="inline-flex items-center gap-2 bg-[#d1e7dd] px-4 py-2 rounded-lg w-[200px]">
+                            ${bankAccount ? `(${escapeHtml(bankAccount.bank)}) ${escapeHtml(bankAccount.no_rekening)}` : '-'}
+                        </span>
+                    </td>
+                </tr>
+            `);
+
+            document.getElementById('documents-body').innerHTML = rows.join('');
+        }
+
+        function renderPendaftaran(data) {
+            const status = STATUS_TAMPIL[data.verification_status] || { label: data.verification_status, className: 'text-gray-700' };
+            const badge = document.getElementById('badge-status');
+            const alasan = document.getElementById('org-rejection-reason');
+            const photo = document.getElementById('org-photo');
+
+            badge.textContent = status.label;
+            badge.className = 'text-lg font-bold ' + status.className;
+            alasan.textContent = data.alasan_penolakan ? 'Alasan: ' + data.alasan_penolakan : '';
+            alasan.classList.toggle('hidden', !data.alasan_penolakan);
+
+            if (data.photo_url) {
+                photo.src = data.photo_url;
+                photo.classList.remove('hidden');
+                document.getElementById('org-photo-placeholder').classList.add('hidden');
+            }
+
+            setText('org-name', data.name);
+            setText('org-type', data.type);
+            setText('org-children', data.jumlah_anak);
+            setText('org-registered', data.registered_at);
+            setText('org-address', data.address);
+            setText('org-city', data.city);
+            setText('org-phone', data.phone);
+            setText('org-contact', data.contact_name);
+            setText('org-email', data.email);
+            setText('org-description', data.description);
+
+            renderDokumen(data.documents || [], data.bank_account);
+
+            // Tombol aksi hanya untuk pendaftaran yang belum diverifikasi
+            document.getElementById('aksi-pendaftaran').classList.toggle('hidden', data.verification_status !== 'menunggu');
+        }
+
+        async function loadPendaftaran() {
+            const error = document.getElementById('pendaftaran-error');
+
+            try {
+                const { data } = await request('/api/admin/users/organizations/' + encodeURIComponent(organizationId));
+                error.classList.add('hidden');
+                renderPendaftaran(data);
+            } catch (exception) {
+                error.textContent = exception.message;
+                error.classList.remove('hidden');
+            }
+        }
+
+        async function verifikasiPendaftaran(body, button) {
+            button.disabled = true;
+
+            try {
+                const result = await request('/api/admin/verifications/organizations/' + encodeURIComponent(organizationId), {
+                    method: 'PUT',
+                    body
+                });
+
+                showToast(result.message, body.status === 'disetujui' ? 'success' : 'danger');
+
+                setTimeout(() => {
+                    window.location.href = BERANDA_URL;
+                }, 1200);
+            } catch (exception) {
+                button.disabled = false;
+                showToast(exception.message, 'danger');
+            }
+        }
+
         // Modal Setujui
         function openModalSetujui() {
             document.getElementById('modal-setujui').classList.remove('hidden');
@@ -505,18 +555,7 @@
 
         function confirmSetujui() {
             closeModalSetujui();
-
-            const badge = document.getElementById('badge-status');
-            if (badge) {
-                badge.textContent = 'Disetujui';
-                badge.className = 'text-lg font-bold text-rangkul-green';
-            }
-
-            showToast('Pendaftaran asrama berhasil disetujui!', 'success');
-
-            setTimeout(() => {
-                window.history.back();
-            }, 1200);
+            verifikasiPendaftaran({ status: 'disetujui' }, document.getElementById('btnConfirmSetujui'));
         }
 
         // Modal Tolak
@@ -539,18 +578,7 @@
             }
 
             closeModalTolak();
-
-            const badge = document.getElementById('badge-status');
-            if (badge) {
-                badge.textContent = 'Ditolak';
-                badge.className = 'text-lg font-bold text-rangkul-red';
-            }
-
-            showToast(`Pendaftaran ditolak: "${alasan}"`, 'danger');
-
-            setTimeout(() => {
-                window.history.back();
-            }, 1200);
+            verifikasiPendaftaran({ status: 'ditolak', alasan_penolakan: alasan }, document.getElementById('btnConfirmTolak'));
         }
 
         // Toast Helper
@@ -574,6 +602,8 @@
                 toast.classList.add('hidden');
             }, 3000);
         }
+
+        loadPendaftaran();
     </script>
 
 </body>

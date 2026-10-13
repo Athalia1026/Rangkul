@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-auth-session-guard />
     <title>Detail Pengajuan</title>
 
     <!-- Tailwind CSS -->
@@ -55,10 +56,12 @@
     <!-- CONTENT SECTION -->
     <main class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
 
+        <div id="pengajuan-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+
         <!-- TOMBOL KEMBALI -->
         <div>
             <a
-                href="/staff/beranda"
+                href="{{ route('staff.beranda') }}"
                 class="inline-flex items-center gap-2 bg-[#d1e7dd] hover:bg-green-200 text-gray-800 px-6 py-2 rounded-lg shadow-sm font-bold text-sm transition active:scale-95"
             >
                 <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -94,9 +97,10 @@
                                 Status
                             </label>
 
-                            <span class="text-orange-400 font-bold text-xl">
-                                Menunggu
+                            <span id="statusPengajuan" class="text-orange-400 font-bold text-xl">
+                                -
                             </span>
+                            <p id="alasanTolakInfo" class="hidden text-sm text-rangkul-red mt-1"></p>
                         </div>
 
                         <!-- NAMA ORGANISASI -->
@@ -106,9 +110,10 @@
                             </label>
 
                             <input
+                                id="namaOrganisasi"
                                 type="text"
                                 readonly
-                                value="Asrama Pemberdayaan Yatim dan Dhuafa"
+                                value="-"
                                 class="w-full border border-black rounded-lg px-3 py-2 focus:outline-none"
                             >
                         </div>
@@ -120,9 +125,10 @@
                             </label>
 
                             <input
+                                id="jumlahDiajukan"
                                 type="text"
                                 readonly
-                                value="Rp 150.000"
+                                value="-"
                                 class="w-full border border-black rounded-lg px-3 py-2 focus:outline-none"
                             >
                         </div>
@@ -134,10 +140,11 @@
                             </label>
 
                             <textarea
+                                id="deskripsiPengajuan"
                                 readonly
                                 rows="4"
                                 class="w-full border border-black rounded-lg px-3 py-2 focus:outline-none resize-none"
-                            >Butuh sembako</textarea>
+                            >-</textarea>
                         </div>
 
                     </div>
@@ -150,13 +157,13 @@
                 <!-- SECTION AKSI DI BAWAH CARD KIRI -->
                 <!-- ====================================== -->
 
-                <section class="w-full">
+                <section id="aksiPengajuan" class="hidden w-full">
 
                     <div class="grid grid-cols-3 gap-4 w-full">
 
                         <!-- TOMBOL BATAL -->
                         <a
-                            href="/staff/beranda"
+                            href="{{ route('staff.beranda') }}"
                             class="w-full min-w-0 flex items-center justify-center py-3 px-3 bg-[#D9D9D9] hover:bg-gray-300 text-gray-900 font-bold rounded-xl text-center text-sm shadow-sm transition active:scale-95"
                         >
                             Batal
@@ -201,7 +208,7 @@
 
                 <div class="p-8">
 
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg h-[350px] flex flex-col items-center justify-center text-gray-400">
+                    <div id="buktiPreview" class="border-2 border-dashed border-gray-300 rounded-lg h-[350px] flex flex-col items-center justify-center text-gray-400 overflow-hidden">
 
                         <i class="fa-regular fa-image text-6xl mb-3"></i>
 
@@ -294,6 +301,127 @@
     
 <script>
 
+    const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
+    const proofId = @json($proofId);
+    const BERANDA_URL = @json(route('staff.beranda'));
+
+    // Bukti diperiksa staf lebih dulu, lalu diteruskan ke manajer untuk keputusan akhir
+    const STATUS_TAMPIL = {
+        menunggu_staf: { label: 'Menunggu', className: 'text-orange-400' },
+        menunggu_manajer: { label: 'Diteruskan ke Manajer', className: 'text-orange-400' },
+        diterima: { label: 'Disetujui', className: 'text-rangkul-green' },
+        ditolak: { label: 'Ditolak', className: 'text-rangkul-red' }
+    };
+
+
+    // ==========================================
+    // DATA PENGAJUAN
+    // ==========================================
+
+    function renderBukti(attachment) {
+
+        const preview = document.getElementById('buktiPreview');
+
+        if (!attachment) {
+            preview.innerHTML = `
+                <i class="fa-regular fa-image text-6xl mb-3"></i>
+
+                <p class="font-medium">
+                    Tidak ada lampiran
+                </p>
+            `;
+            return;
+        }
+
+        if (attachment.is_image) {
+            preview.innerHTML = `
+                <a href="${escapeHtml(attachment.url)}" target="_blank" rel="noopener" class="w-full h-full">
+                    <img src="${escapeHtml(attachment.url)}" alt="Bukti Pembelian" class="w-full h-full object-contain">
+                </a>
+            `;
+            return;
+        }
+
+        preview.innerHTML = `
+            <i class="fa-regular fa-file-pdf text-6xl mb-3"></i>
+
+            <a href="${escapeHtml(attachment.url)}" target="_blank" rel="noopener" class="font-medium text-rangkul-green underline">
+                Lihat Lampiran
+            </a>
+        `;
+
+    }
+
+    function renderPengajuan(data) {
+
+        const status = STATUS_TAMPIL[data.stage] || { label: data.status, className: 'text-gray-700' };
+        const statusElement = document.getElementById('statusPengajuan');
+        const alasanTolakInfo = document.getElementById('alasanTolakInfo');
+
+        statusElement.textContent = status.label;
+        statusElement.className = status.className + ' font-bold text-xl';
+
+        alasanTolakInfo.textContent = data.alasan_tolak ? 'Alasan penolakan: ' + data.alasan_tolak : '';
+        alasanTolakInfo.classList.toggle('hidden', !data.alasan_tolak);
+
+        document.getElementById('namaOrganisasi').value = data.organization_name;
+        document.getElementById('jumlahDiajukan').value = formatRupiah(data.amount);
+        document.getElementById('deskripsiPengajuan').value = [data.alokasi_dana, data.deskripsi]
+            .filter(Boolean)
+            .join('\n\n') || '-';
+
+        renderBukti(data.attachment);
+
+        // Tombol aksi hanya untuk bukti yang belum diperiksa staf
+        document.getElementById('aksiPengajuan').classList.toggle('hidden', data.stage !== 'menunggu_staf');
+
+    }
+
+    async function loadPengajuan() {
+
+        const error = document.getElementById('pengajuan-error');
+
+        try {
+            const { data } = await request('/api/admin/proof-verifications/' + encodeURIComponent(proofId));
+            error.classList.add('hidden');
+            renderPengajuan(data);
+        } catch (exception) {
+            error.textContent = exception.message;
+            error.classList.remove('hidden');
+            document.getElementById('statusPengajuan').textContent = '-';
+        }
+
+    }
+
+    async function verifikasiBukti(body) {
+
+        // Mencegah tombol diklik berulang kali
+        btnSetujui.disabled = true;
+        btnTolak.disabled = true;
+        btnConfirmTolak.disabled = true;
+
+        try {
+            const result = await request('/api/admin/proof-verifications/' + encodeURIComponent(proofId) + '/verify', {
+                method: 'PUT',
+                body
+            });
+
+            showToast(result.message, body.status === 'diterima' ? 'success' : 'danger');
+
+            // Kembali ke Beranda Staff
+            setTimeout(() => {
+                window.location.href = BERANDA_URL;
+            }, 1800);
+        } catch (exception) {
+            btnSetujui.disabled = false;
+            btnTolak.disabled = false;
+            btnConfirmTolak.disabled = false;
+            showToast(exception.message, 'danger');
+        }
+
+    }
+
+
     // ==========================================
     // ELEMENT
     // ==========================================
@@ -357,20 +485,8 @@
 
     btnSetujui.addEventListener('click', function () {
 
-        // Mencegah tombol diklik berulang kali
-        btnSetujui.disabled = true;
-        btnTolak.disabled = true;
-
-        // Menampilkan notifikasi berhasil
-        showToast(
-            'Permohonan pencairan dana berhasil disetujui!',
-            'success'
-        );
-
-        // Kembali ke Beranda Staff
-        setTimeout(() => {
-            window.location.href = '/staff/beranda';
-        }, 1800);
+        // Setujui → bukti diteruskan ke manajer untuk verifikasi akhir
+        verifikasiBukti({ status: 'diterima' });
 
     });
 
@@ -428,21 +544,7 @@
 
         modalTolak.classList.add('hidden');
 
-        // Mencegah klik berulang
-        btnConfirmTolak.disabled = true;
-        btnSetujui.disabled = true;
-        btnTolak.disabled = true;
-
-        // Tampilkan toast penolakan
-        showToast(
-            'Permohonan pencairan dana berhasil ditolak!',
-            'danger'
-        );
-
-        // Kembali ke Beranda Staff
-        setTimeout(() => {
-            window.location.href = '/staff/beranda';
-        }, 1800);
+        verifikasiBukti({ status: 'ditolak', catatan: alasan });
 
     });
 
@@ -475,6 +577,8 @@
         }
 
     });
+
+    loadPengajuan();
 
 </script>
 </body>

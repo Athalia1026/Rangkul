@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <x-auth-session-guard />
     <title>Dashboard Staff</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,13 +24,15 @@
     <!-- KONTEN BERANDA STAFF -->
     <main class="max-w-[1200px] mx-auto px-6 py-8 space-y-6">
 
+        <div id="dashboard-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+
         <!-- 3 KARTU METRIK DI ATAS -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 select-none">
             <!-- 1. Total Antrian Verifikasi Panti -->
             <div class="bg-white rounded-2xl border border-gray-300 shadow-sm px-6 py-4 flex items-center justify-between cursor-default">
                 <div>
                     <span class="text-base font-bold text-gray-900 block tracking-tight">Total Antrian Verifikasi Panti</span>
-                    <span class="text-3xl font-bold text-gray-900 leading-none mt-2 block">12</span>
+                    <span id="summary-pending-organizations" class="text-3xl font-bold text-gray-900 leading-none mt-2 block">0</span>
                 </div>
                 <div class="text-[#086538] pl-3">
                     <svg class="w-10 h-10 fill-[#086538]" viewBox="0 0 24 24">
@@ -42,7 +45,7 @@
             <div class="bg-white rounded-2xl border border-gray-300 shadow-sm px-6 py-4 flex items-center justify-between cursor-default">
                 <div>
                     <span class="text-base font-bold text-gray-900 block tracking-tight">Total Menunggu Verifikasi Bukti</span>
-                    <span class="text-3xl font-bold text-gray-900 leading-none mt-2 block">8</span>
+                    <span id="summary-pending-proofs" class="text-3xl font-bold text-gray-900 leading-none mt-2 block">0</span>
                 </div>
                 <div class="text-[#086538] pl-3">
                     <svg class="w-10 h-10 fill-[#086538]" viewBox="0 0 24 24">
@@ -55,7 +58,7 @@
             <div class="bg-white rounded-2xl border border-gray-300 shadow-sm px-6 py-4 flex items-center justify-between cursor-default">
                 <div>
                     <span class="text-base font-bold text-gray-900 block tracking-tight">Total Selesai Verifikasi</span>
-                    <span class="text-3xl font-bold text-gray-900 leading-none mt-2 block">5</span>
+                    <span id="summary-completed" class="text-3xl font-bold text-gray-900 leading-none mt-2 block">0</span>
                 </div>
                 <div class="text-[#086538] pl-3">
                     <svg class="w-10 h-10 fill-[#086538]" viewBox="0 0 24 24">
@@ -74,7 +77,7 @@
                     <span class="text-2xl">📒</span>
                     <div>
                         <h3 class="font-bold text-sm text-gray-900 leading-snug">Data Verifikasi Organisasi</h3>
-                        <span class="text-xs text-gray-500">5 antrian pendaftaran lembaga</span>
+                        <span id="tab-caption-organisasi" class="text-xs text-gray-500">0 antrian pendaftaran lembaga</span>
                     </div>
                 </div>
                 <span id="badge-organisasi" class="text-xs font-bold px-3 py-1 rounded-full bg-[#0e4b33] text-white">
@@ -89,7 +92,7 @@
                     <span class="text-2xl">📒</span>
                     <div>
                         <h3 class="font-bold text-sm text-gray-900 leading-snug">Daftar Verifikasi Bukti</h3>
-                        <span class="text-xs text-gray-500">2 antrian verifikasi bukti donasi</span>
+                        <span id="tab-caption-bukti" class="text-xs text-gray-500">0 antrian verifikasi bukti donasi</span>
                     </div>
                 </div>
                 <span id="badge-bukti" class="text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-600">
@@ -130,7 +133,7 @@
                     </h2>
                 </div>
                 <span id="table-count-badge" class="text-xs text-emerald-100 bg-[#093524] px-3 py-1 rounded-lg font-medium">
-                    5 Data Ditampilkan
+                    0 Data Ditampilkan
                 </span>
             </div>
 
@@ -148,71 +151,6 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-organisasi" class="divide-y divide-gray-200/80 text-sm">
-                        <tr class="org-row hover:bg-gray-50/70 transition-colors">
-                            <td class="py-3.5 px-6 text-gray-800 text-center">1.</td>
-                            <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Asrama Pemberdayaan Yatim dan Dhuafa</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Panti Asuhan</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Sidoarjo</td>
-                            <td class="py-3.5 px-6 text-gray-800 text-center">16/02/2026</td>
-                            <td class="py-3.5 px-6 text-center">
-                                <a href="/staff/pengajuandanauser"
-                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
-                                    Detail
-                                </a>
-                            </td>
-                        </tr>
-                        <tr class="org-row hover:bg-gray-50/70 transition-colors">
-                            <td class="py-3.5 px-6 text-gray-800 text-center">2.</td>
-                            <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Sekolah Dasar Negeri Gebang 2</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Sekolah</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Sidoarjo</td>
-                            <td class="py-3.5 px-6 text-gray-800 text-center">08/05/2026</td>
-                            <td class="py-3.5 px-6 text-center">
-                                <a href="/staff/pengajuandanauser"
-                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
-                                    Detail
-                                </a>
-                            </td>
-                        </tr>
-                        <tr class="org-row hover:bg-gray-50/70 transition-colors">
-                            <td class="py-3.5 px-6 text-gray-800 text-center">3.</td>
-                            <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Panti Asuhan Ruhamaa</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Panti Asuhan</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Surabaya</td>
-                            <td class="py-3.5 px-6 text-gray-800 text-center">27/06/2026</td>
-                            <td class="py-3.5 px-6 text-center">
-                                <a href="/staff/pengajuandanauser"
-                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
-                                    Detail
-                                </a>
-                            </td>
-                        </tr>
-                        <tr class="org-row hover:bg-gray-50/70 transition-colors">
-                            <td class="py-3.5 px-6 text-gray-800 text-center">4.</td>
-                            <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Yayasan Panti Asuhan Nur Iman</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Panti Asuhan</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Surabaya</td>
-                            <td class="py-3.5 px-6 text-gray-800 text-center">19/10/2026</td>
-                            <td class="py-3.5 px-6 text-center">
-                                <a href="/staff/pengajuandanauser"
-                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
-                                    Detail
-                                </a>
-                            </td>
-                        </tr>
-                        <tr class="org-row hover:bg-gray-50/70 transition-colors">
-                            <td class="py-3.5 px-6 text-gray-800 text-center">5.</td>
-                            <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Panti Asuhan Arrohman</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">Panti Asuhan</td>
-                            <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">Surabaya</td>
-                            <td class="py-3.5 px-6 text-gray-800 text-center">15/11/2026</td>
-                            <td class="py-3.5 px-6 text-center">
-                                <a href="/staff/pengajuandanauser"
-                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
-                                    Detail
-                                </a>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
                 <div id="empty-state-org" class="hidden py-8 text-center text-gray-400 text-xs">
@@ -233,30 +171,6 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-bukti" class="divide-y divide-gray-200/80 text-sm">
-                        <tr class="bukti-row hover:bg-gray-50/70 transition-colors">
-                            <td class="py-3.5 px-6 text-gray-800 text-center">1.</td>
-                            <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Asrama Pemberdayaan Yatim dan Dhuafa</td>
-                            <td class="py-3.5 px-6 text-sm text-gray-600 cell-desc">Kebutuhan sandang pangan & sembako santunan</td>
-                            <td class="py-3.5 px-6 text-gray-900 font-semibold cell-nominal text-center">Rp 600.000</td>
-                            <td class="py-3.5 px-6 text-center">
-                                <a href="/staff/ajuanpencairandana"
-                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
-                                    Detail
-                                </a>
-                            </td>
-                        </tr>
-                        <tr class="bukti-row hover:bg-gray-50/70 transition-colors">
-                            <td class="py-3.5 px-6 text-gray-800 text-center">2.</td>
-                            <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">Sekolah Dasar Negeri Gebang 2</td>
-                            <td class="py-3.5 px-6 text-sm text-gray-600 cell-desc">Pengadaan bangku sekolah & papan tulis kelas</td>
-                            <td class="py-3.5 px-6 text-gray-900 font-semibold cell-nominal text-center">Rp 50.000.000</td>
-                            <td class="py-3.5 px-6 text-center">
-                                <a href="/staff/ajuanpencairandana"
-                                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
-                                    Detail
-                                </a>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
                 <div id="empty-state-bukti" class="hidden py-8 text-center text-gray-400 text-xs">
@@ -266,88 +180,6 @@
         </div>
 
     </main>
-
-    <!-- MODAL DETAIL POPUP INTERAKTIF -->
-    <div id="detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden border border-gray-200">
-            <!-- Header Modal -->
-            <div class="bg-[#0e4b33] px-6 py-4 flex items-center justify-between text-white">
-                <div class="flex items-center gap-2.5">
-                    <span class="text-xl">📋</span>
-                    <h3 id="modal-title" class="font-bold text-base">Detail Informasi Organisasi</h3>
-                </div>
-                <button onclick="closeModal()" class="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Content Modal -->
-            <div class="p-6 space-y-4 text-sm text-gray-700">
-                <div class="bg-[#F5F7F4] p-4 rounded-xl space-y-2.5 border border-gray-200/80">
-                    <div class="flex justify-between py-1 border-b border-gray-200/60">
-                        <span class="text-gray-500 font-medium">Nama Organisasi</span>
-                        <span id="modal-org-name" class="font-bold text-gray-900 text-right">-</span>
-                    </div>
-
-                    <!-- Spesifik Organisasi -->
-                    <div id="modal-field-org" class="space-y-2.5">
-                        <div class="flex justify-between py-1 border-b border-gray-200/60">
-                            <span class="text-gray-500 font-medium">Kategori</span>
-                            <span id="modal-org-cat" class="font-semibold text-gray-900">-</span>
-                        </div>
-                        <div class="flex justify-between py-1 border-b border-gray-200/60">
-                            <span class="text-gray-500 font-medium">Wilayah</span>
-                            <span id="modal-org-loc" class="font-semibold text-gray-900">-</span>
-                        </div>
-                        <div class="flex justify-between py-1 border-b border-gray-200/60">
-                            <span class="text-gray-500 font-medium">Tanggal Registrasi</span>
-                            <span id="modal-org-date" class="font-semibold text-gray-900">-</span>
-                        </div>
-                        <div class="flex justify-between py-1">
-                            <span class="text-gray-500 font-medium">Status</span>
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
-                                Menunggu Verifikasi
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Spesifik Bukti -->
-                    <div id="modal-field-bukti" class="hidden space-y-2.5">
-                        <div class="flex justify-between py-1 border-b border-gray-200/60">
-                            <span class="text-gray-500 font-medium">Keterangan</span>
-                            <span id="modal-bukti-desc" class="font-semibold text-gray-900 text-right">-</span>
-                        </div>
-                        <div class="flex justify-between py-1 border-b border-gray-200/60">
-                            <span class="text-gray-500 font-medium">Nominal Penyaluran</span>
-                            <span id="modal-bukti-nominal" class="font-bold text-[#086538]">-</span>
-                        </div>
-                        <div class="flex justify-between py-1">
-                            <span class="text-gray-500 font-medium">Status Bukti</span>
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                                Menunggu Review Bukti
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Modal -->
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
-                <button onclick="closeModal()" class="px-5 py-2 border border-gray-300 text-gray-700 text-xs font-semibold rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-                    Tutup
-                </button>
-                <button
-                    type="button"
-                    onclick="prosesVerifikasi()"
-                    class="px-5 py-2 bg-[#086538] text-white text-xs font-semibold rounded-xl hover:bg-[#064e2b] transition-colors cursor-pointer"
-                >
-                    Proses Verifikasi
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
@@ -383,7 +215,8 @@
                 searchInput.placeholder = "Cari nama organisasi, kategori, atau wilayah...";
 
                 resetRowsVisibility('org-row');
-                countBadge.textContent = "5 Data Ditampilkan";
+                countBadge.textContent = `${totalData.organisasi} Data Ditampilkan`;
+                toggleEmptyState('empty-state-org', totalData.organisasi);
             } else {
                 tabBukti.className = "bg-white rounded-2xl p-4 border-2 border-[#0e4b33] bg-[#0e4b33]/5 shadow-sm transition-all duration-150 cursor-pointer flex items-center justify-between";
                 badgeBukti.className = "text-xs font-bold px-3 py-1 rounded-full bg-[#0e4b33] text-white";
@@ -399,7 +232,8 @@
                 searchInput.placeholder = "Cari nama organisasi, keterangan pengajuan, atau nominal...";
 
                 resetRowsVisibility('bukti-row');
-                countBadge.textContent = "2 Data Ditampilkan";
+                countBadge.textContent = `${totalData.bukti} Data Ditampilkan`;
+                toggleEmptyState('empty-state-bukti', totalData.bukti);
             }
         }
 
@@ -430,7 +264,7 @@
                     }
                 });
                 countBadge.textContent = `${visibleCount} Data Ditampilkan`;
-                document.getElementById('empty-state-org').classList.toggle('hidden', visibleCount > 0);
+                toggleEmptyState('empty-state-org', visibleCount, query);
             } else {
                 const rows = document.querySelectorAll('.bukti-row');
                 let visibleCount = 0;
@@ -447,7 +281,7 @@
                     }
                 });
                 countBadge.textContent = `${visibleCount} Data Ditampilkan`;
-                document.getElementById('empty-state-bukti').classList.toggle('hidden', visibleCount > 0);
+                toggleEmptyState('empty-state-bukti', visibleCount, query);
             }
         }
 
@@ -456,42 +290,93 @@
             handleSearch();
         }
 
+        // Pesan kosong: hasil pencarian tidak cocok, atau memang belum ada antrian
+        const EMPTY_TEXT = {
+            'empty-state-org': ['Tidak ada data organisasi yang cocok dengan pencarian.', 'Belum ada pendaftaran organisasi yang menunggu verifikasi.'],
+            'empty-state-bukti': ['Tidak ada data verifikasi bukti yang cocok dengan pencarian.', 'Belum ada bukti penyaluran yang menunggu verifikasi.']
+        };
+
+        function toggleEmptyState(id, visibleCount, query = '') {
+            const element = document.getElementById(id);
+
+            element.textContent = EMPTY_TEXT[id][query ? 0 : 1];
+            element.classList.toggle('hidden', visibleCount > 0);
+        }
+
         function resetRowsVisibility(rowClass) {
             document.querySelectorAll('.' + rowClass).forEach(row => row.classList.remove('hidden'));
             document.getElementById('empty-state-org').classList.add('hidden');
             document.getElementById('empty-state-bukti').classList.add('hidden');
         }
 
-        function openModalOrg(name, cat, loc, date) {
-            document.getElementById('modal-title').textContent = "Detail Informasi Organisasi";
-            document.getElementById('modal-org-name').textContent = name;
-            document.getElementById('modal-org-cat').textContent = cat;
-            document.getElementById('modal-org-loc').textContent = loc;
-            document.getElementById('modal-org-date').textContent = date;
+        // ==========================
+        // DATA DARI API
+        // ==========================
 
-            document.getElementById('modal-field-org').classList.remove('hidden');
-            document.getElementById('modal-field-bukti').classList.add('hidden');
-            document.getElementById('detail-modal').classList.remove('hidden');
+        const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
+        const DETAIL_ORGANISASI_URL = @json(route('staff.pengajuandanauser', ['organization' => '__ID__']));
+        const DETAIL_BUKTI_URL = @json(route('staff.ajuanpencairandana', ['proof' => '__ID__']));
+        const totalData = { organisasi: 0, bukti: 0 };
+
+        function detailButton(url, id) {
+            return `
+                <a href="${escapeHtml(url.replace('__ID__', encodeURIComponent(id)))}"
+                    class="inline-block px-6 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] active:scale-95 transition-all shadow-xs cursor-pointer">
+                    Detail
+                </a>
+            `;
         }
 
-        function openModalBukti(name, desc, nominal) {
-            document.getElementById('modal-title').textContent = "Detail Bukti Penyaluran";
-            document.getElementById('modal-org-name').textContent = name;
-            document.getElementById('modal-bukti-desc').textContent = desc;
-            document.getElementById('modal-bukti-nominal').textContent = nominal;
-
-            document.getElementById('modal-field-org').classList.add('hidden');
-            document.getElementById('modal-field-bukti').classList.remove('hidden');
-            document.getElementById('detail-modal').classList.remove('hidden');
+        function renderOrganisasi(items) {
+            document.getElementById('tbody-organisasi').innerHTML = items.map((item, index) => `
+                <tr class="org-row hover:bg-gray-50/70 transition-colors">
+                    <td class="py-3.5 px-6 text-gray-800 text-center">${index + 1}.</td>
+                    <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">${escapeHtml(item.name)}</td>
+                    <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">${escapeHtml(item.type)}</td>
+                    <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">${escapeHtml(item.city)}</td>
+                    <td class="py-3.5 px-6 text-gray-800 text-center">${escapeHtml(item.registered_at)}</td>
+                    <td class="py-3.5 px-6 text-center">${detailButton(DETAIL_ORGANISASI_URL, item.id)}</td>
+                </tr>
+            `).join('');
         }
 
-        function closeModal() {
-            document.getElementById('detail-modal').classList.add('hidden');
+        function renderBukti(items) {
+            document.getElementById('tbody-bukti').innerHTML = items.map((item, index) => `
+                <tr class="bukti-row hover:bg-gray-50/70 transition-colors">
+                    <td class="py-3.5 px-6 text-gray-800 text-center">${index + 1}.</td>
+                    <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">${escapeHtml(item.organization_name)}</td>
+                    <td class="py-3.5 px-6 text-sm text-gray-600 cell-desc">${escapeHtml(item.description)}</td>
+                    <td class="py-3.5 px-6 text-gray-900 font-semibold cell-nominal text-center">${escapeHtml(formatRupiah(item.amount))}</td>
+                    <td class="py-3.5 px-6 text-center">${detailButton(DETAIL_BUKTI_URL, item.id)}</td>
+                </tr>
+            `).join('');
         }
 
-        function prosesVerifikasi() {
-            window.location.href = '/staff/detailpengajuanuser';
+        async function loadDashboard() {
+            const error = document.getElementById('dashboard-error');
+
+            try {
+                const { data } = await request('/api/admin/staff/dashboard');
+                error.classList.add('hidden');
+
+                document.getElementById('summary-pending-organizations').textContent = data.summary.pending_organizations;
+                document.getElementById('summary-pending-proofs').textContent = data.summary.pending_proofs;
+                document.getElementById('summary-completed').textContent = data.summary.completed_verifications;
+                document.getElementById('tab-caption-organisasi').textContent = data.organizations.length + ' antrian pendaftaran lembaga';
+                document.getElementById('tab-caption-bukti').textContent = data.proofs.length + ' antrian verifikasi bukti donasi';
+
+                totalData.organisasi = data.organizations.length;
+                totalData.bukti = data.proofs.length;
+                renderOrganisasi(data.organizations);
+                renderBukti(data.proofs);
+                handleSearch();
+            } catch (exception) {
+                error.textContent = exception.message;
+                error.classList.remove('hidden');
+            }
         }
+
+        loadDashboard();
     </script>
 </body>
 </html>

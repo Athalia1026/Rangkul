@@ -1,7 +1,7 @@
 {{--
-    Navbar bersama halaman manajer dan super admin. Gaya mengikuti navbar organisasi
+    Navbar bersama halaman manajer, staf, dan super admin. Gaya mengikuti navbar organisasi
     (x-organization-navbar) dan donatur (x-donor-navbar).
-    Variabel: $area ('manager' | 'superadmin'), $homeRoute, $navLabel, dan
+    Variabel: $area ('manager' | 'staff' | 'superadmin'), $homeRoute, $navLabel, dan
     $navItems (label, route, active = daftar nama route yang menandai menu aktif).
     Nama dan foto akun diisi lewat script di bawah karena admin login memakai token API, bukan sesi web.
 --}}

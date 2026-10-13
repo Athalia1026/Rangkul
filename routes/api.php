@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminCampaignVerificationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminDisbursementVerificationController;
 use App\Http\Controllers\Admin\AdminProofVerificationController;
+use App\Http\Controllers\Admin\AdminStaffDashboardController;
 use App\Http\Controllers\Admin\AdminTransactionController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\OrganizationVerificationController;
@@ -62,6 +63,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware([CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER . ',' . Admin::TIPE_STAFF])->prefix('admin/verifications')->group(function () {
         Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
         Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
+        Route::put('/organizations/{id}', [OrganizationVerificationController::class, 'verifyOrganization'])
+            ->middleware('throttle:10,1');
         Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
         Route::put('/bank-accounts/{bankId}', [OrganizationVerificationController::class, 'verifyBankAccount']);
     });
@@ -110,8 +113,14 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . 
         ->middleware('throttle:10,1');
     Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer'])
         ->middleware('throttle:10,1');
+    Route::get('/proof-verifications/{proofId}', [AdminProofVerificationController::class, 'show']);
     Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof'])
         ->middleware('throttle:10,1');
+});
+
+// Beranda staf: antrian verifikasi pendaftaran organisasi & bukti penyaluran.
+Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_STAFF])->prefix('admin/staff')->group(function () {
+    Route::get('/dashboard', [AdminStaffDashboardController::class, 'index']);
 });
 
 // Kelola akun staf & manajer: khusus super admin.

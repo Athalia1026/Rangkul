@@ -100,6 +100,56 @@ class OrganizationVerificationController extends Controller
         });
     }
 
+    // 5. Setujui / Tolak seluruh pendaftaran sekaligus (halaman detail pendaftaran staf)
+    public function verifyOrganization(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:disetujui,ditolak',
+            'alasan_penolakan' => 'required_if:status,ditolak|nullable|string|max:255',
+        ]);
+
+        return DB::transaction(function () use ($request, $id) {
+            $organization = Organization::with('user')->lockForUpdate()->findOrFail($id);
+
+            if ($organization->verification_status !== 'menunggu') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pendaftaran organisasi ini sudah pernah diverifikasi sebelumnya.'
+                ], 409);
+            }
+
+            if ($request->status === 'disetujui') {
+                // Disetujui: seluruh dokumen dan rekening ikut diterima
+                OrganizationDocument::where('id_organisasi', $organization->id)
+                    ->where('status', '!=', 'diterima')
+                    ->update([
+                        'status' => 'diterima',
+                        'alasan_penolakan' => null,
+                        'verified_at' => now(),
+                        'verified_by' => auth()->user()->adminProfile?->id,
+                    ]);
+
+                BankAccount::where('id_organisasi', $organization->id)->update(['status_verifikasi' => 'diterima']);
+            }
+
+            $organization->update([
+                'verification_status' => $request->status,
+                'verified_at' => $request->status === 'disetujui' ? now() : null,
+                'alasan_penolakan' => $request->status === 'ditolak' ? $request->alasan_penolakan : null,
+            ]);
+
+            $this->notifyOrganizationVerified($organization->fresh('user'));
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $request->status === 'disetujui'
+                    ? 'Pendaftaran organisasi berhasil disetujui.'
+                    : 'Pendaftaran organisasi berhasil ditolak.',
+                'data' => $organization->fresh()
+            ]);
+        });
+    }
+
     // ==============================================================================
     // PRIVATE HELPER FUNCTION: Menghitung status global organisasi
     // ==============================================================================
@@ -133,13 +183,18 @@ class OrganizationVerificationController extends Controller
 
         // Kirim Email jika status berubah menjadi final (disetujui/ditolak)
         if ($previousStatus !== $organization->verification_status && in_array($organization->verification_status, ['disetujui', 'ditolak'])) {
-            app(NotificationService::class)->organizationVerified($organization);
+            $this->notifyOrganizationVerified($organization);
+        }
+    }
 
-            try {
-                Mail::to($organization->user->email)->send(new OrganizationVerificationMail($organization));
-            } catch (\Exception $e) {
-                Log::error('SMTP Mailtrap Timeout: ' . $e->getMessage());
-            }
+    private function notifyOrganizationVerified(Organization $organization): void
+    {
+        app(NotificationService::class)->organizationVerified($organization);
+
+        try {
+            Mail::to($organization->user->email)->send(new OrganizationVerificationMail($organization));
+        } catch (\Exception $e) {
+            Log::error('SMTP Mailtrap Timeout: ' . $e->getMessage());
         }
     }
 }

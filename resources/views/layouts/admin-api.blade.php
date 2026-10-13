@@ -1,6 +1,6 @@
 {{--
-    Helper bersama halaman manajer dan super admin: memastikan yang membuka halaman adalah akun admin
-    dengan peran yang sesuai ($area: 'manager' atau 'superadmin'), memanggil /api/admin/* dengan token
+    Helper bersama halaman manajer, staf, dan super admin: memastikan yang membuka halaman adalah akun admin
+    dengan peran yang sesuai ($area: 'manager', 'staff', atau 'superadmin'), memanggil /api/admin/* dengan token
     login (localStorage), dan logout. Pembatasan sebenarnya tetap di server (CheckIsAdmin & CheckAdminRole).
 --}}
 <script>
@@ -13,6 +13,7 @@ window.RangkulAdmin = (function () {
     };
     const HOME_BY_ADMIN_AREA = {
         manager: @json(route('manager.home')),
+        staff: @json(route('staff.beranda')),
         superadmin: @json(route('superadmin.home'))
     };
 
@@ -24,9 +25,11 @@ window.RangkulAdmin = (function () {
         }
     }
 
-    // Super admin memakai halaman /superadmin, manajer dan staf memakai halaman /manager.
+    // Super admin memakai halaman /superadmin, staf memakai /staff, manajer memakai /manager.
     function adminAreaOf(user) {
-        return user && user.admin && user.admin.tipe === 'super admin' ? 'superadmin' : 'manager';
+        const tipe = user && user.admin ? user.admin.tipe : null;
+
+        return tipe === 'super admin' ? 'superadmin' : (tipe === 'staff' ? 'staff' : 'manager');
     }
 
     function clearAuth() {

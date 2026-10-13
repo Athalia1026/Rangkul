@@ -34,7 +34,14 @@ class PurchaseProof extends Model
     public function fundDisbursement() { 
         return $this->belongsTo(FundDisbursement::class, 'id_pencairan', 'id'); 
     }
-    public function proofVerification() { 
-        return $this->hasOne(ProofVerification::class, 'id_bukti', 'id'); 
+    public function proofVerification() {
+        return $this->hasOne(ProofVerification::class, 'id_bukti', 'id');
+    }
+
+    // Bukti yang belum diperiksa staf (tahap pertama sebelum diteruskan ke manajer)
+    public function scopeMenungguStaf($query)
+    {
+        return $query->where('status', 'menunggu')
+            ->whereDoesntHave('proofVerification', fn ($verification) => $verification->whereNotNull('staff_id'));
     }
 }

@@ -380,22 +380,19 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/detailinformasi/{organization}', fn (string $organization) => view('superadmin.detailinformasi', ['organizationId' => $organization]))
         ->name('detailinformasi');
     Route::view('/laporantransaksi', 'superadmin.laporantransaksi')->name('laporantransaksi');
+});
+
+/*
+|--------------------------------------------------------------------------
 | STAFF
 |--------------------------------------------------------------------------
 */
 
-Route::get('/staff/beranda', function () {
-    return view('staff.beranda');
-});
-
-Route::get('/staff/pengajuandanauser', function () {
-    return view('staff.pengajuandanauser');
-});
-
-Route::get('/staff/beranda', function () {
-    return view('staff.beranda');
-});
-
-Route::get('/staff/ajuanpencairandana', function () {
-    return view('staff.ajuanpencairandana');
+// Seperti halaman manajer, datanya dimuat dari /api/admin/* memakai token login staf.
+Route::prefix('staff')->name('staff.')->group(function () {
+    Route::view('/beranda', 'staff.beranda')->name('beranda');
+    Route::get('/pengajuandanauser/{organization}', fn (string $organization) => view('staff.pengajuandanauser', ['organizationId' => $organization]))
+        ->name('pengajuandanauser');
+    Route::get('/ajuanpencairandana/{proof}', fn (string $proof) => view('staff.ajuanpencairandana', ['proofId' => $proof]))
+        ->name('ajuanpencairandana');
 });

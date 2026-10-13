@@ -24,7 +24,10 @@
             var name = user.nama || user.name || 'Akun Saya';
             var homeByType = {
                 organisasi: '{{ route('organisasi.dashboard') }}',
-                admin: user.admin && user.admin.tipe === 'super admin' ? '{{ route('superadmin.home') }}' : '{{ route('manager.home') }}'
+                admin: ({
+                    'super admin': '{{ route('superadmin.home') }}',
+                    staff: '{{ route('staff.beranda') }}'
+                })[user.admin && user.admin.tipe] || '{{ route('manager.home') }}'
             };
             var link = document.getElementById('public-user-actions');
 
