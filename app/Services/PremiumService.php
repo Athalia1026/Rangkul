@@ -107,6 +107,11 @@ class PremiumService
             return ['statusCode' => 404, 'response' => ['status' => 'error', 'message' => 'Order premium tidak ditemukan.']];
         }
 
+        // Tanpa server key, signature bisa dihitung siapa saja: tolak callback.
+        if (!Config::$serverKey) {
+            return ['statusCode' => 503, 'response' => ['status' => 'error', 'message' => 'Pembayaran belum dikonfigurasi.']];
+        }
+
         if (!$this->isValidSignature($payload, $orderId)) {
             return ['statusCode' => 401, 'response' => ['status' => 'error', 'message' => 'Signature callback tidak valid.']];
         }
