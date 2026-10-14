@@ -262,16 +262,12 @@
         </div>
     </main>
 
-    <!-- ======================================================== -->
     <!-- FOOTER AUTH                                              -->
-    <!-- ======================================================== -->
     <footer class="text-center py-6 text-xs text-gray-400 border-t border-gray-200/50 bg-white/50">
         &copy; {{ date('Y') }} Rangkul.com — Donation Platform. Hak Cipta Dilindungi.
     </footer>
 
-    <!-- ======================================================== -->
     <!-- SCRIPT TOGGLE LIHAT / SEMBUNYIKAN PASSWORD               -->
-    <!-- ======================================================== -->
     <script>
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
