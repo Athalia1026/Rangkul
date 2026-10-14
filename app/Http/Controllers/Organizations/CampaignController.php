@@ -90,8 +90,8 @@ class CampaignController extends Controller
     {
         $organization = $request->user()->organization;
 
-        // Validasi: Organisasi wajib terverifikasi 'disetujui' terlebih dahulu
-        if ($organization->verification_status !== 'disetujui') {
+        // Validasi: hanya akun organisasi yang sudah terverifikasi 'disetujui'
+        if ($organization?->verification_status !== 'disetujui') {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Organisasi Anda belum terverifikasi oleh Admin.'

@@ -74,6 +74,14 @@ class VisitController extends Controller
             ->where('id_organisasi', auth()->user()->organization?->id)
             ->firstOrFail();
 
+        // Kunjungan yang sudah ditanggapi / selesai tidak boleh diubah lagi.
+        if ($visit->status !== 'terkirim') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kunjungan ini sudah ditanggapi sebelumnya.'
+            ], 409);
+        }
+
         $visit->update([
             'status' => $request->status,
             'pesan_organisasi' => $request->pesan_organisasi,
@@ -138,15 +146,11 @@ class VisitController extends Controller
     {
         $user = auth()->user();
 
+        // Hanya kunjungan milik donatur / organisasi yang login; peran lain tidak mendapat data.
         $visits = Visit::with(['documents'])
-            ->when($user->role === 'donatur', function ($q) use ($user) {
-                $donorId = $user->donor?->id ?? $user->id;
-                $q->where('id_donatur', $donorId);
-            })
-            ->when($user->role === 'organisasi', function ($q) use ($user) {
-                $orgId = $user->organization?->id ?? $user->id;
-                $q->where('id_organisasi', $orgId);
-            })
+            ->when($user->account_type === 'donatur', fn ($q) => $q->where('id_donatur', $user->donor?->id))
+            ->when($user->account_type === 'organisasi', fn ($q) => $q->where('id_organisasi', $user->organization?->id))
+            ->when(!in_array($user->account_type, ['donatur', 'organisasi'], true), fn ($q) => $q->whereRaw('1 = 0'))
             ->orderBy('created_at', 'desc')
             ->get();
 
