@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Auth\AdminRegistrationController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Donors\SearchController;
 use App\Http\Controllers\Donors\CampaignController;
@@ -20,7 +21,6 @@ use App\Http\Controllers\Organizations\OrganizationProfileController;
 use App\Http\Controllers\Organizations\OrganizationReportController;
 use App\Http\Controllers\Organizations\OrganizationVisitController;
 use App\Http\Middleware\EnsureOrganizationAccount;
-use App\Http\Controllers\Auth\AdminRegisterController;
 
 Route::view('/donatur/riwayat', 'donatur.riwayat')->name('donatur.riwayat');
 Route::view('/donatur/kunjungan/jadwalkan/{organization}', 'donatur.kunjungan', ['mode' => 'create'])->name('donatur.kunjungan.create');
@@ -423,6 +423,14 @@ Route::prefix('staff')->name('staff.')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// Menampilkan halaman register
-Route::view('/register', 'auth.register-admin')
+// Pendaftaran dari link undangan Super Admin. Link bertanda tangan, berlaku 48 jam, sekali pakai;
+// tanda tangan & status undangan diperiksa di AdminRegistrationController.
+Route::get('/admin/undangan/{invitation}', [AdminRegistrationController::class, 'show'])
+    ->whereUuid('invitation')
+    ->middleware('throttle:30,1,register-admin-form')
     ->name('register.admin.form');
+
+Route::post('/admin/undangan/{invitation}', [AdminRegistrationController::class, 'store'])
+    ->whereUuid('invitation')
+    ->middleware('throttle:5,1,register-admin')
+    ->name('register.admin.store');

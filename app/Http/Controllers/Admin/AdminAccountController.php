@@ -5,15 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\AdminPasswordChangedMail;
 use App\Models\Admin;
-use App\Models\User;
 use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
@@ -52,50 +49,8 @@ class AdminAccountController extends Controller
         ]);
     }
 
-    // Akun baru dibuat dengan password acak; pemilik akun mengatur passwordnya sendiri lewat link reset.
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email:rfc,filter|max:255|unique:users,email',
-            'role' => ['required', Rule::in(self::MANAGED_ROLES)],
-        ], [
-            'email.unique' => 'Email ini sudah terdaftar.',
-            'role.in' => 'Role harus Staff atau Manager.',
-        ]);
-
-        $admin = DB::transaction(function () use ($validated) {
-            $user = User::create([
-                'nama' => $validated['nama'],
-                'email' => $validated['email'],
-                'password' => Hash::make(Str::random(40)),
-                'account_type' => 'admin',
-                'status' => 'aktif',
-            ]);
-
-            return Admin::create([
-                'user_id' => $user->id,
-                'tipe' => $validated['role'],
-                'status_akun' => 'aktif',
-            ]);
-        });
-
-        $linkSent = false;
-
-        try {
-            $linkSent = Password::sendResetLink(['email' => $validated['email']]) === Password::RESET_LINK_SENT;
-        } catch (\Exception $e) {
-            Log::error('SMTP Admin Account Reset Link Failed: ' . $e->getMessage());
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => $linkSent
-                ? 'Akun berhasil dibuat. Link untuk membuat password telah dikirim ke email akun.'
-                : 'Akun berhasil dibuat, tetapi email link password gagal dikirim. Gunakan tombol Reset untuk mengatur password akun.',
-            'data' => $this->present($admin->load('user')),
-        ], 201);
-    }
+    // Akun baru tidak dibuat di sini: staf & manajer mendaftar sendiri lewat link undangan
+    // (lihat AdminInvitationController dan Auth\AdminRegistrationController).
 
     public function update(Request $request, string $id)
     {

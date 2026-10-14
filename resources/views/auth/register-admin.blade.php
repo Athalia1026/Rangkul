@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{-- URL halaman ini berisi tanda tangan undangan: jangan bocorkan lewat header Referer ke CDN. --}}
+    <meta name="referrer" content="no-referrer">
     <title>Pendaftaran Administrator - Rangkul.com</title>
     
     <!-- Tailwind CSS CDN -->
@@ -54,15 +56,8 @@
             
             <!-- Header Kartu -->
             @php
-            $roleParam = strtolower(request()->query('role', ''));
-
-            $roleLabel = match ($roleParam) {
-                'staff' => 'Staff',
-                'manager' => 'Manager',
-                default => 'Administrator',
-            };
-
-            $tokenParam = request()->query('token', '');
+            // Role diambil dari data undangan di database (dikirim AdminRegistrationController), bukan dari URL.
+            $roleLabel = $invitation->roleLabel();
         @endphp
 
             <div class="bg-gradient-to-r from-[#086538] to-[#0d4a32] px-8 py-4 text-white">
@@ -82,12 +77,9 @@
             </div>
 
             <!-- Formulir POST ke Route Auth Laravel -->
-            <form action="#" method="POST" class="px-8 py-4 space-y-4" onsubmit="event.preventDefault();">                
+            <!-- Dikirim ke URL undangan bertanda tangan yang sama; role & masa berlaku diperiksa di server -->
+            <form action="{{ url()->full() }}" method="POST" class="px-8 py-4 space-y-4">
                 @csrf
-                
-                <!-- Token & Role Masuk ke Input Hidden (Otomatis Masuk ke Database) -->
-                <input type="hidden" name="token" value="{{ old('token', $tokenParam) }}">
-                <input type="hidden" name="role" value="{{ old('role', $roleLabel) }}">
 
                 <!-- Badge Indikator Token Valid -->
                 <div class="rounded-xl bg-emerald-50 border border-emerald-200/80 p-3.5 flex items-start gap-3 text-xs text-emerald-900">
@@ -102,7 +94,7 @@
                     </div>
                 </div>
 
-                <!-- 1. Nama Lengkap -->
+                <!-- 1. Nama Lengkapt -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
                         Nama Lengkap <span class="text-red-500">*</span>
@@ -140,7 +132,8 @@
                             name="email" 
                             id="email" 
                             required 
-                            value="{{ old('email', request('email')) }}" 
+                            value="{{ old('email', $invitation->email) }}"
+                            @if($invitation->email) readonly @endif
                             placeholder="Contoh: rian@rangkul.com" 
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]"
                         >
@@ -164,7 +157,7 @@
                             name="phone" 
                             id="phone" 
                             required 
-                            value="{{ old('phone', request('phone')) }}" 
+                            value="{{ old('phone') }}"
                             placeholder="Contoh: 081234567890" 
                             class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]"
                         >
@@ -186,8 +179,8 @@
                                 name="password" 
                                 id="password" 
                                 required 
-                                minlength="6" 
-                                placeholder="Min. 6 karakter" 
+                                minlength="8"
+                                placeholder="Min. 8 karakter"
                                 class="w-full pl-4 pr-10 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]"
                             >
                             <button 
@@ -213,8 +206,8 @@
                                 name="password_confirmation" 
                                 id="password_confirmation" 
                                 required 
-                                minlength="6" 
-                                placeholder="Ulangi password" 
+                                minlength="8"
+                                placeholder="Ulangi password"
                                 class="w-full pl-4 pr-10 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]"
                             >
                             <button 
@@ -286,19 +279,6 @@
                 icon.className = 'fa-solid fa-eye';
             }
         }
-
-        function bukaHalamanRegister() {
-    const role = document.getElementById('input-role').value;
-
-    const url = new URL(
-        "{{ route('register.admin.form') }}",
-        window.location.origin
-    );
-
-    url.searchParams.set('role', role);
-
-    window.location.href = url.toString();
-}
     </script>
 </body>
 </html>

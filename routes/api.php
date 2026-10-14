@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAccountController;
+use App\Http\Controllers\Admin\AdminInvitationController;
 use App\Http\Controllers\Admin\AdminCampaignVerificationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminDisbursementVerificationController;
@@ -134,7 +135,6 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . 
     // Kuota throttle dihitung per user, bukan per route: prefix 'admin-accounts' memisahkan kuota
     // kelola akun (30/menit) dari route lain seperti logout agar tidak saling menghabiskan.
     Route::middleware('throttle:30,1,admin-accounts')->group(function () {
-        Route::post('/', [AdminAccountController::class, 'store']);
         Route::put('/{id}', [AdminAccountController::class, 'update']);
         Route::put('/{id}/password', [AdminAccountController::class, 'resetPassword']);
         Route::patch('/{id}/deactivate', [AdminAccountController::class, 'deactivate']);
@@ -142,6 +142,14 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . 
         Route::delete('/{id}', [AdminAccountController::class, 'destroy']);
     });
 });
+
+// Tambah staf & manajer lewat link undangan: khusus super admin.
+Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_SUPER_ADMIN, 'throttle:30,1,admin-invitations'])
+    ->prefix('admin/invitations')
+    ->group(function () {
+        Route::post('/', [AdminInvitationController::class, 'store']);
+        Route::post('/{id}/send', [AdminInvitationController::class, 'send']);
+    });
 
 Route::middleware('auth:sanctum')->prefix('visits')->group(function () {
     Route::get('/{id}', [VisitController::class, 'show']);

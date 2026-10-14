@@ -173,8 +173,14 @@
                     <span class="text-xl">📁</span>
                     <h2 class="font-bold text-base tracking-wide">Daftar Akun Staff & Manager</h2>
                 </div>
-                <button onclick="openModalTambah()" class="px-4 py-1.5 rounded-full bg-[#faecc8] text-[#086538] hover:bg-[#f6e4b2] text-xs font-semibold transition-all shadow-sm">
-                    Tambahkan Staff/Manager
+
+                <!-- TOMBOL TAMBAHKAN STAFF/MANAGER -->
+                <button
+                    onclick="bukaModalGenerateLink()"
+                    class="flex items-center gap-2 rounded-lg bg-[#FFF5CC] px-4 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-[#FFF4B8] active:scale-95"
+                >
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Tambahkan Staff/Manager</span>
                 </button>
             </div>
 
@@ -224,37 +230,6 @@
         </div>
 
     </main>
-
-    <!-- ========================================================= -->
-    <!-- 1. POP UP: TAMBAHKAN STAFF/MANAGER -->
-    <!-- ========================================================= -->
-    <div id="modal-tambah" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Tambahkan Staff / Manager</h2>
-            <form onsubmit="handleSimpanTambah(event)" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-1.5">Nama Lengkap</label>
-                    <input type="text" id="input-nama" required placeholder="Contoh: Staff 4 atau Budi Santoso" class="w-full px-4 py-2.5 border border-gray-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-1.5">Email</label>
-                    <input type="email" id="input-email" required placeholder="Contoh: staff@rangkul.com" class="w-full px-4 py-2.5 border border-gray-400 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-1.5">Role</label>
-                    <select id="input-role" class="w-full px-4 py-2.5 border border-gray-400 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#086538]">
-                        <option value="staff">Staff</option>
-                        <option value="manager">Manager</option>
-                    </select>
-                </div>
-                <p data-modal-error class="hidden text-sm text-red-600 mb-3"></p>
-                <div class="pt-4 flex items-center justify-end gap-3">
-                    <button type="button" onclick="closeModal('modal-tambah')" class="px-8 py-2.5 bg-[#d8dbdf] text-gray-800 text-sm font-semibold rounded-xl hover:bg-[#cbd0d6] transition-all shadow-sm">Batal</button>
-                    <button type="submit" class="px-8 py-2.5 bg-[#086538] text-white text-sm font-semibold rounded-xl hover:bg-[#064e2b] transition-all shadow-sm">Simpan Akun</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- ========================================================= -->
     <!-- 2. POP UP: UBAH DATA AKUN (Frame 319) -->
@@ -403,6 +378,131 @@
                     <button type="submit" class="px-8 py-2.5 bg-[#8b1814] text-white text-sm font-semibold rounded-xl hover:bg-[#70120f] transition-all shadow-sm">Hapus Permanen</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- POPUP: KIRIM UNDANGAN ADMIN BARU (LINK & KIRIM)      -->
+    <div id="modalGenerateLink" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden">
+
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-[#086538]">
+                        <i class="fa-solid fa-link text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900">Undang Admin Baru</h3>
+                        <p class="text-xs text-gray-500">Pilih role dan kirim link pendaftaran langsung ke admin</p>
+                    </div>
+                </div>
+                <button onclick="tutupModalGenerateLink()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="p-6 space-y-5">
+                <!-- Pilihan Role -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
+                        Pilih Role <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-3.5 cursor-pointer hover:border-emerald-500 has-[:checked]:border-[#086538] has-[:checked]:bg-emerald-50/50 transition">
+                            <input type="radio" name="pilihRole" value="Staff" checked onchange="regenerateTokenLink()" class="text-[#086538] focus:ring-[#086538]">
+                            <div>
+                                <span class="block text-sm font-bold text-gray-800">Staff</span>
+                                <span class="block text-[11px] text-gray-500">Akses verifikasi & review</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-3.5 cursor-pointer hover:border-emerald-500 has-[:checked]:border-[#086538] has-[:checked]:bg-emerald-50/50 transition">
+                            <input type="radio" name="pilihRole" value="Manager" onchange="regenerateTokenLink()" class="text-[#086538] focus:ring-[#086538]">
+                            <div>
+                                <span class="block text-sm font-bold text-gray-800">Manager</span>
+                                <span class="block text-[11px] text-gray-500">Akses approval & laporan</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ID undangan dari server (dipakai saat mengirim ke email) -->
+                <input type="hidden" id="tokenHasil">
+
+                <!-- Kotak Link Pendaftaran & Form Kirim Langsung -->
+                <div class="space-y-4 rounded-xl bg-gray-50 border border-gray-200 p-4">
+                    <!-- Tautan Pendaftaran -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">
+                            Tautan Pendaftaran Admin
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input
+                                type="text"
+                                id="linkHasil"
+                                readonly
+                                class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 font-mono outline-none select-all"
+                            >
+                            <button
+                                type="button"
+                                onclick="salinLinkUndangan()"
+                                class="flex items-center gap-1.5 rounded-lg bg-[#086538] px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-[#064e2b] transition whitespace-nowrap active:scale-95"
+                            >
+                                <i class="fa-regular fa-copy"></i>
+                                <span id="labelSalin">Salin Link</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Input Email Penerima + Tombol Kirim Soft Yellow -->
+                    <div class="pt-3 border-t border-gray-200">
+                        <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            Email Penerima:
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <div class="relative w-full">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    id="inputPenerimaUndangan"
+                                    placeholder="contoh.admin@gmail.com"
+                                    class="w-full pl-8 pr-3 py-2 text-xs border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#086538]"
+                                >
+                            </div>
+                            <button
+                                type="button"
+                                onclick="kirimUndanganLangsung()"
+                                id="btnKirimUndangan"
+                                class="flex items-center gap-1.5 rounded-lg bg-[#faecc8] hover:bg-[#f6e4b2] text-[#086538] border border-[#f3dd9b] px-4 py-2 text-xs font-bold shadow-xs transition active:scale-95 whitespace-nowrap cursor-pointer"
+                            >
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Kirim</span>
+                            </button>
+                        </div>
+                        <p id="pesanStatusKirim" class="hidden text-xs mt-2 font-semibold"></p>
+                    </div>
+                </div>
+
+                <!-- Petunjuk -->
+                <div class="rounded-lg bg-emerald-50/70 p-3 text-xs text-emerald-900 border border-emerald-100 flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-emerald-700 mt-0.5"></i>
+                    <p>Setelah tautan terkirim, penerima tinggal membuka tautan tersebut untuk mengisi <b>Nama, Email, No. Telepon, dan Password</b> secara mandiri.</p>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="flex items-center justify-end gap-2 border-t border-gray-100 bg-gray-50/50 px-6 py-3.5">
+                <button
+                    type="button"
+                    onclick="tutupModalGenerateLink()"
+                    class="rounded-lg border border-gray-300 bg-white px-5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 transition active:scale-95"
+                >
+                    Selesai
+                </button>
+            </div>
         </div>
     </div>
 
@@ -557,20 +657,121 @@
         // ==========================================
         // HANDLER SETIAP AKSI POP UP
         // ==========================================
-        function openModalTambah() {
-            document.getElementById('input-nama').value = '';
-            document.getElementById('input-email').value = '';
-            document.getElementById('input-role').value = 'staff';
-            openModal('modal-tambah');
+        // ==========================================
+        // MODAL UNDANG ADMIN BARU (LINK + KIRIM EMAIL)
+        // ==========================================
+        // Link undangan dibuat server (/api/admin/invitations): bertanda tangan, sekali pakai, berlaku 48 jam.
+        // Link per role disimpan selama modal terbuka agar berpindah role tidak membuat undangan baru terus.
+        let undanganPerRole = {};
+
+        function roleTerpilih() {
+            return document.querySelector('input[name="pilihRole"]:checked').value.toLowerCase();
         }
 
-        function handleSimpanTambah(e) {
-            e.preventDefault();
-            submitAkun('modal-tambah', '/api/admin/accounts', 'POST', {
-                nama: document.getElementById('input-nama').value,
-                email: document.getElementById('input-email').value,
-                role: document.getElementById('input-role').value
+        function tampilkanStatusKirim(pesan, isError) {
+            const pesanStatus = document.getElementById('pesanStatusKirim');
+            pesanStatus.textContent = pesan;
+            pesanStatus.className = isError
+                ? 'text-xs mt-2 font-semibold text-red-600 block'
+                : 'text-xs mt-2 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-2 block';
+        }
+
+        function tampilkanUndangan(undangan) {
+            document.getElementById('tokenHasil').value = undangan ? undangan.id : '';
+            document.getElementById('linkHasil').value = undangan ? undangan.url : '';
+        }
+
+        function bukaModalGenerateLink() {
+            undanganPerRole = {};
+            regenerateTokenLink();
+            document.getElementById('inputPenerimaUndangan').value = '';
+            const statusMsg = document.getElementById('pesanStatusKirim');
+            if (statusMsg) statusMsg.classList.add('hidden');
+
+            const modal = document.getElementById('modalGenerateLink');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function tutupModalGenerateLink() {
+            const modal = document.getElementById('modalGenerateLink');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function regenerateTokenLink() {
+            const role = roleTerpilih();
+
+            // Reset status tombol salin & pesan kirim
+            const labelSalin = document.getElementById('labelSalin');
+            if (labelSalin) labelSalin.textContent = 'Salin Link';
+            const statusMsg = document.getElementById('pesanStatusKirim');
+            if (statusMsg) statusMsg.classList.add('hidden');
+
+            if (undanganPerRole[role]) {
+                tampilkanUndangan(undanganPerRole[role]);
+                return;
+            }
+
+            tampilkanUndangan(null);
+            try {
+                const { data } = await request('/api/admin/invitations', { method: 'POST', body: { role } });
+                undanganPerRole[role] = data;
+                if (roleTerpilih() === role) tampilkanUndangan(data);
+            } catch (error) {
+                tampilkanStatusKirim('⚠️ ' + error.message, true);
+            }
+        }
+
+        // Salin link ke clipboard
+        function salinLinkUndangan() {
+            const linkInput = document.getElementById('linkHasil');
+            if (!linkInput.value) return;
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                const labelSalin = document.getElementById('labelSalin');
+                labelSalin.textContent = 'Tersalin!';
+                setTimeout(() => {
+                    labelSalin.textContent = 'Salin Link';
+                }, 2000);
+            }).catch(() => {
+                // Clipboard ditolak browser: link sudah ditandai, pengguna bisa menekan Ctrl+C.
             });
+        }
+
+        // Kirim link pendaftaran langsung ke email; undangan lalu hanya bisa dipakai oleh email tersebut.
+        async function kirimUndanganLangsung() {
+            const penerima = document.getElementById('inputPenerimaUndangan').value.trim();
+            const id = document.getElementById('tokenHasil').value;
+
+            if (!penerima) {
+                tampilkanStatusKirim('⚠️ Masukkan email tujuan terlebih dahulu!', true);
+                return;
+            }
+            if (!id) {
+                tampilkanStatusKirim('⚠️ Link undangan belum siap. Coba pilih role kembali.', true);
+                return;
+            }
+
+            const btnKirim = document.getElementById('btnKirimUndangan');
+            btnKirim.disabled = true;
+            btnKirim.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Mengirim...</span>`;
+
+            try {
+                const result = await request('/api/admin/invitations/' + encodeURIComponent(id) + '/send', {
+                    method: 'POST',
+                    body: { email: penerima }
+                });
+                undanganPerRole[result.data.role] = result.data;
+                tampilkanStatusKirim('✓ ' + result.message, false);
+            } catch (error) {
+                tampilkanStatusKirim('⚠️ ' + error.message, true);
+            } finally {
+                btnKirim.disabled = false;
+                btnKirim.innerHTML = `<i class="fa-solid fa-paper-plane"></i><span>Kirim</span>`;
+            }
         }
 
         function aksiEdit(id) {
