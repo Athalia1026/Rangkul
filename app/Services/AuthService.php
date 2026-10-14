@@ -49,15 +49,15 @@ class AuthService
 
     public function registerOrganization(Request $request): array
     {
+        // Path file yang sudah tersimpan, dikelompokkan per disk, agar bisa dihapus bila registrasi gagal di tengah jalan.
         $uploadedFiles = [];
 
         try {
             DB::beginTransaction();
 
-            $result = $this->registerOrganizationData($request);
+            $result = $this->registerOrganizationData($request, $uploadedFiles);
             $user = $result['user'];
             $token = $result['token'];
-            $uploadedFiles = $result['uploaded_files'];
 
             DB::commit();
 
@@ -76,29 +76,23 @@ class AuthService
         }
     }
 
-    private function registerOrganizationData(Request $request): array
+    private function registerOrganizationData(Request $request, array &$uploadedFiles): array
     {
-        $uploadedFiles = [];
-
         $photoPath = $this->storeProfilePhotoIfPresent($request);
         if ($photoPath !== null) {
-            $uploadedFiles[] = $photoPath;
+            $uploadedFiles['public'][] = $photoPath;
         }
 
         $user = $this->createOrganizationUser($request, $photoPath);
         $organization = $this->createOrganizationProfile($request, $user);
 
-        $uploadedFiles = array_merge(
-            $uploadedFiles,
-            $this->storeOrganizationDocuments($request, $organization)
-        );
+        $this->storeOrganizationDocuments($request, $organization, $uploadedFiles);
 
         $this->createOrganizationBankAccount($request, $organization);
 
         return [
             'user' => $user,
             'token' => $user->createToken('rangkul-org-token')->plainTextToken,
-            'uploaded_files' => $uploadedFiles,
         ];
     }
 
@@ -108,6 +102,8 @@ class AuthService
             return null;
         }
 
+        // File sudah lolos validasi image|mimes di RegisterOrganizationRequest,
+        // jadi ekstensi hasil tebakan isi file hanya bisa jpg/jpeg/png/webp.
         return $request->file('profile_photo')->store('profiles', 'public');
     }
 
@@ -139,20 +135,18 @@ class AuthService
         ]);
     }
 
-    private function storeOrganizationDocuments(Request $request, Organization $organization): array
+    private function storeOrganizationDocuments(Request $request, Organization $organization, array &$uploadedFiles): void
     {
-        $documentRows = $this->buildOrganizationDocumentRows($request, $organization);
+        $documentRows = $this->buildOrganizationDocumentRows($request, $organization, $uploadedFiles);
 
         if (empty($documentRows)) {
-            return [];
+            return;
         }
 
         OrganizationDocument::insert($documentRows);
-
-        return array_column($documentRows, 'lokasi_file');
     }
 
-    private function buildOrganizationDocumentRows(Request $request, Organization $organization): array
+    private function buildOrganizationDocumentRows(Request $request, Organization $organization, array &$uploadedFiles): array
     {
         $documentRows = [];
 
@@ -163,6 +157,7 @@ class AuthService
 
             $file = $request->file($type);
             $path = $file->store($folder, OrganizationDocument::DISK);
+            $uploadedFiles[OrganizationDocument::DISK][] = $path;
 
             $documentRows[] = [
                 'id' => (string) Str::uuid(),
@@ -200,15 +195,18 @@ class AuthService
         ]);
     }
 
+    /**
+     * @param array<string, string[]> $uploadedFiles path file per nama disk
+     */
     private function cleanupUploadedFiles(array $uploadedFiles): void
     {
-        $paths = array_values(array_filter($uploadedFiles, fn ($file) => is_string($file) && $file !== ''));
+        foreach ($uploadedFiles as $disk => $files) {
+            $paths = array_values(array_filter($files, fn ($file) => is_string($file) && $file !== ''));
 
-        if ($paths === []) {
-            return;
+            if ($paths !== []) {
+                Storage::disk($disk)->delete($paths);
+            }
         }
-
-        Storage::disk(OrganizationDocument::DISK)->delete($paths);
     }
 
     public function login(array $credentials): array

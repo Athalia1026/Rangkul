@@ -49,6 +49,9 @@ class RegisterOrganizationRequest extends FormRequest
             'no_rekening' => 'required|string|max:255',
             'pemilik_rekening' => 'required|string|max:255',
 
+            // Foto profil opsional: hanya gambar agar tidak bisa mengunggah HTML/SVG ke disk publik.
+            'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+
             'sk_operasional' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'ktp_pj' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'foto_bangunan' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],

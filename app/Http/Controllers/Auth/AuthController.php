@@ -110,7 +110,8 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Registrasi Organisasi berhasil (Dokumen Menunggu Verifikasi Admin)',
-                'data' => $result['user'],
+                // Path storage mentah tidak perlu dikirim saat registrasi; foto profil tetap tersedia lewat /me.
+                'data' => $result['user']->makeHidden('profile_photo'),
                 'token' => $result['token'],
             ], 201);
         } catch (\Throwable $e) {

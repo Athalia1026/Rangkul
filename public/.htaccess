@@ -19,3 +19,12 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# File unggahan pengguna di /storage: cegah MIME sniffing dan eksekusi skrip
+# (HTML/SVG berbahaya tidak bisa menjalankan JavaScript di origin aplikasi).
+<IfModule mod_headers.c>
+    <If "%{REQUEST_FILENAME} =~ m#[/\\\\]public[/\\\\]storage[/\\\\]#">
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set Content-Security-Policy "script-src 'none'; base-uri 'none'"
+    </If>
+</IfModule>
