@@ -134,7 +134,8 @@ class DonationService
         } catch (\Exception $e) {
             $this->logCallbackFailed($e);
 
-            return $this->buildErrorResponse(500, $e->getMessage());
+            // Endpoint ini publik: detail error cukup di log, jangan dikirim ke pemanggil.
+            return $this->buildErrorResponse(500, 'Terjadi kesalahan saat memproses callback.');
         }
     }
 
