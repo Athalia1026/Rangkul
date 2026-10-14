@@ -1,0 +1,11 @@
+# Pengaman bila web server mengarahkan web root ke folder proyek, bukan ke public/.
+# Semua request dialihkan ke public/, sehingga .env, .git, storage/logs, vendor, dll. tidak bisa diunduh.
+# Konfigurasi yang benar tetap: DocumentRoot = <proyek>/public.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
