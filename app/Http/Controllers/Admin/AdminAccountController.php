@@ -57,7 +57,7 @@ class AdminAccountController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
+            'email' => 'required|email:rfc,filter|max:255|unique:users,email',
             'role' => ['required', Rule::in(self::MANAGED_ROLES)],
         ], [
             'email.unique' => 'Email ini sudah terdaftar.',
@@ -103,7 +103,7 @@ class AdminAccountController extends Controller
 
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($admin->user_id)],
+            'email' => ['required', 'email:rfc,filter', 'max:255', Rule::unique('users', 'email')->ignore($admin->user_id)],
             'no_telp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s()]*$/'],
         ], [
             'email.unique' => 'Email ini sudah terdaftar.',

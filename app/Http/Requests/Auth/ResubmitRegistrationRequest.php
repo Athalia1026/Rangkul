@@ -15,7 +15,7 @@ class ResubmitRegistrationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email:rfc,filter|exists:users,email',
             'password' => 'required|string',
 
             'nama_lembaga'   => 'required|string|max:500',

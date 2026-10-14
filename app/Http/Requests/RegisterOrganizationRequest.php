@@ -24,7 +24,7 @@ class RegisterOrganizationRequest extends FormRequest
         return [
             // Data Akun Utama (Table: users)
             'nama' => 'required|string|max:255', // Nama penanggung jawab / akun
-            'email' => 'required|string|email|unique:users,email',
+            'email' => 'required|string|email:rfc,filter|unique:users,email',
             'password' => [
                 'required',
                 'string',

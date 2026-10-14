@@ -20,7 +20,7 @@ class PremiumController extends Controller
             'nama_pic' => 'required|string|max:255',
             'jabatan' => 'required|string|max:255',
             'nomor_pic' => ['required', 'string', 'max:20', 'regex:/^[0-9+\-\s]{8,20}$/'],
-            'email_korporat' => 'required|email|max:255',
+            'email_korporat' => 'required|email:rfc,filter|max:255',
             'NPWP' => ['required', 'string', 'max:30', 'regex:/^[0-9.\-\s]{15,30}$/'],
             'kota' => 'nullable|string|max:100',
         ], [

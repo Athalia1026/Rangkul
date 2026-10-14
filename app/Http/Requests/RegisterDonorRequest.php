@@ -23,7 +23,7 @@ class RegisterDonorRequest extends FormRequest
     {
         return [
             'nama' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users,email',
+            'email' => 'required|string|email:rfc,filter|unique:users,email',
             'password' => [
                 'required',
                 'string',
