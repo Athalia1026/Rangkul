@@ -16,9 +16,7 @@ class ResetPasswordController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
-        ], [
-            'email.exists' => 'Email ini tidak terdaftar di sistem kami.'
+            'email' => 'required|email:rfc,filter',
         ]);
 
         // Meminta Laravel Password Broker mengirimkan email token reset
@@ -26,10 +24,13 @@ class ResetPasswordController extends Controller
             $request->only('email')
         );
 
-        return $status === Password::RESET_LINK_SENT
+        // Jawaban sama untuk email terdaftar maupun tidak, agar daftar akun tidak bisa ditebak.
+        $handled = [Password::RESET_LINK_SENT, Password::INVALID_USER, Password::RESET_THROTTLED];
+
+        return in_array($status, $handled, true)
             ? response()->json([
                 'success' => true,
-                'message' => 'Link reset password telah dikirimkan ke email Anda.'
+                'message' => 'Jika email terdaftar, link reset password telah dikirimkan ke email tersebut.'
             ], 200)
             : response()->json([
                 'success' => false,
@@ -55,10 +56,9 @@ class ResetPasswordController extends Controller
         // Aturan password disamakan dengan registrasi: minimal 8 karakter, berisi huruf dan angka.
         $request->validate([
             'token' => 'required|string',
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email:rfc,filter',
             'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[A-Za-z])(?=.*[0-9]).+$/'],
         ], [
-            'email.exists' => 'Email ini tidak terdaftar di sistem kami.',
             'password.min' => 'Password harus terdiri dari minimal 8 karakter, termasuk huruf dan angka.',
             'password.regex' => 'Password harus terdiri dari minimal 8 karakter, termasuk huruf dan angka.',
             'password.confirmed' => 'Password dan konfirmasi password tidak cocok.',
@@ -73,6 +73,9 @@ class ResetPasswordController extends Controller
             ])->setRememberToken(Str::random(60));
 
             $user->save();
+
+            // Akhiri semua sesi login lama agar token yang mungkin dicuri tidak berlaku lagi.
+            $user->tokens()->delete();
 
             event(new PasswordReset($user));
         };
