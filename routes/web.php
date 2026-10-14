@@ -18,6 +18,7 @@ use App\Http\Controllers\Organizations\OrganizationProfileController;
 use App\Http\Controllers\Organizations\OrganizationReportController;
 use App\Http\Controllers\Organizations\OrganizationVisitController;
 use App\Http\Middleware\EnsureOrganizationAccount;
+use App\Http\Controllers\Auth\AdminRegisterController;
 
 Route::view('/donatur/riwayat', 'donatur.riwayat')->name('donatur.riwayat');
 Route::view('/donatur/kunjungan/jadwalkan/{organization}', 'donatur.kunjungan', ['mode' => 'create'])->name('donatur.kunjungan.create');
@@ -396,3 +397,13 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::get('/ajuanpencairandana/{proof}', fn (string $proof) => view('staff.ajuanpencairandana', ['proofId' => $proof]))
         ->name('ajuanpencairandana');
 });
+
+/*
+|--------------------------------------------------------------------------
+| REGISTER ADMIN (MANAGER / STAFF)
+|--------------------------------------------------------------------------
+*/
+
+// Menampilkan halaman register
+Route::view('/register', 'auth.register-admin')
+    ->name('register.admin.form');
