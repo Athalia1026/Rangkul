@@ -59,7 +59,7 @@
                             class="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#05522d] hover:bg-[#044023] text-white text-sm font-semibold transition-all shadow-md">
                             <span>Donasi Sekarang</span>
                             <span>&#9825;</span>
-                            <a href="{{ route('campaign.detail', ['id' => $featuredCampaign->id]) }}"
+                            <a href="{{ $featuredCampaign ? route('campaign.detail', ['id' => $featuredCampaign->id]) : '#bantu-mereka' }}"
                                 class="absolute inset-0"></a>
                         </button>
                     </div>
@@ -153,7 +153,7 @@
                         {{ $featuredCampaign?->deskripsi ?? 'Rekomendasi donasi akan tampil setelah kampanye tersedia.' }}
                     </p>
                     <div class="pt-4">
-                        <a href="{{ route('campaign.detail', ['id' => $featuredCampaign->id]) }}"
+                        <a href="{{ $featuredCampaign ? route('campaign.detail', ['id' => $featuredCampaign->id]) : '#bantu-mereka' }}"
                             class="px-7 py-3 rounded-xl bg-[#d87625] hover:bg-[#c2651b] text-white font-bold text-[15px] sm:text-[16px] transition-all shadow-md inline-block text-center">
                             Bantu Mereka Sekarang
                         </a>
