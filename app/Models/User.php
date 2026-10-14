@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\Concerns\HasUuids; // Wajib untuk UUID
 
 class User extends Authenticatable
@@ -46,6 +47,20 @@ class User extends Authenticatable
         return filter_var($this->profile_photo, FILTER_VALIDATE_URL)
             ? $this->profile_photo
             : asset('storage/' . ltrim($this->profile_photo, '/'));
+    }
+
+    /**
+     * Link halaman pendaftaran ditolak / registrasi ulang. Halaman ini memuat data rekening dan
+     * dokumen, jadi hanya bisa dibuka lewat link bertanda tangan yang berlaku 60 menit.
+     */
+    public function organizationRejectedUrl(): string
+    {
+        return URL::temporarySignedRoute('organization.rejected', now()->addMinutes(60), ['email' => $this->email]);
+    }
+
+    public function organizationResubmitUrl(): string
+    {
+        return URL::temporarySignedRoute('organization.resubmit.form', now()->addMinutes(60), ['email' => $this->email]);
     }
 
     // withTrashed: profil admin yang dihapus tetap terbaca agar status 'dihapus' ikut dicek CheckIsAdmin.

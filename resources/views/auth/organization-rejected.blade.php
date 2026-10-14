@@ -31,7 +31,7 @@
                 <p class="mx-auto mt-3 max-w-[480px] rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left text-[13px] leading-relaxed text-red-700"><strong>Rekening bank ditolak.</strong> Data rekening perlu diperbaiki dan dikirim ulang untuk diverifikasi.</p>
             @endif
             <p class="mx-auto mt-4 max-w-[470px] text-[13px] sm:text-[14px] leading-relaxed text-gray-500">Data sebelumnya akan tetap tersedia pada formulir registrasi ulang. Dokumen yang ditolak perlu diperbaiki dan diunggah kembali.</p>
-            <a href="{{ route('organization.resubmit.form', ['email' => $user->email]) }}" class="mt-8 inline-flex rounded-xl bg-[#065e38] px-7 py-3 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#044a2c]">Registrasi Ulang</a>
+            <a href="{{ $user->organizationResubmitUrl() }}" class="mt-8 inline-flex rounded-xl bg-[#065e38] px-7 py-3 text-[14px] font-bold text-white shadow-sm transition hover:bg-[#044a2c]">Registrasi Ulang</a>
         </section>
     </main>
 </body>

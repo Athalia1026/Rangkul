@@ -136,6 +136,7 @@ class AuthController extends Controller
                     'message' => $result['message'],
                     'code' => $result['code'],
                     'user' => $result['user'],
+                    'redirect_url' => $result['redirect_url'] ?? null,
                 ], 403);
             }
 

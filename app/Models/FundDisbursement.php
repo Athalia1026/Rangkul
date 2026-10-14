@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
 use App\Models\BankAccount;
 
 class FundDisbursement extends Model
@@ -16,6 +17,10 @@ class FundDisbursement extends Model
     protected $table = 'fund_disbursements';
     protected $keyType = 'string';
     public $incrementing = false;
+
+    // Lampiran pengajuan & bukti transfer manual adalah dokumen keuangan internal: disimpan privat.
+    public const DISK = 'local';
+    public const FILE_COLUMNS = ['lampiran' => 'lampiran_pendukung', 'bukti-transfer' => 'manual_transfer_proof'];
 
     protected $fillable = [
         'id', 'id_campaign', 'id_bank_account', 'alokasi_dana',
@@ -35,7 +40,13 @@ class FundDisbursement extends Model
         });
     }
 
-    public function campaign() { 
+    /** Link sementara (30 menit) untuk membuka lampiran / bukti transfer privat pencairan ini. */
+    public function fileUrl(string $type): string
+    {
+        return URL::temporarySignedRoute('disbursement.file', now()->addMinutes(30), ['disbursement' => $this->id, 'type' => $type]);
+    }
+
+    public function campaign() {
         return $this->belongsTo(Campaign::class, 'id_campaign', 'id'); 
     }
     public function bankAccount() {

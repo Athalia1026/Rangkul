@@ -266,8 +266,8 @@
                     return;
                 }
 
-                if (result.code === 'ORGANIZATION_REJECTED') {
-                    window.location.href = '{{ route('organization.rejected') }}' + '?email=' + encodeURIComponent(email);
+                if (result.code === 'ORGANIZATION_REJECTED' && result.redirect_url) {
+                    window.location.href = result.redirect_url;
                     return;
                 }
 

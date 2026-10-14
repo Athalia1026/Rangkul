@@ -21,7 +21,7 @@ class EnsureOrganizationAccount
         }
 
         if ($organization->verification_status === 'ditolak') {
-            return redirect()->route('organization.rejected', ['email' => $user->email]);
+            return redirect()->to($user->organizationRejectedUrl());
         }
 
         if ($organization->verification_status !== 'disetujui') {

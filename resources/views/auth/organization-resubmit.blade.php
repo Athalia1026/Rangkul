@@ -62,7 +62,7 @@
                             <p class="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11px] leading-relaxed text-red-700"><strong>Alasan penolakan:</strong> {{ $document->alasan_penolakan }}<br>Dokumen ini harus diunggah ulang.</p>
                         @endif
                         <label class="upload-box">
-                            <span class="upload-preview flex min-h-[62px] items-center justify-center text-[11px] text-gray-500">@if ($document && str_ends_with(strtolower($document->lokasi_file), 'pdf'))<span>Dokumen saat ini: {{ $document->nama_file }}</span>@elseif ($document)<img src="{{ asset('storage/' . $document->lokasi_file) }}" alt="{{ $upload['label'] }}" class="max-h-20 max-w-full rounded-lg object-contain">@else<span>Belum ada dokumen</span>@endif</span>
+                            <span class="upload-preview flex min-h-[62px] items-center justify-center text-[11px] text-gray-500">@if ($document && str_ends_with(strtolower($document->lokasi_file), 'pdf'))<span>Dokumen saat ini: {{ $document->nama_file }}</span>@elseif ($document)<img src="{{ $document->temporaryUrl() }}" alt="{{ $upload['label'] }}" class="max-h-20 max-w-full rounded-lg object-contain">@else<span>Belum ada dokumen</span>@endif</span>
                             <span class="mt-2 text-[12px] font-bold text-[#05522d]">Pilih file pengganti</span>
                             <span class="text-[10px] text-gray-600">{{ strtoupper(str_replace('.', '', str_replace(',', ', ', $upload['accept']))) }}</span>
                             <input type="file" name="{{ $upload['name'] }}" accept="{{ $upload['accept'] }}" @if ($document?->status === 'ditolak') required @endif class="hidden" onchange="previewFile(this)">

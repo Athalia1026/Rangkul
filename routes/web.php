@@ -14,6 +14,8 @@ use App\Http\Controllers\Organizations\OrganizationDisbursementController;
 use App\Http\Controllers\Organizations\OrganizationDonationController;
 use App\Http\Controllers\Organizations\OrganizationGalleryController;
 use App\Http\Controllers\Organizations\OrganizationNotificationController;
+use App\Http\Controllers\Organizations\OrganizationDocumentController;
+use App\Http\Controllers\Admin\DisbursementFileController;
 use App\Http\Controllers\Organizations\OrganizationProfileController;
 use App\Http\Controllers\Organizations\OrganizationReportController;
 use App\Http\Controllers\Organizations\OrganizationVisitController;
@@ -138,12 +140,29 @@ Route::get('/organization/pending', function () {
 })->name('organization.pending');
 
 
+// Halaman berisi data rekening & dokumen: hanya bisa dibuka lewat link bertanda tangan
+// yang dibuat setelah login berhasil (lihat User::organizationRejectedUrl()).
 Route::get('/organization/rejected', [AuthController::class, 'showOrganizationRejected'])
+    ->middleware('signed')
     ->name('organization.rejected');
 
 
 Route::get('/organization/resubmit', [AuthController::class, 'showOrganizationResubmit'])
+    ->middleware('signed')
     ->name('organization.resubmit.form');
+
+
+// Dokumen pendaftaran organisasi disimpan privat; link bertanda tangan dibuat untuk admin & pemiliknya.
+Route::get('/organization/documents/{document}', [OrganizationDocumentController::class, 'show'])
+    ->middleware('signed')
+    ->name('organization.document');
+
+
+// Lampiran pengajuan & bukti transfer manual pencairan dana: privat, link bertanda tangan dibuat untuk admin.
+Route::get('/disbursements/{disbursement}/files/{type}', [DisbursementFileController::class, 'show'])
+    ->middleware('signed')
+    ->whereIn('type', array_keys(\App\Models\FundDisbursement::FILE_COLUMNS))
+    ->name('disbursement.file');
 
 
 Route::post('/organization/resubmit', [AuthController::class, 'resubmitOrganizationWeb'])

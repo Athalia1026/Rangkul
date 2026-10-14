@@ -62,7 +62,7 @@ class AdminUserController extends Controller
                     'key' => $key,
                     'label' => self::DOCUMENT_LABELS[$key] ?? 'Dokumen Lainnya',
                     'file_name' => $document->nama_file,
-                    'url' => asset('storage/' . ltrim($document->lokasi_file, '/')),
+                    'url' => $document->temporaryUrl(),
                     'status' => $document->status,
                 ];
             })

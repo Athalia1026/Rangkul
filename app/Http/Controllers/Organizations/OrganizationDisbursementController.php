@@ -102,7 +102,7 @@ class OrganizationDisbursementController extends Controller
 
         return DB::transaction(function () use ($request, $organizationId, $bankAccount) {
             $lampiranPath = $request->hasFile('lampiran')
-                ? $request->file('lampiran')->store('disbursements/lampiran', 'public')
+                ? $request->file('lampiran')->store('disbursements/lampiran', FundDisbursement::DISK)
                 : null;
 
             $disbursement = FundDisbursement::create([

@@ -31,9 +31,12 @@ class AdminDisbursementVerificationController extends Controller
         $disbursement = FundDisbursement::with(['campaign.organization', 'verifier.user', 'purchaseProofs'])
             ->findOrFail($id);
 
-        // Bukti pembelian: lampiran saat pengajuan, atau bukti pembelian terbaru yang diunggah setelah dana cair.
+        // Bukti pembelian: lampiran saat pengajuan (privat, lewat link bertanda tangan), atau bukti
+        // pembelian terbaru yang diunggah setelah dana cair (publik, juga ditampilkan ke donatur).
+        $latestProof = $disbursement->purchaseProofs->sortByDesc('uploaded_at')->first()?->lokasi_file;
         $attachment = $disbursement->lampiran_pendukung
-            ?? $disbursement->purchaseProofs->sortByDesc('uploaded_at')->first()?->lokasi_file;
+            ? ['path' => $disbursement->lampiran_pendukung, 'url' => $disbursement->fileUrl('lampiran')]
+            : ($latestProof ? ['path' => $latestProof, 'url' => asset('storage/' . ltrim($latestProof, '/'))] : null);
 
         return response()->json([
             'status' => 'success',
@@ -49,8 +52,8 @@ class AdminDisbursementVerificationController extends Controller
                 'verifier_name' => $disbursement->verifier?->user?->nama,
                 'submitted_at' => optional($disbursement->created_at)->format('d/m/Y'),
                 'attachment' => $attachment ? [
-                    'url' => asset('storage/' . ltrim($attachment, '/')),
-                    'is_image' => (bool) preg_match('/\.(jpe?g|png|gif|webp)$/i', $attachment),
+                    'url' => $attachment['url'],
+                    'is_image' => (bool) preg_match('/\.(jpe?g|png|gif|webp)$/i', $attachment['path']),
                 ] : null,
             ],
         ]);
@@ -127,7 +130,7 @@ class AdminDisbursementVerificationController extends Controller
         }
 
         $proofPath = $request->hasFile('bukti_transfer')
-            ? $request->file('bukti_transfer')->store('disbursements/manual-transfer', 'public')
+            ? $request->file('bukti_transfer')->store('disbursements/manual-transfer', FundDisbursement::DISK)
             : $disbursement->manual_transfer_proof;
 
         $disbursement->update([

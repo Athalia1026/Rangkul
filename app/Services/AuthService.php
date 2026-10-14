@@ -162,7 +162,7 @@ class AuthService
             }
 
             $file = $request->file($type);
-            $path = $file->store($folder, 'public');
+            $path = $file->store($folder, OrganizationDocument::DISK);
 
             $documentRows[] = [
                 'id' => (string) Str::uuid(),
@@ -208,7 +208,7 @@ class AuthService
             return;
         }
 
-        Storage::disk('public')->delete($paths);
+        Storage::disk(OrganizationDocument::DISK)->delete($paths);
     }
 
     public function login(array $credentials): array
@@ -271,6 +271,7 @@ class AuthService
                 'message' => 'Pendaftaran organisasi Anda ditolak. Silakan ajukan ulang dokumen.',
                 'code' => 'ORGANIZATION_REJECTED',
                 'user' => $user,
+                'redirect_url' => $user->organizationRejectedUrl(),
                 'status' => 403,
             ];
         }
@@ -438,7 +439,7 @@ class AuthService
 
             $file = $request->file($field);
             $folder = 'documents/' . $keyword;
-            $newPath = $file->store($folder, 'public');
+            $newPath = $file->store($folder, OrganizationDocument::DISK);
             $targetDocument = $documentMap[$keyword] ?? null;
 
             $this->replaceDocumentFile($targetDocument, $organization->id, $newPath, $file);
@@ -464,9 +465,7 @@ class AuthService
     private function replaceDocumentFile(?OrganizationDocument $targetDocument, string $organizationId, string $newPath, $file): void
     {
         if ($targetDocument) {
-            if (Storage::disk('public')->exists($targetDocument->lokasi_file)) {
-                Storage::disk('public')->delete($targetDocument->lokasi_file);
-            }
+            Storage::disk(OrganizationDocument::DISK)->delete($targetDocument->lokasi_file);
 
             $targetDocument->update([
                 'lokasi_file' => $newPath,
