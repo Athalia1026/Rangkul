@@ -23,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('donations:sync-midtrans')->everyMinute()->withoutOverlapping();
+        // Bersihkan token login yang sudah kedaluwarsa (lihat sanctum.expiration).
+        $schedule->command('sanctum:prune-expired --hours=24')->daily();
     })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([

@@ -46,7 +46,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // Token login berlaku 30 hari (sama dengan "Ingat saya"), agar token yang bocor tidak berlaku selamanya.
+    'expiration' => (int) env('SANCTUM_EXPIRATION', 60 * 24 * 30),
 
     /*
     |--------------------------------------------------------------------------

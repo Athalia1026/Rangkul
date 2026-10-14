@@ -71,8 +71,9 @@
                 </a>
 
                 {{-- Keluar --}}
+                {{-- Cabut token API di server lebih dulu (keepalive), lalu akhiri sesi web --}}
                 <form method="POST" action="{{ route('logout') }}"
-                    onsubmit="localStorage.removeItem('auth_token'); localStorage.removeItem('auth_user');">
+                    onsubmit="var t = localStorage.getItem('auth_token'); if (t) { fetch('/api/logout', { method: 'POST', headers: { Accept: 'application/json', Authorization: 'Bearer ' + t }, keepalive: true }).catch(function () {}); } localStorage.removeItem('auth_token'); localStorage.removeItem('auth_user');">
                     @csrf
                     <button type="submit" class="p-1 text-gray-500 hover:text-red-600 transition-colors"
                         aria-label="Keluar" title="Keluar">
