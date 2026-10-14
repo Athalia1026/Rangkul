@@ -109,12 +109,16 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . 
         ->middleware('throttle:10,1');
     Route::get('/disbursements/pending', [AdminDisbursementVerificationController::class, 'index']);
     Route::get('/disbursements/{id}', [AdminDisbursementVerificationController::class, 'show']);
+    Route::get('/proof-verifications/{proofId}', [AdminProofVerificationController::class, 'show']);
+    Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof'])
+        ->middleware('throttle:10,1');
+});
+
+// Keputusan pencairan dana & pencatatan transfer: khusus manajer (staf hanya memverifikasi bukti & pendaftaran).
+Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER])->prefix('admin')->group(function () {
     Route::put('/disbursements/{id}/verify', [AdminDisbursementVerificationController::class, 'verify'])
         ->middleware('throttle:10,1');
     Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer'])
-        ->middleware('throttle:10,1');
-    Route::get('/proof-verifications/{proofId}', [AdminProofVerificationController::class, 'show']);
-    Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof'])
         ->middleware('throttle:10,1');
 });
 

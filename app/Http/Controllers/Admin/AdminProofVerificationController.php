@@ -100,6 +100,10 @@ class AdminProofVerificationController extends Controller
             }
 
             if ($role === 'manager') {
+                if ($proof->status !== 'menunggu') {
+                    return response()->json(['status' => 'error', 'message' => 'Bukti penyaluran ini sudah diverifikasi final sebelumnya.'], 409);
+                }
+
                 if (!$verification->staff_id || $verification->status === 'ditolak') {
                     return response()->json(['status' => 'error', 'message' => 'Validasi gagal: Membutuhkan persetujuan Staff terlebih dahulu.'], 403);
                 }
