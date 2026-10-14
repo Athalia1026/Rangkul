@@ -53,18 +53,20 @@ class AdminRegistrationController extends Controller
         ]);
 
         // Undangan yang dikirim lewat email hanya bisa dipakai oleh email tersebut.
-        if ($invitationModel->email && strcasecmp($invitationModel->email, $validated['email']) !== 0) {
-            throw ValidationException::withMessages([
-                'email' => 'Gunakan email yang menerima undangan: ' . $invitationModel->email . '.',
-            ]);
-        }
-
-        // Baris undangan dikunci agar satu link tidak bisa dipakai dua kali secara bersamaan.
+        // Baris undangan dikunci agar satu link tidak bisa dipakai dua kali secara bersamaan, dan semua
+        // syarat (masih berlaku, email tujuan) dicek ulang dari data terkunci, bukan dari data awal request.
         $user = DB::transaction(function () use ($invitationModel, $validated) {
             $locked = AdminInvitation::lockForUpdate()->find($invitationModel->id);
 
             if (!$locked || !$locked->isUsable()) {
                 return null;
+            }
+
+            // Undangan yang dikirim lewat email hanya bisa dipakai oleh email tersebut.
+            if ($locked->email && strcasecmp($locked->email, $validated['email']) !== 0) {
+                throw ValidationException::withMessages([
+                    'email' => 'Gunakan email yang menerima undangan: ' . $locked->email . '.',
+                ]);
             }
 
             $user = User::create([
