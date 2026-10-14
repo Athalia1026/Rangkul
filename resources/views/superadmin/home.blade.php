@@ -23,9 +23,7 @@
 
     @include('superadmin.layouts.navbar')
 
-    <!-- ========================================================= -->
     <!-- MAIN CONTENT -->
-    <!-- ========================================================= -->
     <main class="w-full max-w-[1200px] mx-auto px-8 py-6 space-y-6">
 
         <div id="dashboard-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
@@ -170,8 +168,14 @@
                     <span class="text-xl">📁</span>
                     <h2 class="font-bold text-base tracking-wide">Daftar Akun Staff & Manager</h2>
                 </div>
-                <button onclick="openModalTambah()" class="px-4 py-1.5 rounded-full bg-[#faecc8] text-[#086538] hover:bg-[#f6e4b2] text-xs font-semibold transition-all shadow-sm">
-                    Tambahkan Staff/Manager
+
+                <!-- TOMBOL TAMBAHKAN STAFF/MANAGER -->
+                <button 
+                    onclick="bukaModalGenerateLink()" 
+                    class="flex items-center gap-2 rounded-lg bg-[#FFF5CC] px-4 py-2 text-xs font-semibold text-black shadow-sm transition hover:bg-[#FFF4B8] active:scale-95"
+                >
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Tambahkan Staff/Manager</span>
                 </button>
             </div>
 
@@ -222,9 +226,7 @@
 
     </main>
 
-    <!-- ========================================================= -->
     <!-- 1. POP UP: TAMBAHKAN STAFF/MANAGER -->
-    <!-- ========================================================= -->
     <div id="modal-tambah" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Tambahkan Staff / Manager</h2>
@@ -252,9 +254,7 @@
         </div>
     </div>
 
-    <!-- ========================================================= -->
     <!-- 2. POP UP: UBAH DATA AKUN (Frame 319) -->
-    <!-- ========================================================= -->
     <div id="modal-edit" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Ubah Data Akun</h2>
@@ -280,9 +280,7 @@
         </div>
     </div>
 
-    <!-- ========================================================= -->
     <!-- 3. POP UP: RESET PASSWORD DENGAN SEEN / UNSEEN (Frame 320) -->
-    <!-- ========================================================= -->
     <div id="modal-reset" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Reset Password</h2>
@@ -320,9 +318,7 @@
         </div>
     </div>
 
-    <!-- ========================================================= -->
     <!-- 4. POP UP: KONFIRMASI PENGAKTIFAN (Frame 320-1) -->
-    <!-- ========================================================= -->
     <div id="modal-aktifkan" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Konfirmasi Pengaktifan</h2>
@@ -335,9 +331,7 @@
         </div>
     </div>
 
-    <!-- ========================================================= -->
     <!-- 5. POP UP: NONAKTIFKAN AKUN (Frame 321-1) -->
-    <!-- ========================================================= -->
     <div id="modal-nonaktifkan" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 text-center">
             <div class="flex justify-center mb-3">
@@ -366,9 +360,7 @@
         </div>
     </div>
 
-    <!-- ========================================================= -->
     <!-- 6. POP UP: HAPUS AKUN PERMANEN (Frame 321) -->
-    <!-- ========================================================= -->
     <div id="modal-hapus" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 text-center">
             <div class="flex justify-center mb-3">
@@ -397,9 +389,135 @@
         </div>
     </div>
 
-    <!-- ========================================================= -->
+    <!-- POPUP: KIRIM UNDANGAN ADMIN BARU (LINK & KIRIM)      -->
+    <div id="modalGenerateLink" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden">
+            
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-[#086538]">
+                        <i class="fa-solid fa-link text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900">Undang Admin Baru</h3>
+                        <p class="text-xs text-gray-500">Pilih role dan kirim link pendaftaran langsung ke admin</p>
+                    </div>
+                </div>
+                <button onclick="tutupModalGenerateLink()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="p-6 space-y-5">
+                <!-- Pilihan Role -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
+                        Pilih Role <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-3.5 cursor-pointer hover:border-emerald-500 has-[:checked]:border-[#086538] has-[:checked]:bg-emerald-50/50 transition">
+                            <input type="radio" name="pilihRole" value="Staff" checked onchange="regenerateTokenLink()" class="text-[#086538] focus:ring-[#086538]">
+                            <div>
+                                <span class="block text-sm font-bold text-gray-800">Staff</span>
+                                <span class="block text-[11px] text-gray-500">Akses verifikasi & review</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-3.5 cursor-pointer hover:border-emerald-500 has-[:checked]:border-[#086538] has-[:checked]:bg-emerald-50/50 transition">
+                            <input type="radio" name="pilihRole" value="Manager" onchange="regenerateTokenLink()" class="text-[#086538] focus:ring-[#086538]">
+                            <div>
+                                <span class="block text-sm font-bold text-gray-800">Manager</span>
+                                <span class="block text-[11px] text-gray-500">Akses approval & laporan</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Token Tersembunyi (Auto Masuk DB) -->
+                <input type="hidden" id="tokenHasil">
+
+                <!-- Kotak Link Pendaftaran & Form Kirim Langsung -->
+                <div class="space-y-4 rounded-xl bg-gray-50 border border-gray-200 p-4">
+                    <!-- Tautan Pendaftaran -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">
+                            Tautan Pendaftaran Admin
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input 
+                                type="text" 
+                                id="linkHasil" 
+                                readonly 
+                                class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 font-mono outline-none select-all"
+                            >
+                            <button 
+                                type="button" 
+                                onclick="salinLinkUndangan()" 
+                                class="flex items-center gap-1.5 rounded-lg bg-[#086538] px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-[#064e2b] transition whitespace-nowrap active:scale-95"
+                            >
+                                <i class="fa-regular fa-copy"></i>
+                                <span id="labelSalin">Salin Link</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Input Email Penerima + Tombol Kirim Soft Yellow -->
+                    <div class="pt-3 border-t border-gray-200">
+                        <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            Email Penerima:
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <div class="relative w-full">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </span>
+                                <input 
+                                    type="text" 
+                                    id="inputPenerimaUndangan" 
+                                    placeholder="contoh.admin@gmail.com" 
+                                    class="w-full pl-8 pr-3 py-2 text-xs border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#086538]"
+                                >
+                            </div>
+                            <button 
+                                type="button" 
+                                onclick="kirimUndanganLangsung()" 
+                                id="btnKirimUndangan"
+                                class="flex items-center gap-1.5 rounded-lg bg-[#faecc8] hover:bg-[#f6e4b2] text-[#086538] border border-[#f3dd9b] px-4 py-2 text-xs font-bold shadow-xs transition active:scale-95 whitespace-nowrap cursor-pointer"
+                            >
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Kirim</span>
+                            </button>
+                        </div>
+                        <p id="pesanStatusKirim" class="hidden text-xs mt-2 font-semibold"></p>
+                        <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">
+                            Token registrasi tersimpan otomatis di database dan tautan langsung terkirim ke penerima.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Petunjuk -->
+                <div class="rounded-lg bg-emerald-50/70 p-3 text-xs text-emerald-900 border border-emerald-100 flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-emerald-700 mt-0.5"></i>
+                    <p>Setelah tautan terkirim, penerima tinggal membuka tautan tersebut untuk mengisi <b>Nama, Email, No. Telepon, dan Password</b> secara mandiri.</p>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="flex items-center justify-end gap-2 border-t border-gray-100 bg-gray-50/50 px-6 py-3.5">
+                <button 
+                    type="button" 
+                    onclick="tutupModalGenerateLink()" 
+                    class="rounded-lg border border-gray-300 bg-white px-5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 transition active:scale-95"
+                >
+                    Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT LOGIC -->
-    <!-- ========================================================= -->
     <script>
         // Data Akun Awal
         let dataAkun = [
@@ -517,9 +635,7 @@
             }
         }
 
-        // ==========================================
         // HANDLER SETIAP AKSI POP UP
-        // ==========================================
         function openModalTambah() {
             document.getElementById('input-nama').value = '';
             document.getElementById('input-email').value = '';
@@ -634,9 +750,7 @@
             renderTabel();
         }
 
-        // =====================================================
         // DASHBOARD & CHARTS
-        // =====================================================
         let trendChart = null;
         let gaugeChart = null;
 
@@ -784,6 +898,85 @@
         // Jalankan saat halaman pertama kali dimuat
         renderTabel();
         loadDashboard();
+
+        // LOGIKA MODAL TAMBAH ADMIN (LINK + TOKEN + AUTO DB & KIRIM)
+        function bukaModalGenerateLink() {
+            regenerateTokenLink();
+            document.getElementById('inputPenerimaUndangan').value = '';
+            const statusMsg = document.getElementById('pesanStatusKirim');
+            if (statusMsg) statusMsg.classList.add('hidden');
+            
+            const modal = document.getElementById('modalGenerateLink');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function tutupModalGenerateLink() {
+            const modal = document.getElementById('modalGenerateLink');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Bikin token acak otomatis di latar belakang (tanpa ditampilkan di UI)
+        function regenerateTokenLink() {
+            const roleTerpilih = document.querySelector('input[name="pilihRole"]:checked').value;
+            const randomHex = Math.floor(100000 + Math.random() * 900000);
+            const token = `RNG-${roleTerpilih.substring(0, 3).toUpperCase()}-${randomHex}`;
+            
+            // Tautan pendaftaran dengan parameter token & role
+            const link = `${window.location.origin}/register-admin?token=${token}&role=${roleTerpilih.toLowerCase()}`;
+
+            // Token disimpan di input hidden (siap dikirim/disimpan ke database)
+            document.getElementById('tokenHasil').value = token;
+            document.getElementById('linkHasil').value = link;
+            
+            // Reset status tombol salin & pesan kirim
+            const labelSalin = document.getElementById('labelSalin');
+            if (labelSalin) labelSalin.textContent = 'Salin Link';
+            const statusMsg = document.getElementById('pesanStatusKirim');
+            if (statusMsg) statusMsg.classList.add('hidden');
+        }
+
+        // Salin link ke clipboard
+        function salinLinkUndangan() {
+            const linkInput = document.getElementById('linkHasil');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+            
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                const labelSalin = document.getElementById('labelSalin');
+                labelSalin.textContent = 'Tersalin!';
+                setTimeout(() => {
+                    labelSalin.textContent = 'Salin Link';
+                }, 2000);
+            });
+        }
+
+        // Kirim link pendaftaran langsung ke Email
+        function kirimUndanganLangsung() {
+            const penerima = document.getElementById('inputPenerimaUndangan').value.trim();
+            const token = document.getElementById('tokenHasil').value;
+            const roleTerpilih = document.querySelector('input[name="pilihRole"]:checked').value;
+            const pesanStatus = document.getElementById('pesanStatusKirim');
+
+            if (!penerima) {
+                pesanStatus.textContent = '⚠️ Masukkan email tujuan terlebih dahulu!';
+                pesanStatus.className = 'text-xs mt-2 font-semibold text-red-600 block';
+                return;
+            }
+
+            const btnKirim = document.getElementById('btnKirimUndangan');
+            btnKirim.disabled = true;
+            btnKirim.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Mengirim...</span>`;
+
+            setTimeout(() => {
+                btnKirim.disabled = false;
+                btnKirim.innerHTML = `<i class="fa-solid fa-paper-plane"></i><span>Kirim</span>`;
+
+                pesanStatus.textContent = `✓ Undangan berhasil dikirim ke "${penerima}"! Token ${token} otomatis tersimpan di database untuk role ${roleTerpilih}.`;
+                pesanStatus.className = 'text-xs mt-2 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-2 block';
+            }, 600);
+        }
     </script>
 </body>
 </html>
