@@ -152,8 +152,11 @@ class PremiumService
     private function applyPaymentStatus(Subscription $subscription, array $payload): void
     {
         $status = $payload['transaction_status'] ?? null;
+        // Hanya langganan yang masih menunggu pembayaran yang bisa diaktifkan; notifikasi
+        // settlement yang dikirim ulang untuk langganan lama tidak boleh menambah masa aktif.
         if (in_array($status, ['settlement', 'capture'], true)
-            && in_array($payload['fraud_status'] ?? null, ['accept', null, ''], true)) {
+            && in_array($payload['fraud_status'] ?? null, ['accept', null, ''], true)
+            && $subscription->status === 'menunggu_bayar') {
             $this->activate($subscription, $payload['transaction_id'] ?? $subscription->transaction_id);
         } elseif (in_array($status, ['cancel', 'deny', 'expire', 'failure'], true) && $subscription->status === 'menunggu_bayar') {
             $subscription->update(['status' => 'nonaktif']);
