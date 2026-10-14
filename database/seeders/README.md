@@ -27,7 +27,11 @@ Tidak ada transaksi pembayaran atau pengiriman email sungguhan.
 | Organisasi | organisasi1@rangkul.test | password123 |
 | Organisasi | organisasi2@rangkul.test | password123 |
 | Organisasi | organisasi3@rangkul.test | password123 |
-| Manager (seeder existing) | manager@rangkul.com | password123 |
+| Super Admin / Manager / Staff (`AdminUserSeeder`) | superadmin@ / manager@ / staff@rangkul.com | `ADMIN_SEED_PASSWORD`, atau password123 jika kosong |
+
+`AdminUserSeeder` memakai `ADMIN_SEED_PASSWORD` dari `.env`. Default `password123` hanya berlaku di
+`local`/`testing`; di lingkungan lain seeder berhenti jika `ADMIN_SEED_PASSWORD` kosong atau kurang dari
+12 karakter, dan tidak menimpa password akun admin yang sudah ada.
 
 Menjalankan ulang seeder memperbarui data demo dan password akun contoh tanpa
 menggandakan baris atau mengganti ID kategori yang telah direferensikan kampanye.

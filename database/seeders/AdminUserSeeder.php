@@ -12,38 +12,42 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::transaction(function () {
+        $isLocal = app()->environment('local', 'testing');
+        $password = $this->resolvePassword($isLocal);
+
+        DB::transaction(function () use ($isLocal, $password) {
             $adminAccounts = [
                 [
                     'email' => 'superadmin@rangkul.com',
                     'nama' => 'Super Admin',
                     'tipe' => 'super admin',
-                    'password' => 'password123',
                 ],
                 [
                     'email' => 'manager@rangkul.com',
                     'nama' => 'Manager Rangkul',
                     'tipe' => 'manager',
-                    'password' => 'password123',
                 ],
                 [
                     'email' => 'staff@rangkul.com',
                     'nama' => 'Staff Rangkul',
                     'tipe' => 'staff',
-                    'password' => 'password123',
                 ],
             ];
 
             foreach ($adminAccounts as $adminAccount) {
-                $user = User::updateOrCreate(
-                    ['email' => $adminAccount['email']],
-                    [
-                        'nama' => $adminAccount['nama'],
-                        'password' => Hash::make($adminAccount['password']),
-                        'account_type' => 'admin',
-                        'status' => 'aktif',
-                    ]
-                );
+                $user = User::firstOrNew(['email' => $adminAccount['email']]);
+                $user->fill([
+                    'nama' => $adminAccount['nama'],
+                    'account_type' => 'admin',
+                    'status' => 'aktif',
+                ]);
+
+                // Di luar local/testing, password akun admin yang sudah ada tidak ditimpa saat seeder dijalankan ulang.
+                if (!$user->exists || $isLocal) {
+                    $user->password = Hash::make($password);
+                }
+
+                $user->save();
 
                 Admin::updateOrCreate(
                     ['user_id' => $user->id],
@@ -54,5 +58,28 @@ class AdminUserSeeder extends Seeder
                 );
             }
         });
+    }
+
+    /**
+     * Password awal akun admin diambil dari ADMIN_SEED_PASSWORD. Default 'password123'
+     * hanya diizinkan di local/testing agar akun admin tidak pernah dibuat dengan password publik.
+     */
+    private function resolvePassword(bool $isLocal): string
+    {
+        $password = (string) env('ADMIN_SEED_PASSWORD', '');
+
+        if ($password !== '') {
+            if (!$isLocal && strlen($password) < 12) {
+                throw new \RuntimeException('ADMIN_SEED_PASSWORD minimal 12 karakter di luar lingkungan local/testing.');
+            }
+
+            return $password;
+        }
+
+        if ($isLocal) {
+            return 'password123';
+        }
+
+        throw new \RuntimeException('Set ADMIN_SEED_PASSWORD di .env sebelum menjalankan AdminUserSeeder di luar lingkungan local/testing.');
     }
 }
