@@ -31,21 +31,22 @@ use App\Http\Controllers\Donors\PremiumController;
 use App\Http\Controllers\Donors\PremiumDashboardController;
 use App\Http\Middleware\CheckPremium;
 
-Route::get('/search', [SearchController::class, 'search']);
+Route::get('/search', [SearchController::class, 'search'])
+    ->middleware('throttle:60,1,search');
 Route::post('/register/donor', [AuthController::class, 'registerDonor'])
-    ->middleware('throttle:5,1');
+    ->middleware('throttle:5,1,register-donor');
 Route::post('/register/organization', [AuthController::class, 'registerOrganization'])
-    ->middleware('throttle:3,1');
+    ->middleware('throttle:3,1,register-organization');
 Route::post('/login', [AuthController::class, 'login'])
-    ->middleware('throttle:5,1');
+    ->middleware('throttle:5,1,login');
 Route::post('/forgot-password', [ResetPasswordController::class, 'sendResetLinkEmail'])
-    ->middleware('throttle:3,1');
+    ->middleware('throttle:3,1,forgot-password');
 Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])
-    ->middleware('throttle:5,1');
+    ->middleware('throttle:5,1,reset-password');
 Route::post('/registration/resubmit', [AuthController::class, 'resubmit'])
-    ->middleware('throttle:3,1');
+    ->middleware('throttle:3,1,resubmit');
 Route::post('/midtrans/callback', [DonationController::class, 'handleCallback'])
-    ->middleware('throttle:10,1');
+    ->middleware('throttle:120,1,midtrans-callback');
 Route::get('/campaigns/{campaignId}/wishes', [DonationController::class, 'getCampaignWishes']);
 Route::get('/organizations/{organizationId}/campaigns', [OrganizationProfileController::class, 'getOrganizationCampaigns']);
 Route::get('/organizations/{organizationId}/profile', [OrganizationProfileController::class, 'showPublicProfile']);
@@ -53,18 +54,18 @@ Route::get('/organizations/{organizationId}/profile', [OrganizationProfileContro
 // Endpoint Terproteksi (Wajib Token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])
-        ->middleware('throttle:5,1');
+        ->middleware('throttle:10,1,logout');
     Route::get('/me', [AuthController::class, 'me']); // Untuk mengambil data profil user saat in
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
     Route::put('/profile/change-password', [PasswordController::class, 'update'])
-        ->middleware('throttle:5,1');
+        ->middleware('throttle:5,1,change-password');
     Route::middleware([CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER . ',' . Admin::TIPE_STAFF])->prefix('admin/verifications')->group(function () {
         Route::get('/organizations', [OrganizationVerificationController::class, 'index']);
         Route::get('/organizations/{id}', [OrganizationVerificationController::class, 'show']);
         Route::put('/organizations/{id}', [OrganizationVerificationController::class, 'verifyOrganization'])
-            ->middleware('throttle:10,1');
+            ->middleware('throttle:10,1,verify-organization');
         Route::put('/documents/{documentId}', [OrganizationVerificationController::class, 'verifyDocument']);
         Route::put('/bank-accounts/{bankId}', [OrganizationVerificationController::class, 'verifyBankAccount']);
     });
@@ -106,20 +107,20 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class])->prefix('admin')->group
 Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER . ',' . Admin::TIPE_STAFF])->prefix('admin')->group(function () {
     Route::get('/campaigns/pending', [AdminCampaignVerificationController::class, 'index']);
     Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify'])
-        ->middleware('throttle:10,1');
+        ->middleware('throttle:10,1,verify-campaign');
     Route::get('/disbursements/pending', [AdminDisbursementVerificationController::class, 'index']);
     Route::get('/disbursements/{id}', [AdminDisbursementVerificationController::class, 'show']);
     Route::get('/proof-verifications/{proofId}', [AdminProofVerificationController::class, 'show']);
     Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof'])
-        ->middleware('throttle:10,1');
+        ->middleware('throttle:10,1,verify-proof');
 });
 
 // Keputusan pencairan dana & pencatatan transfer: khusus manajer (staf hanya memverifikasi bukti & pendaftaran).
 Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER])->prefix('admin')->group(function () {
     Route::put('/disbursements/{id}/verify', [AdminDisbursementVerificationController::class, 'verify'])
-        ->middleware('throttle:10,1');
+        ->middleware('throttle:10,1,verify-disbursement');
     Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer'])
-        ->middleware('throttle:10,1');
+        ->middleware('throttle:10,1,manual-transfer');
 });
 
 // Beranda staf: antrian verifikasi pendaftaran organisasi & bukti penyaluran.

@@ -72,7 +72,7 @@ Route::get('/login', function () {
 
 
 Route::post('/login', [AuthController::class, 'loginWeb'])
-    ->middleware('throttle:5,1')
+    ->middleware('throttle:5,1,login')
     ->name('login.store');
 
 
@@ -109,7 +109,7 @@ Route::get('/register-donors', function () {
 
 
 Route::post('/register-donors', [AuthController::class, 'registerWeb'])
-    ->middleware('throttle:5,1')
+    ->middleware('throttle:5,1,register-donor')
     ->name('register.store');
 
 
@@ -125,7 +125,7 @@ Route::get('/register-organizations', function () {
 
 
 Route::post('/register-organizations', [AuthController::class, 'registerOrganizationWeb'])
-    ->middleware('throttle:3,1')
+    ->middleware('throttle:3,1,register-organization')
     ->name('register.organization.store');
 
 
@@ -166,7 +166,7 @@ Route::get('/disbursements/{disbursement}/files/{type}', [DisbursementFileContro
 
 
 Route::post('/organization/resubmit', [AuthController::class, 'resubmitOrganizationWeb'])
-    ->middleware('throttle:3,1')
+    ->middleware('throttle:3,1,resubmit')
     ->name('organization.resubmit');
 
 
