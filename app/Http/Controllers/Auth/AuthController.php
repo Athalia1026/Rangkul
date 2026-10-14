@@ -114,9 +114,10 @@ class AuthController extends Controller
                 'token' => $result['token'],
             ], 201);
         } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
                 'message' => 'Registrasi gagal. Sistem telah membatalkan seluruh proses.',
-                'error' => $e->getMessage(),
             ], 500);
         }
     }
