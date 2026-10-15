@@ -147,7 +147,7 @@
                 </h2>
 
                 <!-- Sort Filter Trigger Button -->
-                <div class="relative {{ $isDonorSearch ? 'hidden' : '' }}" id="sortDropdownContainer">
+                <div class="relative" id="sortDropdownContainer">
                     <button
                         type="button"
                         id="sortBtn"
@@ -163,7 +163,7 @@
                     </button>
 
                     <!-- SORT DROPDOWN POPOVER -->
-                    <div id="sortMenu" class="hidden absolute right-0 top-full mt-2 w-[220px] bg-white rounded-2xl shadow-xl border border-gray-100 py-2.5 z-50">
+                    <div id="sortMenu" class="hidden absolute right-0 top-full mt-2 w-[220px] max-h-[70vh] overflow-y-auto bg-white rounded-2xl shadow-xl border border-gray-100 py-2.5 z-50">
                         <div class="px-4 py-1.5 text-[15px] font-bold text-gray-950">
                             Urutkan
                         </div>
@@ -191,46 +191,35 @@
                                 </div>
                             @endif
                         </a>
+
+                        @if ($isDonorSearch)
+                            <div class="mt-2 border-t border-gray-100 px-4 pt-3 pb-1.5 text-[15px] font-bold text-gray-950">
+                                Kategori
+                            </div>
+
+                            @foreach (collect([(object) ['id' => null, 'name' => 'Semua Kategori']])->concat($categories) as $category)
+                                @php $isActiveCategory = (string) request('category') === (string) $category->id; @endphp
+                                <a href="{{ request()->fullUrlWithQuery(['category' => $category->id]) }}" class="w-full px-4 py-2.5 text-left text-[14px] flex items-center justify-between cursor-pointer transition-colors {{ $isActiveCategory ? 'bg-[#dcf3e7] text-gray-950 font-semibold' : 'text-gray-800 hover:bg-gray-50 font-medium' }}">
+                                    <span>{{ $category->name }}</span>
+                                    @if ($isActiveCategory)
+                                        <div class="w-5 h-5 rounded-full bg-[#05522d] text-white flex items-center justify-center shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </a>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </div>
 
-            @if ($isDonorSearch)
-                <form action="{{ route('donatur.cari') }}" method="GET" class="mb-8" id="donor-search-filters">
-                    <input type="hidden" name="q" value="{{ $query }}">
-                    <div class="search-filter-bar">
-                        <details class="search-filter-menu">
-                            <summary class="search-filter-trigger">Urutkan <svg class="search-filter-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></summary>
-                            <div class="search-filter-popover">
-                                <label for="donor-sort" class="mb-2 block text-sm font-semibold">Urutkan kampanye</label>
-                                <select id="donor-sort" name="sort" class="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm">
-                                    <option value="latest" @selected(!$isUrgent)>Terbaru</option>
-                                    <option value="urgent" @selected($isUrgent)>Paling Mendesak</option>
-                                </select>
-                                <button type="submit" class="mt-3 w-full rounded-lg bg-[#05522d] py-2 text-sm font-semibold text-white">Terapkan</button>
-                            </div>
-                        </details>
-                        <details class="search-filter-menu">
-                            <summary class="search-filter-trigger">Filter <svg class="search-filter-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></summary>
-                            <div class="search-filter-popover">
-                                <label for="donor-category" class="mb-2 block text-sm font-semibold">Kategori</label>
-                                <select id="donor-category" name="category" class="w-full rounded-lg border border-gray-300 bg-white p-2 text-sm">
-                                    <option value="">Semua kategori</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id }}" @selected(request('category') === $category->id)>{{ $category->name }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="submit" class="mt-3 w-full rounded-lg bg-[#05522d] py-2 text-sm font-semibold text-white">Terapkan</button>
-                            </div>
-                        </details>
-                    </div>
-                    @if($hasFilters || $isUrgent)
-                        <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
-                            <p>{{ $campaigns->count() }} kampanye ditampilkan{{ request('category') ? ' · ' . ($categories->firstWhere('id', request('category'))?->name ?? 'Kategori tidak ditemukan') : '' }}</p>
-                            <a href="{{ route('donatur.cari') }}" class="font-semibold text-[#05522d] underline">Reset pencarian & filter</a>
-                        </div>
-                    @endif
-                </form>
+            @if ($isDonorSearch && ($hasFilters || $isUrgent))
+                <div class="-mt-2 mb-6 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
+                    <p>{{ $campaigns->count() }} kampanye ditampilkan{{ request('category') ? ' · ' . ($categories->firstWhere('id', request('category'))?->name ?? 'Kategori tidak ditemukan') : '' }}</p>
+                    <a href="{{ route('donatur.cari') }}" class="font-semibold text-[#05522d] underline">Reset pencarian & filter</a>
+                </div>
             @endif
 
             <!-- List of Horizontal Campaign Cards -->
@@ -312,48 +301,11 @@
         .donor-search-page .search-campaign-list > a > div:first-child { height: 210px; }
         .donor-search-page .search-campaign-list h3 { font-size: 18px; }
     }
-    .search-filter-bar { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; border: 1px solid #ffffff20; border-radius: 18px; background: #207466; box-shadow: 0 4px 14px #164f4310; }
-    .search-filter-menu { position: relative; min-width: 0; }
-    .search-filter-bar::after { content: ''; position: absolute; left: 50%; top: 18px; bottom: 18px; width: 1px; background: #ffffff35; }
-    .search-filter-trigger { display: flex; justify-content: center; align-items: center; gap: 10px; min-height: 48px; padding: 12px 18px; border-radius: 12px; list-style: none; cursor: pointer; color: #fff; font-size: 15px; font-weight: 600; transition: background .2s; }
-    .search-filter-trigger::-webkit-details-marker { display: none; }
-    .search-filter-trigger:hover, .search-filter-menu[open] .search-filter-trigger { background: #ffffff15; }
-    .search-filter-trigger:focus-visible { outline: 2px solid #d2f3e2; outline-offset: -3px; }
-    .search-filter-chevron { transition: transform .2s; }
-    .search-filter-menu[open] .search-filter-chevron { transform: rotate(180deg); }
-    .search-filter-popover { position: absolute; left: 50%; top: calc(100% + 18px); transform: translateX(-50%); z-index: 25; width: 300px; max-width: calc(100vw - 48px); padding: 22px; border: 1px solid #e1ece5; border-radius: 18px; background: white; color: #183b2c; box-shadow: 0 16px 40px #123d2920, 0 3px 8px #123d2908; }
-    .search-filter-popover label { margin-bottom: 12px; }
-    .search-filter-popover select { min-height: 46px; border-color: #dce7df; border-radius: 10px; background: #f8faf9; padding: 10px 12px; font-size: 14px; }
-    .search-filter-popover select:focus-visible { outline: 2px solid #258574; outline-offset: 2px; }
-    .search-filter-popover button { min-height: 44px; margin-top: 18px; border-radius: 10px; transition: background .2s; }
-    .search-filter-popover button:hover { background: #044023; }
-    @media (max-width: 640px) {
-        .search-filter-menu { position: static; }
-        .search-filter-popover { top: calc(100% + 10px); width: min(340px, calc(100% - 16px)); }
-        .search-filter-trigger { font-size: 14px; padding-inline: 10px; }
-    }
-    @media (prefers-reduced-motion: reduce) { .search-filter-trigger, .search-filter-chevron, .search-filter-popover button { transition: none; } }
     #pilihanRangkulTrack::-webkit-scrollbar {
         display: none;
     }
 </style>
 <script>
-    const donorFilters = document.getElementById('donor-search-filters');
-    if (donorFilters) {
-        const menus = [...donorFilters.querySelectorAll('details')];
-        menus.forEach(menu => menu.addEventListener('toggle', () => {
-            if (menu.open) menus.forEach(other => { if (other !== menu) other.open = false; });
-        }));
-        document.addEventListener('click', event => {
-            menus.forEach(menu => { if (!menu.contains(event.target)) menu.open = false; });
-        });
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') menus.forEach(menu => {
-                if (menu.open) { menu.open = false; menu.querySelector('summary').focus(); }
-            });
-        });
-    }
-
     function toggleSortDropdown() {
         const menu = document.getElementById('sortMenu');
         if (menu) {
