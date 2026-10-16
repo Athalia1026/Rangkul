@@ -3,14 +3,23 @@
 @section('title', 'Lupa Password')
 
 @section('content')
-    <!-- Kembali ke Login -->
-    <a href="{{ route('login') }}"
+    @php
+        // Kembali ke halaman asal (mis. Ubah Password di profil); hanya URL internal, selain itu ke Login.
+        $previousUrl = url()->previous(route('login'));
+        $hasPrevious = parse_url($previousUrl, PHP_URL_HOST) === request()->getHost()
+            && strtok($previousUrl, '?') !== url()->current();
+        $backUrl = $hasPrevious ? $previousUrl : route('login');
+        $backLabel = $hasPrevious && strtok($previousUrl, '?') !== route('login') ? 'Kembali' : 'Kembali ke Login';
+    @endphp
+
+    <!-- Kembali ke halaman sebelumnya -->
+    <a href="{{ $backUrl }}"
         class="inline-flex items-center gap-2 text-[13.5px] text-gray-950 hover:text-[#065e38] transition-colors">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M20 12H4m7-7-7 7 7 7" />
         </svg>
-        Kembali ke Login
+        {{ $backLabel }}
     </a>
 
     <!-- Header -->
