@@ -377,23 +377,11 @@
                 <thead class="bg-[#08703F] text-white">
 
                     <tr class="text-[24px]">
-
-                        <th class="w-[50%] px-7 py-6 text-left font-semibold">
-                            Kampanye
-                        </th>
-
-                        <th class="w-[20%] px-7 py-6 text-center font-semibold">
-                            Nominal
-                        </th>
-
-                        <th class="w-[17%] px-7 py-6 text-center font-semibold">
-                            Tanggal
-                        </th>
-
-                        <th class="w-[13%] px-7 py-6 text-center font-semibold">
-                            Status
-                        </th>
-
+                        <th class="w-[8%] px-4 py-6 text-center font-semibold">No</th>
+                        <th class="w-[25%] px-4 py-6 text-center font-semibold">Tanggal Pengajuan</th>
+                        <th class="w-[22%] px-4 py-6 text-center font-semibold">Tanggal Cair</th>
+                        <th class="w-[28%] px-4 py-6 text-center font-semibold">Nominal</th>
+                        <th class="w-[17%] px-4 py-6 text-center font-semibold">Status</th>
                     </tr>
 
                 </thead>
@@ -403,19 +391,10 @@
 
                     @forelse ($disbursements as $disbursement)
                         <tr class="hover:bg-[#F0F8F4] transition">
-
-                            <td class="px-7 py-6 font-medium">
-                                {{ $disbursement->campaign?->judul ?? '-' }}
-                            </td>
-
-                            <td class="px-7 py-6 text-center">
-                                {{ OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan) }}
-                            </td>
-
-                            <td class="px-7 py-6 text-center">
-                                {{ OrgFormat::date($disbursement->created_at) }}
-                            </td>
-
+                            <td class="px-4 py-6 text-center">{{ $loop->iteration }}</td>
+                            <td class="px-4 py-6 text-center">{{ OrgFormat::date($disbursement->created_at, 'd/m/Y') }}</td>
+                            <td class="px-4 py-6 text-center">{{ OrgFormat::date($disbursement->paid_at, 'd/m/Y') }}</td>
+                            <td class="px-4 py-6 text-center font-medium">{{ OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan) }}</td>
                             <td class="px-7 py-6 text-center">
 
                                 <span
@@ -436,7 +415,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-7 py-10 text-center text-gray-500">Belum ada riwayat pencairan.</td>
+                            <td colspan="5" class="px-7 py-10 text-center text-gray-500">Belum ada riwayat pencairan.</td>
                         </tr>
                     @endforelse
 

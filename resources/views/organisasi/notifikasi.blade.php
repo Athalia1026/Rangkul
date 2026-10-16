@@ -60,7 +60,7 @@
                        text-[35px]
                        lg:text-[45px]
                        font-bold
-                       text-[#08703F]"
+                       text-gray-950"
             >
                 Notifikasi
             </h1>

@@ -1,7 +1,7 @@
 <footer class="w-full bg-[#05522d] text-white mt-auto">
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
-            <div class="md:col-span-6 space-y-4">
+            <div class="md:col-span-8 space-y-4">
                 <img src="{{ asset('images/logo-light.png') }}" alt="Rangkul Logo"
                     class="h-14 max-w-full w-auto">
                 <p class="text-[15px] text-gray-200 max-w-md">Rangkul hadir untuk menghubungkan kebaikan melalui
@@ -35,7 +35,7 @@
                     </a>
                 </div>
             </div>
-            <div class="md:col-span-3 space-y-2">
+            <div class="md:col-span-4 space-y-2">
                 <h4 class="font-bold text-white">Navigasi</h4>
                 <ul class="text-[14px] text-gray-200 space-y-1">
                     <li><a href="{{ route('organisasi.dashboard') }}">Dashboard</a></li>
@@ -43,13 +43,6 @@
                     <li><a href="{{ route('organisasi.donasi') }}">Donasi</a></li>
                     <li><a href="{{ route('organisasi.kunjungan') }}">Kunjungan</a></li>
                     <li><a href="{{ route('organisasi.laporan') }}">Laporan</a></li>
-                </ul>
-            </div>
-            <div class="md:col-span-3 space-y-2">
-                <h4 class="font-bold text-white">Informasi</h4>
-                <ul class="text-[14px] text-gray-200 space-y-1">
-                    <li><a href="{{ url('/') }}">Tentang Kami</a></li>
-                    <li><a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer">Kontak</a></li>
                 </ul>
             </div>
         </div>

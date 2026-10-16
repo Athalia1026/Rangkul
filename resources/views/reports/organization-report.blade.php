@@ -80,7 +80,7 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Donatur</th>
+                    <th style="text-align: center">Donatur</th>
                     <th>Campaign</th>
                     <th>Nominal</th>
                     <th>Tanggal</th>
@@ -90,7 +90,7 @@
                 @forelse ($donations as $donation)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $donation->anonim ? 'Anonim' : ($donation->donor?->user?->nama ?? '-') }}</td>
+                        <td style="text-align: center">{{ $donation->anonim ? 'Anonim' : ($donation->donor?->user?->nama ?? '-') }}</td>
                         <td>{{ $donation->campaign?->judul ?? '-' }}</td>
                         <td>{{ OrgFormat::rupiah($donation->nominal) }}</td>
                         <td>{{ OrgFormat::date($donation->paid_at, 'd/m/Y') }}</td>
@@ -106,10 +106,9 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Campaign</th>
-                    <th>Alokasi</th>
-                    <th>Nominal</th>
                     <th>Tanggal Pengajuan</th>
+                    <th>Tanggal Cair</th>
+                    <th>Nominal</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -117,14 +116,13 @@
                 @forelse ($disbursements as $disbursement)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $disbursement->campaign?->judul ?? '-' }}</td>
-                        <td>{{ $disbursement->alokasi_dana }}</td>
-                        <td>{{ OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan) }}</td>
                         <td>{{ OrgFormat::date($disbursement->created_at, 'd/m/Y') }}</td>
+                        <td>{{ OrgFormat::date($disbursement->paid_at, 'd/m/Y') }}</td>
+                        <td>{{ OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan) }}</td>
                         <td>{{ OrgFormat::statusLabel('disbursement', $disbursement->status) }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="empty">Belum ada riwayat pencairan pada periode ini.</td></tr>
+                    <tr><td colspan="5" class="empty">Belum ada riwayat pencairan pada periode ini.</td></tr>
                 @endforelse
             </tbody>
         </table>

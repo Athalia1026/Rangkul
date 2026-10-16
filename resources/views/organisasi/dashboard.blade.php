@@ -303,19 +303,19 @@
 
                     <tr class="text-[24px]">
 
-                        <th class="w-[20%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[24%] px-8 py-6 text-center font-semibold">
                             Donatur
                         </th>
 
-                        <th class="w-[30%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[34%] px-8 py-6 text-center font-semibold">
                             Kampanye
                         </th>
 
-                        <th class="w-[25%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[27%] px-8 py-6 text-center font-semibold">
                             Donasi
                         </th>
 
-                        <th class="w-[25%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[15%] px-4 py-6 text-center font-semibold">
                             Status
                         </th>
 
@@ -336,7 +336,7 @@
                             </td>
                             <td class="px-8 py-6 text-center">{{ $donation->campaign?->judul ?? '-' }}</td>
                             <td class="px-8 py-6 text-center">{{ OrgFormat::rupiah($donation->nominal) }},-</td>
-                            <td class="px-8 py-6 text-center {{ OrgFormat::statusText('donation', $donation->status) }} font-semibold">
+                            <td class="px-4 py-6 text-center text-[20px] break-words {{ OrgFormat::statusText('donation', $donation->status) }} font-semibold">
                                 {{ OrgFormat::statusLabel('donation', $donation->status) }}
                             </td>
                         </tr>

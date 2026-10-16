@@ -40,7 +40,7 @@
         {{-- FILTER --}}
         <div
             class="grid grid-cols-1
-                   lg:grid-cols-3
+                   xl:grid-cols-3
                    gap-8
                    mt-9"
         >
@@ -77,21 +77,19 @@
                     <input
                         id="tanggalAwal"
                         name="tanggal_awal"
-                        type="{{ $filters['start'] ? 'date' : 'text' }}"
+                        type="date"
                         value="{{ $filters['start']?->format('Y-m-d') }}"
-                        placeholder="Pilih tanggal awal"
-                        onfocus="this.type='date'"
-                        onblur="if(!this.value)this.type='text'"
                         class="w-full
-                               h-[82px]
+                               h-[90px]
+                               min-w-0
                                pl-[65px]
                                pr-6
                                bg-white
                                border border-gray-300
                                rounded-[16px]
-                               text-[23px]
-                               text-gray-800
-                               placeholder:text-gray-400
+                               text-[28px]
+                               font-medium
+                               text-gray-950
                                outline-none
                                focus:border-[#08703F]
                                focus:ring-2
@@ -137,21 +135,19 @@
                     <input
                         id="tanggalAkhir"
                         name="tanggal_akhir"
-                        type="{{ $filters['end'] ? 'date' : 'text' }}"
+                        type="date"
                         value="{{ $filters['end']?->format('Y-m-d') }}"
-                        placeholder="Pilih tanggal akhir"
-                        onfocus="this.type='date'"
-                        onblur="if(!this.value)this.type='text'"
                         class="w-full
-                               h-[82px]
+                               h-[90px]
+                               min-w-0
                                pl-[65px]
                                pr-6
                                bg-white
                                border border-gray-300
                                rounded-[16px]
-                               text-[23px]
-                               text-gray-800
-                               placeholder:text-gray-400
+                               text-[28px]
+                               font-medium
+                               text-gray-950
                                outline-none
                                focus:border-[#08703F]
                                focus:ring-2

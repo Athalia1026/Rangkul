@@ -206,7 +206,7 @@
                             No
                         </th>
 
-                        <th class="w-[30%] px-7 py-6 text-left font-semibold">
+                        <th class="w-[30%] px-7 py-6 text-center font-semibold">
                             Donatur
                         </th>
 
@@ -236,7 +236,7 @@
                     @forelse ($donations as $donation)
                         <tr class="hover:bg-[#F0F8F4] transition">
                             <td class="px-7 py-6 text-center">{{ $donations->firstItem() + $loop->index }}</td>
-                            <td class="px-7 py-6 font-medium">
+                            <td class="px-7 py-6 text-center font-medium">
                                 {{ $donation->anonim ? 'Anonim' : ($donation->donor?->user?->nama ?? '-') }}
                             </td>
                             <td class="px-7 py-6 text-center">{{ OrgFormat::rupiah($donation->nominal) }}</td>
@@ -312,27 +312,11 @@
                 <thead class="bg-[#08703F] text-white">
 
                     <tr class="text-[24px]">
-
-                        <th class="w-[8%] px-7 py-6 text-center font-semibold">
-                            No
-                        </th>
-
-                        <th class="w-[32%] px-7 py-6 text-left font-semibold">
-                            Nominal
-                        </th>
-
-                        <th class="w-[25%] px-7 py-6 text-center font-semibold">
-                            Tanggal Pengajuan
-                        </th>
-
-                        <th class="w-[20%] px-7 py-6 text-center font-semibold">
-                            Tanggal Cair
-                        </th>
-
-                        <th class="w-[15%] px-7 py-6 text-center font-semibold">
-                            Status
-                        </th>
-
+                        <th class="w-[8%] px-4 py-6 text-center font-semibold">No</th>
+                        <th class="w-[25%] px-4 py-6 text-center font-semibold">Tanggal Pengajuan</th>
+                        <th class="w-[22%] px-4 py-6 text-center font-semibold">Tanggal Cair</th>
+                        <th class="w-[28%] px-4 py-6 text-center font-semibold">Nominal</th>
+                        <th class="w-[17%] px-4 py-6 text-center font-semibold">Status</th>
                     </tr>
 
                 </thead>
@@ -342,12 +326,10 @@
 
                     @forelse ($disbursements as $disbursement)
                         <tr class="hover:bg-[#F0F8F4] transition">
-                            <td class="px-7 py-6 text-center">{{ $loop->iteration }}</td>
-                            <td class="px-7 py-6 font-medium">
-                                {{ OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan) }}
-                            </td>
-                            <td class="px-7 py-6 text-center">{{ OrgFormat::date($disbursement->created_at, 'd/m/Y') }}</td>
-                            <td class="px-7 py-6 text-center">{{ OrgFormat::date($disbursement->paid_at, 'd/m/Y') }}</td>
+                            <td class="px-4 py-6 text-center">{{ $loop->iteration }}</td>
+                            <td class="px-4 py-6 text-center">{{ OrgFormat::date($disbursement->created_at, 'd/m/Y') }}</td>
+                            <td class="px-4 py-6 text-center">{{ OrgFormat::date($disbursement->paid_at, 'd/m/Y') }}</td>
+                            <td class="px-4 py-6 text-center font-medium">{{ OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan) }}</td>
                             <td class="px-7 py-6 text-center">
                                 <span class="inline-flex min-w-[125px] justify-center {{ OrgFormat::statusBadge('disbursement', $disbursement->status) }} px-5 py-3 rounded-full text-[19px] font-semibold">
                                     {{ OrgFormat::statusLabel('disbursement', $disbursement->status) }}
