@@ -43,7 +43,7 @@
             <a href="{{ url('/') }}"
                 class="inline-flex cursor-pointer group text-left transition-opacity hover:opacity-90">
                 <img src="{{ asset('images/logo.png') }}" alt="Rangkul.com Donation Platform"
-                    class="w-44 sm:w-52 h-auto object-contain origin-left group-hover:scale-[1.02] transition-transform" />
+                    class="w-40 sm:w-44 h-auto object-contain origin-left group-hover:scale-[1.02] transition-transform" />
             </a>
 
         </div>
