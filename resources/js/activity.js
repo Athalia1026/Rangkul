@@ -108,7 +108,7 @@ if (page) {
         const title = el(visit ? 'a' : 'h3', visit ? item.organization_name : item.campaign_name, 'activity-title');
         if (visit) title.href = `/donatur/panti/${encodeURIComponent(item.organization_id)}`;
         heading.append(title, el('p', visit ? item.lokasi : item.organization_name, 'activity-org'));
-        if (!visit) heading.append(el('p', `ID: ${item.invoice_id} • ${date(item.created_at)}`, 'activity-meta'));
+        if (!visit) heading.append(el('p', date(item.created_at), 'activity-meta'));
         const status = visit ? item.status : item.display_status;
         const badge = el('span', labels[status] || status.replaceAll('_', ' '), 'activity-badge'); badge.dataset.status = status;
         top.append(heading, badge); body.append(top);
