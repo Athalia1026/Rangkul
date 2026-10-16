@@ -26,7 +26,6 @@ function icon(type) {
 if (notifications) {
     const list = document.getElementById('notification-list');
     const message = document.getElementById('updates-message');
-    const readAllButton = document.getElementById('notification-read-all');
     const moreButton = document.getElementById('notification-more');
     const types = { donation: 'donation', distribution: 'donation', visit: 'visit', subscription: 'campaign' };
     let items = [], nextPage = null, unread = 0;
@@ -50,7 +49,6 @@ if (notifications) {
     }
     function setUnread(count) {
         unread = Math.max(0, count);
-        readAllButton.hidden = unread === 0;
         window.dispatchEvent(new CustomEvent('donor:notifications-unread', { detail: unread }));
     }
     async function markRead(item) {
@@ -94,15 +92,6 @@ if (notifications) {
         message.textContent = '';
         render();
     }
-    readAllButton.onclick = async () => {
-        readAllButton.disabled = true;
-        try {
-            await send('/api/notifications/read-all', 'PATCH');
-            items.forEach(item => { item.is_read = true; });
-            setUnread(0); render();
-        } catch (error) { message.textContent = error.message; }
-        finally { readAllButton.disabled = false; }
-    };
     moreButton.onclick = async () => {
         moreButton.disabled = true; moreButton.textContent = 'Memuat...';
         try { await load(nextPage); } catch (error) { message.textContent = error.message; }
