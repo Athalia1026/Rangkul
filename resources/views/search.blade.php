@@ -134,7 +134,9 @@
                             </div>
                         </a>
                     @empty
-                        <p class="w-full py-8 text-center text-sm text-gray-500">Belum ada campaign aktif.</p>
+                        <div class="w-full shrink-0 bg-white rounded-2xl border border-gray-100 p-8 text-center text-gray-500">
+                            <p class="text-[15px] font-medium">Belum ada campaign aktif.</p>
+                        </div>
                     @endforelse
                 </div>
             </section>
