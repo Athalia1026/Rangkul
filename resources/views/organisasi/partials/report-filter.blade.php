@@ -76,6 +76,7 @@
 
                     <input
                         id="tanggalAwal"
+                        data-report-date
                         name="tanggal_awal"
                         type="date"
                         value="{{ $filters['start']?->format('Y-m-d') }}"
@@ -134,6 +135,7 @@
 
                     <input
                         id="tanggalAkhir"
+                        data-report-date
                         name="tanggal_akhir"
                         type="date"
                         value="{{ $filters['end']?->format('Y-m-d') }}"

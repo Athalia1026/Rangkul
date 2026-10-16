@@ -15,3 +15,5 @@ import './profile';
 import './password';
 import '../css/premium.css';
 import './premium';
+import '../css/report-calendar.css';
+import './report-calendar';

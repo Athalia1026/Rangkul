@@ -1,0 +1,36 @@
+/* Attached to body so the organization layout's zoom does not shrink the calendar. */
+.report-calendar {
+    width: min(440px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+    padding: 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 18px;
+    color: #111827;
+    background: white;
+    box-shadow: 0 20px 60px #0003;
+    font: 18px/1.5 'Plus Jakarta Sans', sans-serif;
+}
+.report-calendar::backdrop { background: #0005; }
+.report-calendar h2 { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+.report-calendar-nav, .report-calendar-footer { display: flex; align-items: center; gap: 8px; }
+.report-calendar-nav { margin-bottom: 16px; }
+.report-calendar button, .report-calendar select, .report-calendar input {
+    min-height: 44px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    color: #111827;
+    font: inherit;
+}
+.report-calendar button { padding: 6px 10px; cursor: pointer; }
+.report-calendar button:hover { background: #e8f5ee; }
+.report-calendar :focus-visible { outline: 3px solid #08703f; outline-offset: 2px; }
+.report-calendar select { flex: 1; min-width: 0; padding: 4px; }
+.report-calendar input { width: 88px; padding: 4px; }
+.report-calendar-week, .report-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.report-calendar-week { text-align: center; font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.report-calendar-grid button { padding: 4px 0; font-size: 20px; }
+.report-calendar-grid [aria-current="date"] { border: 2px solid #08703f; }
+.report-calendar-grid [aria-pressed="true"] { background: #08703f; color: white; font-weight: 700; }
+.report-calendar-footer { flex-wrap: wrap; margin-top: 16px; justify-content: space-between; }
