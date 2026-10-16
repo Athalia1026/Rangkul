@@ -71,7 +71,7 @@
             <section class="relative">
                 <div class="flex items-center justify-between mb-5 sm:mb-6">
                     <div>
-                        <h2 class="text-[22px] sm:text-[25px] font-bold text-gray-950 tracking-tight">
+                        <h2 class="text-[24px] sm:text-[26px] font-bold text-[#05522d] tracking-tight">
                             Pilihan Rangkul
                         </h2>
                         <p class="text-[14px] sm:text-[15px] text-gray-500 mt-0.5">
@@ -105,8 +105,8 @@
                     style="scrollbar-width: none; -ms-overflow-style: none;"
                 >
                     @forelse ($pilihanRangkul as $campaign)
-                        <a href="{{ route('campaign.detail', array_filter(['id' => $campaign['id'], 'q' => request('q', $query ?? '')])) }}" class="w-[290px] sm:w-[330px] md:w-[360px] shrink-0 bg-white rounded-2xl overflow-hidden border border-gray-100/90 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col group cursor-pointer">
-                            <div class="relative aspect-[16/10] overflow-hidden bg-gray-100">
+                        <a href="{{ route('campaign.detail', array_filter(['id' => $campaign['id'], 'q' => request('q', $query ?? '')])) }}" class="w-[300px] sm:w-[350px] md:w-[365px] shrink-0 bg-white rounded-[20px] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col justify-between hover:shadow-lg transition-all group cursor-pointer">
+                            <div class="relative h-44 sm:h-48 w-full overflow-hidden bg-gray-100">
                                 @if (!empty($campaign['image_url']))
                                     <img src="{{ $campaign['image_url'] }}" alt="{{ $campaign['judul'] }}" class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300">
                                 @else
@@ -119,12 +119,17 @@
                             </div>
                             <div class="p-5 flex flex-col flex-1 justify-between">
                                 <div>
-                                    <span class="text-[14px] text-gray-500 font-medium block mb-1">{{ $campaign['nama_organisasi'] }}</span>
-                                    <h3 class="text-[15.5px] sm:text-[16px] font-bold text-gray-950 leading-snug line-clamp-2 group-hover:text-[#05522d] transition-colors">{{ $campaign['judul'] }}</h3>
+                                    <span class="text-[14px] text-gray-500 font-medium">{{ $campaign['nama_organisasi'] }}</span>
+                                    <h3 class="text-[16px] font-bold text-gray-900 mt-1 leading-snug line-clamp-2">{{ $campaign['judul'] }}</h3>
                                 </div>
-                                <div class="mt-4 pt-1">
-                                    <p class="text-[13px] text-gray-600 mb-2">Terkumpul <span class="font-bold text-[#05522d]">Rp {{ number_format($campaign['terkumpul'], 0, ',', '.') }}</span></p>
-                                    <div class="w-full h-2 rounded-full bg-[#d8f0e2] overflow-hidden"><div class="h-full bg-[#05522d] rounded-full" style="width: {{ $campaign['persentase'] }}%"></div></div>
+                                <div class="mt-4 pt-2">
+                                    <div class="flex items-center gap-1.5 text-sm">
+                                        <span class="text-gray-500">Terkumpul</span>
+                                        <span class="font-bold text-[#05522d]">Rp {{ number_format($campaign['terkumpul'], 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mt-2.5">
+                                        <div class="h-full bg-[#207466] rounded-full" style="width: {{ $campaign['persentase'] }}%"></div>
+                                    </div>
                                 </div>
                             </div>
                         </a>
@@ -142,7 +147,7 @@
             
             <!-- Section Header with Sort Trigger Button -->
             <div class="flex items-center justify-between mb-5 sm:mb-6">
-                <h2 class="text-[22px] sm:text-[25px] font-bold text-gray-950 tracking-tight">
+                <h2 class="text-[24px] sm:text-[26px] font-bold text-[#05522d] tracking-tight">
                     {{ $hasQuery ? 'Hasil Pencarian: "' . request('q', $query) . '"' : 'Penggalangan Dana Lainnya' }}
                 </h2>
 
@@ -225,8 +230,8 @@
             <!-- List of Horizontal Campaign Cards -->
             <div class="search-campaign-list space-y-4 sm:space-y-5">
                 @forelse ($otherCampaigns as $campaign)
-                    <a href="{{ route('campaign.detail', array_filter(['id' => $campaign['id'], 'q' => request('q', $query ?? '')])) }}" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row group">
-                        <div class="w-full sm:w-[260px] md:w-[320px] lg:w-[380px] h-[170px] sm:h-[180px] shrink-0 overflow-hidden bg-gray-100">
+                    <a href="{{ route('campaign.detail', array_filter(['id' => $campaign['id'], 'q' => request('q', $query ?? '')])) }}" class="bg-white rounded-[20px] overflow-hidden border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-lg transition-all cursor-pointer flex flex-col sm:flex-row group">
+                        <div class="w-full sm:w-[260px] md:w-[300px] lg:w-[320px] h-48 sm:h-auto sm:min-h-[196px] shrink-0 overflow-hidden bg-gray-100">
                             @if (!empty($campaign['image_url']))
                                 <img src="{{ $campaign['image_url'] }}" alt="{{ $campaign['judul'] }}" class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300">
                             @else
@@ -237,28 +242,28 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="p-5 sm:p-6 flex flex-col justify-between flex-1">
+                        <div class="p-5 sm:p-6 flex flex-col justify-between flex-1 min-w-0">
                             <div>
-                                <h3 class="text-[16px] sm:text-[17px] font-bold text-gray-950 group-hover:text-[#05522d] transition-colors leading-snug line-clamp-2">
+                                <span class="text-[14px] text-gray-500 font-medium">{{ $campaign['nama_organisasi'] }}</span>
+                                <h3 class="text-[17px] sm:text-[18px] font-bold text-gray-900 mt-1 leading-snug line-clamp-2">
                                     {{ $campaign['judul'] }}
                                 </h3>
-                                <p class="text-[12.5px] text-gray-500 font-medium mt-1">{{ $campaign['nama_organisasi'] }}</p>
-                                <div class="mt-3.5 w-full h-2.5 rounded-full bg-[#dcf3e7] overflow-hidden">
-                                    <div class="h-full bg-[#05522d] rounded-full" style="width: {{ $campaign['persentase'] }}%"></div>
+                                <div class="mt-4 w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+                                    <div class="h-full bg-[#207466] rounded-full" style="width: {{ $campaign['persentase'] }}%"></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-3 gap-2 mt-4 pt-2">
+                            <div class="grid grid-cols-3 gap-4 mt-5">
                                 <div>
-                                    <span class="text-[11.5px] text-gray-500 font-medium block">Terkumpul</span>
-                                    <span class="text-[13.5px] sm:text-[14.5px] font-bold text-[#05522d] block mt-0.5">Rp {{ number_format($campaign['terkumpul'], 0, ',', '.') }}</span>
+                                    <span class="text-[13px] text-gray-500 block">Terkumpul</span>
+                                    <span class="text-[15px] sm:text-[16px] font-bold text-[#05522d] block mt-1 break-words">Rp {{ number_format($campaign['terkumpul'], 0, ',', '.') }}</span>
                                 </div>
                                 <div>
-                                    <span class="text-[11.5px] text-gray-500 font-medium block">Target</span>
-                                    <span class="text-[13.5px] sm:text-[14.5px] font-bold text-gray-900 block mt-0.5">Rp {{ number_format($campaign['target_dana'], 0, ',', '.') }}</span>
+                                    <span class="text-[13px] text-gray-500 block">Target</span>
+                                    <span class="text-[15px] sm:text-[16px] font-bold text-gray-900 block mt-1 break-words">Rp {{ number_format($campaign['target_dana'], 0, ',', '.') }}</span>
                                 </div>
                                 <div>
-                                    <span class="text-[11.5px] text-gray-500 font-medium block">Sisa hari</span>
-                                    <span class="text-[13.5px] sm:text-[14.5px] font-bold text-[#05522d] block mt-0.5">{{ $campaign['sisa_hari'] }}</span>
+                                    <span class="text-[13px] text-gray-500 block">Sisa hari</span>
+                                    <span class="text-[15px] sm:text-[16px] font-bold text-[#05522d] block mt-1 break-words">{{ $campaign['sisa_hari'] }}</span>
                                 </div>
                             </div>
                         </div>
@@ -279,28 +284,6 @@
 
 @push('scripts')
 <style>
-    .donor-search-page .search-campaign-list > a > div:first-child { height: 230px; }
-    .donor-search-page .search-campaign-list > a > div:last-child { min-width: 0; padding: 26px 28px; }
-    .donor-search-page .search-campaign-list h3 { font-size: 20px; line-height: 1.4; }
-    .donor-search-page .search-campaign-list h3 + p { font-size: 14px; }
-    .donor-search-page .search-campaign-list .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 20px; }
-    .donor-search-page .search-campaign-list .grid span:first-child { font-size: 13px; }
-    .donor-search-page .search-campaign-list .grid span:last-child { margin-top: 6px; font-size: 23px; line-height: 1.3; font-weight: 700; color: #05522d; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
-    .donor-search-page #pilihanRangkulTrack > a { width: 390px; }
-    .donor-search-page #pilihanRangkulTrack h3 { font-size: 18px; }
-    .donor-search-page #pilihanRangkulTrack p { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 4px; }
-    .donor-search-page #pilihanRangkulTrack p > span { font-size: 21px; line-height: 1.4; }
-    @media (min-width: 1024px) { .donor-search-page .search-campaign-list > a > div:first-child { width: 400px; } }
-    @media (max-width: 900px) {
-        .donor-search-page .search-campaign-list > a > div:last-child { padding: 22px; }
-        .donor-search-page .search-campaign-list .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-        .donor-search-page .search-campaign-list .grid span:last-child { font-size: 20px; }
-    }
-    @media (max-width: 639px) {
-        .donor-search-page #pilihanRangkulTrack > a { width: min(350px, 85vw); }
-        .donor-search-page .search-campaign-list > a > div:first-child { height: 210px; }
-        .donor-search-page .search-campaign-list h3 { font-size: 18px; }
-    }
     #pilihanRangkulTrack::-webkit-scrollbar {
         display: none;
     }
