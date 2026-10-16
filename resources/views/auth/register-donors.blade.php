@@ -113,7 +113,7 @@
                             minlength="8"
                             pattern="(?=.*[A-Za-z])(?=.*[0-9]).{8,}"
                             placeholder="Masukkan password anda"
-                            oninput="validatePasswordRequirements()"
+                            oninput="validatePasswordRequirements(); validatePasswordMatch()"
                             class="w-full px-4 py-2.5 sm:py-3 pr-11 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all shadow-2xs"
                         />
                         <button
@@ -146,6 +146,7 @@
                             name="password_confirmation"
                             required
                             placeholder="Ulangi password anda"
+                            oninput="validatePasswordMatch()"
                             class="w-full px-4 py-2.5 sm:py-3 pr-11 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all shadow-2xs"
                         />
                         <button
@@ -302,6 +303,16 @@
             input.setCustomValidity(password.length > 0 && !isValid ? passwordRequirementMessage : '');
 
             return isValid;
+        }
+
+        function validatePasswordMatch() {
+            const password = document.getElementById('passwordInput').value;
+            const input = document.getElementById('confirmPasswordInput');
+            const mismatch = input.value.length > 0 && input.value !== password;
+
+            document.getElementById('passwordMismatchError').classList.toggle('hidden', !mismatch);
+            input.classList.toggle('!border-red-500', mismatch);
+            input.setCustomValidity(mismatch ? 'Password dan konfirmasi password tidak cocok.' : '');
         }
 
         function togglePassword(inputId, button) {

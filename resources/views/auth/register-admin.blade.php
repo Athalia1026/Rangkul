@@ -181,6 +181,7 @@
                                 required 
                                 minlength="8"
                                 placeholder="Min. 8 karakter"
+                                oninput="validatePasswordMatch()"
                                 class="w-full pl-4 pr-10 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]"
                             >
                             <button 
@@ -208,6 +209,7 @@
                                 required 
                                 minlength="8"
                                 placeholder="Ulangi password"
+                                oninput="validatePasswordMatch()"
                                 class="w-full pl-4 pr-10 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#086538]"
                             >
                             <button 
@@ -218,6 +220,7 @@
                                 <i id="iconConfirm" class="fa-solid fa-eye"></i>
                             </button>
                         </div>
+                        <p id="passwordMismatchError" class="text-red-600 text-xs mt-1 hidden">Password dan konfirmasi password tidak cocok.</p>
                     </div>
                 </div>
 
@@ -266,6 +269,16 @@
     <!-- SCRIPT TOGGLE LIHAT / SEMBUNYIKAN PASSWORD               -->
     <!-- ======================================================== -->
     <script>
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const input = document.getElementById('password_confirmation');
+            const mismatch = input.value.length > 0 && input.value !== password;
+
+            document.getElementById('passwordMismatchError').classList.toggle('hidden', !mismatch);
+            input.classList.toggle('!border-red-500', mismatch);
+            input.setCustomValidity(mismatch ? 'Password dan konfirmasi password tidak cocok.' : '');
+        }
+
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);

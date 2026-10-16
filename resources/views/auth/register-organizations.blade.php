@@ -62,7 +62,7 @@
                 <div>
                     <label class="block text-[13.5px] font-medium text-gray-950 mb-1.5">Kata Sandi</label>
                     <div class="relative">
-                        <input type="password" id="organizationPasswordInput" name="password" required minlength="8" pattern="(?=.*[A-Za-z])(?=.*[0-9]).{8,}" placeholder="Masukkan password Anda" oninput="validateOrganizationPassword()" class="w-full px-4 py-2.5 sm:py-3 pr-11 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all shadow-2xs">
+                        <input type="password" id="organizationPasswordInput" name="password" required minlength="8" pattern="(?=.*[A-Za-z])(?=.*[0-9]).{8,}" placeholder="Masukkan password Anda" oninput="validateOrganizationPassword(); validateOrganizationPasswordMatch()" class="w-full px-4 py-2.5 sm:py-3 pr-11 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all shadow-2xs">
                         <button type="button" onclick="toggleOrganizationPassword('organizationPasswordInput', this)" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-950 transition-colors cursor-pointer p-1" aria-label="Tampilkan password">
                             <span class="eye-icon"></span>
                         </button>
@@ -73,11 +73,12 @@
                 <div>
                     <label class="block text-[13.5px] font-medium text-gray-950 mb-1.5">Ulangi Kata Sandi</label>
                     <div class="relative">
-                        <input type="password" id="organizationPasswordConfirmationInput" name="password_confirmation" required placeholder="Ulangi password Anda" class="w-full px-4 py-2.5 sm:py-3 pr-11 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all shadow-2xs">
+                        <input type="password" id="organizationPasswordConfirmationInput" name="password_confirmation" required placeholder="Ulangi password Anda" oninput="validateOrganizationPasswordMatch()" class="w-full px-4 py-2.5 sm:py-3 pr-11 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all shadow-2xs">
                         <button type="button" onclick="toggleOrganizationPassword('organizationPasswordConfirmationInput', this)" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-950 transition-colors cursor-pointer p-1" aria-label="Tampilkan password">
                             <span class="eye-icon"></span>
                         </button>
                     </div>
+                    <p id="organizationPasswordMismatchError" class="text-[12px] text-red-600 mt-1.5 font-medium leading-normal hidden">Password dan konfirmasi password tidak cocok.</p>
                 </div>
 
                 <div>
@@ -175,6 +176,15 @@
             const valid = input.value.length >= 8 && /[A-Za-z]/.test(input.value) && /[0-9]/.test(input.value);
             error.classList.toggle('hidden', input.value.length === 0 || valid);
             input.setCustomValidity(input.value.length > 0 && !valid ? 'Password harus terdiri dari minimal 8 karakter, termasuk huruf dan angka.' : '');
+        }
+
+        function validateOrganizationPasswordMatch() {
+            const password = document.getElementById('organizationPasswordInput').value;
+            const input = document.getElementById('organizationPasswordConfirmationInput');
+            const mismatch = input.value.length > 0 && input.value !== password;
+            document.getElementById('organizationPasswordMismatchError').classList.toggle('hidden', !mismatch);
+            input.classList.toggle('!border-red-500', mismatch);
+            input.setCustomValidity(mismatch ? 'Password dan konfirmasi password tidak cocok.' : '');
         }
 
         function selectOrganizationType(type, button) {
