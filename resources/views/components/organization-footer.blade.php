@@ -49,7 +49,7 @@
                 <h4 class="font-bold text-white">Informasi</h4>
                 <ul class="text-[14px] text-gray-200 space-y-1">
                     <li><a href="{{ url('/') }}">Tentang Kami</a></li>
-                    <li><a href="{{ url('/kontak') }}">Kontak</a></li>
+                    <li><a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer">Kontak</a></li>
                 </ul>
             </div>
         </div>
