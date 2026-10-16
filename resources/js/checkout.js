@@ -36,11 +36,10 @@ if (payment) {
     const open = document.getElementById('payment-open');
     const retry = document.getElementById('payment-retry');
     const id = encodeURIComponent(payment.dataset.id);
-    let busy = false, finished = false, snapToken = null;
+    let busy = false, finished = false, snapToken = null, paymentUrl = null;
     function stop(text, campaignId) {
         finished = true; message.textContent = text;
         open.hidden = true; check.hidden = true;
-        document.getElementById('payment-provider-link').hidden = true;
         if (campaignId) { retry.href = `/donatur/donasi/${encodeURIComponent(campaignId)}`; retry.hidden = false; }
     }
     // refresh=1 meminta backend menanyakan status langsung ke Midtrans, sehingga
@@ -61,11 +60,13 @@ if (payment) {
         return new Promise((resolve, reject) => {
             if (window.snap) return resolve();
             const script = document.createElement('script'); script.src = payment.dataset.snapUrl; script.dataset.clientKey = payment.dataset.clientKey;
-            script.onload = resolve; script.onerror = () => reject(new Error('Halaman pembayaran gagal dimuat. Gunakan tombol Buka Halaman Pembayaran di Tab Baru.')); document.head.append(script);
+            script.onload = resolve; script.onerror = () => reject(new Error('Halaman pembayaran gagal dimuat.')); document.head.append(script);
         });
     }
     function pay() {
-        if (!snapToken || !window.snap || finished) return;
+        if (finished) return;
+        // Cadangan bila popup Snap tidak bisa dimuat: buka halaman pembayaran Midtrans langsung
+        if (!snapToken || !window.snap) { if (paymentUrl) location.href = paymentUrl; return; }
         window.snap.pay(snapToken, {
             onSuccess: () => { message.textContent = 'Pembayaran diterima, memverifikasi...'; status(true); },
             onPending: () => { message.textContent = 'Menunggu pembayaran Anda. Status akan diperbarui otomatis setelah pembayaran selesai.'; status(true); },
@@ -77,21 +78,25 @@ if (payment) {
     open.onclick = pay;
     (async () => {
         const data = await status(true); if (!data || finished) return;
-        document.getElementById('payment-summary').textContent = `${data.campaign} • Total ${money(data.nominal + Number(data.fee || 0))}`;
-        const fallback = document.getElementById('payment-provider-link');
+        document.getElementById('payment-campaign').textContent = data.campaign;
+        document.getElementById('payment-total').textContent = money(data.nominal + Number(data.fee || 0));
         if (data.payment_url) {
             const url = new URL(data.payment_url);
-            if (url.protocol === 'https:' && ['app.midtrans.com', 'app.sandbox.midtrans.com'].includes(url.hostname)) { fallback.href = url.href; fallback.hidden = false; }
+            if (url.protocol === 'https:' && ['app.midtrans.com', 'app.sandbox.midtrans.com'].includes(url.hostname)) paymentUrl = url.href;
         }
         if (!data.snap_token) { stop('Sesi pembayaran untuk transaksi ini tidak tersedia. Silakan buat donasi baru.', data.campaign_id); return; }
-        if (!payment.dataset.clientKey) { message.textContent = 'Gunakan tombol Buka Halaman Pembayaran di Tab Baru untuk melanjutkan.'; return; }
+        const fallbackMessage = 'Tekan Bayar Sekarang untuk membuka halaman pembayaran Midtrans.';
+        if (!payment.dataset.clientKey) { open.hidden = !paymentUrl; message.textContent = fallbackMessage; return; }
         try {
             await loadSnap();
             snapToken = data.snap_token;
             open.hidden = false;
             message.textContent = 'Selesaikan pembayaran melalui halaman pembayaran Midtrans.';
             pay();
-        } catch (error) { message.textContent = error.message; }
+        } catch (error) {
+            open.hidden = !paymentUrl;
+            message.textContent = paymentUrl ? `${error.message} ${fallbackMessage}` : error.message;
+        }
     })();
     const timer = setInterval(() => { if (!document.hidden && !finished) status(true); }, 15000);
     window.addEventListener('pagehide', () => clearInterval(timer), { once: true });
