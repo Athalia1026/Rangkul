@@ -3,7 +3,7 @@
 @section('content')
 <main class="checkout-wrap" id="checkout-payment" data-id="{{ request()->route('id') }}" data-client-key="{{ config('services.midtrans.client_key') }}" data-snap-url="{{ config('services.midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}">
     <section class="checkout-card checkout-payment-card">
-        <a class="checkout-back" href="{{ route('donatur.riwayat') }}">← Kembali ke Riwayat</a>
+        <x-back-link :href="route('donatur.riwayat')">Kembali ke Riwayat</x-back-link>
         <h1>Selesaikan Pembayaran Donasi</h1>
         <p id="payment-summary" class="checkout-help"></p>
         <p id="payment-message" role="status">Memuat pembayaran...</p>

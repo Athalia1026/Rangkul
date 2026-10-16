@@ -16,13 +16,7 @@
                 $backQuery = $searchQuery ?? request('q', session('last_search_query', ''));
                 $backUrl = route('search.results', $backQuery !== '' ? ['q' => $backQuery] : []);
             @endphp
-            <a id="campaign-back-link" href="{{ $backUrl }}" class="inline-flex items-center gap-2 text-white/95 hover:text-white font-medium text-[15px] sm:text-[16px] drop-shadow-md transition-colors group">
-                <svg class="w-5 h-5 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-                <span>Kembali</span>
-            </a>
+            <x-back-link :href="$backUrl" id="campaign-back-link" :light="true" />
 
             <button type="button" onclick="copyLink()" class="text-white/95 hover:text-white p-2 rounded-full hover:bg-white/15 drop-shadow-md transition-colors cursor-pointer" aria-label="Bagikan campaign">
                 <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">

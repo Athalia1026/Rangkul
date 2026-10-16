@@ -68,8 +68,6 @@
 /* Halaman Ubah Password */
 .password-page { padding-top: 56px; padding-bottom: 140px; min-height: 80vh; font-family: 'Plus Jakarta Sans', sans-serif; color: #171b19; }
 .password-card { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 36px 48px 44px; }
-.password-back { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: #171b19; }
-.password-back:hover { color: #0b6b3a; }
 .password-card h1 { margin-top: 28px; font-size: 24px; font-weight: 700; letter-spacing: -.5px; }
 .password-intro { margin-top: 10px; font-size: 15px; color: #3f4a44; line-height: 1.6; }
 #password-form { margin-top: 28px; }

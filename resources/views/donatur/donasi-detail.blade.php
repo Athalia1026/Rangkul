@@ -2,7 +2,7 @@
 @section('title', 'Detail Donasi - Rangkul')
 @section('content')
 <main class="checkout-wrap"><section class="checkout-card">
-    <a class="checkout-back" href="{{ route('campaign.detail', $campaign->id) }}">← Kembali</a>
+    <x-back-link :href="route('campaign.detail', $campaign->id)" />
     <h1>Detail Donasi</h1>
     <div class="checkout-campaign">
         <img src="{{ $campaign->foto_cover ? (preg_match('~^https?://~', $campaign->foto_cover) ? $campaign->foto_cover : asset('storage/' . $campaign->foto_cover)) : asset('images/hero/hero_children.jpg') }}" alt="">

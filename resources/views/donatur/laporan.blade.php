@@ -2,10 +2,7 @@
 @section('title', 'Pratinjau Laporan - Rangkul')
 @section('content')
 <main id="report-preview-page" class="premium-page report-page max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-    <a href="{{ route('donatur.dashboard') }}" id="report-back" class="password-back">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg>
-        Kembali
-    </a>
+    <x-back-link :href="route('donatur.dashboard')" id="report-back" />
     <header class="report-toolbar">
         <h1>Pratinjau Laporan</h1>
         <button type="button" id="report-download" class="profile-btn secondary" disabled>

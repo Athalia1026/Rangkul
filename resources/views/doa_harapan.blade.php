@@ -13,16 +13,7 @@
                 <!-- Header Row: ← Kembali (Left) & Centered Title -->
                 <div class="relative mb-8 sm:mb-10">
                     <!-- Kembali button -->
-                    <a href="{{ route('campaign.detail', array_filter(['id' => $campaign->id, 'q' => request('q', session('last_search_query', ''))])) }}"
-                        class="sm:absolute sm:left-0 sm:top-1 inline-flex items-center gap-2 text-[15px] sm:text-[16px] text-gray-900 hover:text-[#05522d] font-normal transition-colors mb-3 sm:mb-0 group">
-                        <svg class="w-5 h-5 text-gray-900 group-hover:-translate-x-1 transition-transform"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
-                        <span>Kembali</span>
-                    </a>
+                    <x-back-link href="{{ route('campaign.detail', array_filter(['id' => $campaign->id, 'q' => request('q', session('last_search_query', ''))])) }}" class="sm:absolute sm:left-0 sm:top-1 mb-3 sm:mb-0" />
 
                     <!-- Centered Heading & Subtitle -->
                     <div class="text-center sm:px-24">

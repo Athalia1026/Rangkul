@@ -11,12 +11,7 @@
         <div class="w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between gap-4">
             
             <!-- Left: Kembali Button -->
-            <a href="{{ route('search') }}" class="flex items-center gap-2 text-gray-800 hover:text-[#05522d] font-medium text-[15px] sm:text-[16px] transition-colors shrink-0">
-                <svg class="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
-                </svg>
-                <span>Kembali</span>
-            </a>
+            <x-back-link :href="route('search')" class="shrink-0" />
 
             <!-- Center: Search Bar with Green Border -->
             <div class="flex-1 max-w-[560px] mx-2">
