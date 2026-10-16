@@ -94,7 +94,7 @@ if (page) {
             box.append(gallery.children.length ? gallery : el('p', 'Belum ada foto dokumentasi.')); right.append(box);
         } else {
             const address = [org.alamat, org.kota].filter(Boolean).join(', '), map = el('a', null, 'visit-map'); map.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`; map.target = '_blank'; map.rel = 'noopener noreferrer'; map.append(el('strong', '⌖ Lokasi Kegiatan'), el('p', address || 'Alamat belum tersedia'), el('span', 'Buka di Google Maps ↗')); right.append(map);
-            const profile = panel(org.nama_lembaga || 'Profil Panti', org.deskripsi || 'Lihat informasi panti dan kegiatan lainnya.', true); profile.append(link('Lihat Profil Panti', `/donatur/panti/${encodeURIComponent(visit.id_organisasi)}`)); right.append(profile);
+            const profile = panel(org.nama_lembaga || 'Profil Panti', org.deskripsi || 'Lihat informasi panti dan kegiatan lainnya.', true); const profileLink = link('Lihat Profil', `/donatur/panti/${encodeURIComponent(visit.id_organisasi)}`); profileLink.classList.add('visit-profile-link'); profile.append(profileLink); right.append(profile);
         }
         grid.append(left, right); content.append(grid);
         const actions = el('div', null, 'visit-actions'); actions.append(link('← Kembali', '/donatur/riwayat', true));
