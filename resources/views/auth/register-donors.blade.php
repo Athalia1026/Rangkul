@@ -186,26 +186,50 @@
                     <label class="block text-[13.5px] font-medium text-gray-950 mb-1.5">
                         Kota
                     </label>
-                    <div class="relative">
-                        <select
-                            name="kota"
-                            class="w-full px-4 py-2.5 sm:py-3 pr-10 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 text-[14px] bg-white transition-all shadow-2xs appearance-none cursor-pointer"
+                    <div class="relative" id="cityDropdown">
+                        <input type="hidden" name="kota" id="cityInput" value="{{ old('kota') }}">
+                        <input
+                            type="text"
+                            id="citySearch"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-controls="cityList"
+                            aria-expanded="false"
+                            autocomplete="off"
+                            required
+                            value="{{ old('kota') }}"
+                            placeholder="Ketik untuk mencari kota/kabupaten"
+                            onfocus="toggleCityList(true)"
+                            oninput="filterCities()"
+                            class="w-full px-4 py-2.5 sm:py-3 pr-10 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all shadow-2xs"
+                        />
+                        <button
+                            type="button"
+                            tabindex="-1"
+                            aria-label="Tampilkan daftar kota"
+                            onmousedown="event.preventDefault()"
+                            onclick="toggleCityList(); document.getElementById('citySearch').focus()"
+                            class="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-1 text-gray-600 text-xs cursor-pointer"
                         >
-                            <option value="" disabled {{ old('kota') ? '' : 'selected' }}></option>
-                            <option value="Surabaya" {{ old('kota') == 'Surabaya' ? 'selected' : '' }}>Surabaya</option>
-                            <option value="Jakarta" {{ old('kota') == 'Jakarta' ? 'selected' : '' }}>Jakarta</option>
-                            <option value="Bandung" {{ old('kota') == 'Bandung' ? 'selected' : '' }}>Bandung</option>
-                            <option value="Yogyakarta" {{ old('kota') == 'Yogyakarta' ? 'selected' : '' }}>Yogyakarta</option>
-                            <option value="Semarang" {{ old('kota') == 'Semarang' ? 'selected' : '' }}>Semarang</option>
-                            <option value="Medan" {{ old('kota') == 'Medan' ? 'selected' : '' }}>Medan</option>
-                            <option value="Makassar" {{ old('kota') == 'Makassar' ? 'selected' : '' }}>Makassar</option>
-                            <option value="Malang" {{ old('kota') == 'Malang' ? 'selected' : '' }}>Malang</option>
-                            <option value="Denpasar" {{ old('kota') == 'Denpasar' ? 'selected' : '' }}>Denpasar</option>
-                            <option value="Palembang" {{ old('kota') == 'Palembang' ? 'selected' : '' }}>Palembang</option>
-                        </select>
-                        <div class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 text-xs">
                             &#9662;
+                        </button>
+                        <div
+                            id="cityList"
+                            role="listbox"
+                            class="hidden absolute z-30 left-0 right-0 mt-2 max-h-72 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg p-1.5 space-y-0.5"
+                        >
+                            <p id="cityEmpty" class="hidden px-4 py-3 text-[14px] text-gray-500">Kota tidak ditemukan</p>
                         </div>
+                        <template id="cityOptionTemplate">
+                            <button
+                                type="button"
+                                tabindex="-1"
+                                role="option"
+                                onmousedown="event.preventDefault()"
+                                onclick="selectCity(this.dataset.value)"
+                                class="city-option w-full text-left px-4 py-3 rounded-lg text-[14px] text-gray-950 outline-none cursor-pointer aria-selected:font-semibold data-[active=true]:bg-[#d6f0e2]"
+                            ></button>
+                        </template>
                     </div>
                 </div>
 
@@ -304,6 +328,172 @@
             });
             btnElement.className = 'role-btn py-2.5 px-3 sm:px-4 rounded-xl text-[13.5px] sm:text-[14px] font-bold bg-[#d6f0e2] text-gray-950 border border-[#05522d]/40 shadow-xs cursor-pointer';
         }
+
+        const citySearch = document.getElementById('citySearch');
+        const cityList = document.getElementById('cityList');
+        const cityEmpty = document.getElementById('cityEmpty');
+        const cityOptionTemplate = document.getElementById('cityOptionTemplate');
+        // Hanya sebagian hasil yang dirender agar DOM tetap ringan; sisanya muncul saat pengguna mengetik lebih spesifik
+        const CITY_RESULT_LIMIT = 50;
+        let cities = null;
+        let citiesRequest = null;
+        let activeCityIndex = -1;
+
+        function normalizeCity(text) {
+            return text.toLowerCase().replace(/\s+/g, ' ').trim();
+        }
+
+        // Data kabupaten/kota (file statis, di-cache browser) baru diambil saat kolom pertama kali dibuka
+        function loadCities() {
+            citiesRequest ??= fetch(@json(asset('data/kota-indonesia.json')))
+                .then(response => response.json())
+                .then(names => {
+                    cities = names.map(name => ({
+                        name,
+                        full: normalizeCity(name),
+                        base: normalizeCity(name.replace(/^(Kabupaten|Kota)( Administrasi)? /, '')),
+                    }));
+                })
+                .catch(() => {
+                    citiesRequest = null;
+                });
+
+            return citiesRequest;
+        }
+
+        // 0 = awalan nama cocok, 1 = awal kata cocok, 2 = mengandung teks, 3 = huruf berurutan (mis. "jkt" -> Jakarta), null = tidak cocok
+        function cityMatchRank(city, query) {
+            if (!query) return 0;
+            if (city.base.startsWith(query) || city.full.startsWith(query)) return 0;
+            if (city.base.includes(' ' + query)) return 1;
+            if (city.full.includes(query)) return 2;
+
+            let position = 0;
+            for (const char of query.replace(/ /g, '')) {
+                position = city.base.indexOf(char, position) + 1;
+                if (!position) return null;
+            }
+            return 3;
+        }
+
+        function renderedCityOptions() {
+            return [...cityList.querySelectorAll('.city-option')];
+        }
+
+        function setActiveCity(index, scroll = true) {
+            const options = renderedCityOptions();
+            activeCityIndex = options.length ? (index + options.length) % options.length : -1;
+
+            options.forEach((option, i) => {
+                option.dataset.active = i === activeCityIndex ? 'true' : 'false';
+            });
+            if (scroll) options[activeCityIndex]?.scrollIntoView({ block: 'nearest' });
+        }
+
+        function showCityMessage(message) {
+            cityEmpty.textContent = message;
+            cityEmpty.classList.toggle('hidden', !message);
+        }
+
+        function renderCities(query) {
+            renderedCityOptions().forEach(option => option.remove());
+
+            if (!cities) {
+                showCityMessage(citiesRequest ? 'Memuat daftar kota...' : 'Gagal memuat daftar kota, coba lagi.');
+                return;
+            }
+
+            const matches = cities
+                .map(city => ({ city, rank: cityMatchRank(city, query) }))
+                .filter(match => match.rank !== null)
+                .sort((a, b) => a.rank - b.rank);
+
+            const selected = document.getElementById('cityInput').value;
+            const fragment = document.createDocumentFragment();
+
+            matches.slice(0, CITY_RESULT_LIMIT).forEach(({ city }) => {
+                const option = cityOptionTemplate.content.firstElementChild.cloneNode(true);
+                option.dataset.value = city.name;
+                option.textContent = city.name;
+                option.setAttribute('aria-selected', city.name === selected ? 'true' : 'false');
+                fragment.appendChild(option);
+            });
+            cityList.insertBefore(fragment, cityEmpty);
+
+            if (!matches.length) {
+                showCityMessage('Kota tidak ditemukan');
+            } else if (matches.length > CITY_RESULT_LIMIT) {
+                showCityMessage('Ketik nama kota untuk melihat hasil lainnya');
+            } else {
+                showCityMessage('');
+            }
+
+            setActiveCity(query ? 0 : renderedCityOptions().findIndex(option => option.dataset.value === selected));
+        }
+
+        async function toggleCityList(open) {
+            const shouldOpen = open ?? cityList.classList.contains('hidden');
+
+            cityList.classList.toggle('hidden', !shouldOpen);
+            citySearch.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+
+            if (!shouldOpen) {
+                // Teks yang tidak cocok dengan kota mana pun dikembalikan ke pilihan terakhir
+                citySearch.value = document.getElementById('cityInput').value;
+                return;
+            }
+
+            renderCities('');
+            if (!cities) {
+                await loadCities();
+                if (!cityList.classList.contains('hidden')) filterCities();
+            }
+        }
+
+        function filterCities() {
+            cityList.classList.remove('hidden');
+            citySearch.setAttribute('aria-expanded', 'true');
+
+            const query = normalizeCity(citySearch.value);
+            const selected = document.getElementById('cityInput').value;
+            // Saat kolom baru dibuka, teks berisi pilihan sebelumnya; tampilkan seluruh daftar, bukan hanya pilihan itu
+            renderCities(query === normalizeCity(selected) ? '' : query);
+        }
+
+        function selectCity(name) {
+            document.getElementById('cityInput').value = name;
+            toggleCityList(false);
+        }
+
+        citySearch.addEventListener('keydown', event => {
+            const isOpen = !cityList.classList.contains('hidden');
+
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                if (!isOpen) toggleCityList(true);
+                setActiveCity(activeCityIndex + (event.key === 'ArrowDown' ? 1 : -1));
+            } else if (event.key === 'Enter' && isOpen) {
+                event.preventDefault();
+                const active = renderedCityOptions()[activeCityIndex];
+                if (active) selectCity(active.dataset.value);
+            } else if (event.key === 'Escape' && isOpen) {
+                toggleCityList(false);
+            }
+        });
+
+        // Sorotan mouse dan keyboard memakai satu state yang sama agar hanya satu opsi yang tersorot
+        cityList.addEventListener('mousemove', event => {
+            const option = event.target.closest('.city-option');
+            if (option) setActiveCity(renderedCityOptions().indexOf(option), false);
+        });
+
+        citySearch.addEventListener('blur', () => toggleCityList(false));
+
+        document.addEventListener('click', event => {
+            if (!document.getElementById('cityDropdown').contains(event.target) && !cityList.classList.contains('hidden')) {
+                toggleCityList(false);
+            }
+        });
     </script>
 </body>
 </html>
