@@ -182,7 +182,7 @@
             >
 
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                    <td colspan="6" class="h-[290px] px-6 py-8 text-center align-middle text-gray-500">
                         Memuat data...
                     </td>
                 </tr>
@@ -256,7 +256,7 @@
             >
 
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                    <td colspan="6" class="h-[290px] px-6 py-8 text-center align-middle text-gray-500">
                         Memuat data...
                     </td>
                 </tr>
@@ -281,7 +281,7 @@
     function barisKosong(pesan) {
         return `
             <tr data-kosong>
-                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="6" class="h-[290px] px-6 py-8 text-center align-middle text-gray-500">
                     ${escapeHtml(pesan)}
                 </td>
             </tr>

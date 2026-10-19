@@ -133,7 +133,7 @@
 
 
         <!-- TABLE -->
-        <table class="w-full border">
+        <table id="tabelTransaksi" class="w-full border">
 
             <colgroup>
                 <col style="width: 60px;">
@@ -146,7 +146,7 @@
                 <col style="width: 100px;">
             </colgroup>
 
-            <thead class="border-b border-gray-200">
+            <thead id="transaksiHeader" class="border-b border-gray-200">
 
                 <tr class="text-sm font-bold text-gray-800 text-center">
 
@@ -190,7 +190,7 @@
             <tbody id="transaksiRows" class="text-sm">
 
                 <tr>
-                    <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                    <td colspan="8" class="h-[290px] px-4 py-8 text-center align-middle text-gray-500">
                         Memuat data...
                     </td>
                 </tr>
@@ -312,6 +312,8 @@
 
             const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
             const tabelTransaksi = document.getElementById("transaksiRows");
+            const tabelTransaksiElement = document.getElementById("tabelTransaksi");
+            const transaksiHeader = document.getElementById("transaksiHeader");
             const filterStatus = document.getElementById("filterStatus");
             const searchInput = document.getElementById("searchInput");
 
@@ -322,7 +324,7 @@
             function barisKosong(pesan) {
                 return `
                     <tr data-kosong>
-                        <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                        <td colspan="8" class="h-[290px] px-4 py-8 text-center align-middle text-gray-500">
                             ${escapeHtml(pesan)}
                         </td>
                     </tr>
@@ -331,6 +333,9 @@
 
             function renderTransaksi(items) {
 
+                const isEmpty = items.length === 0;
+                tabelTransaksiElement.classList.toggle("border", !isEmpty);
+                transaksiHeader.classList.toggle("border-b", !isEmpty);
                 tabelTransaksi.innerHTML = items.length ? items.map((item, index) => `
                     <tr class="text-gray-800 border-b border-gray-200"
                         data-status="${escapeHtml(item.status)}"
@@ -395,6 +400,8 @@
                 } catch (exception) {
                     error.textContent = exception.message;
                     error.classList.remove("hidden");
+                    tabelTransaksiElement.classList.remove("border");
+                    transaksiHeader.classList.remove("border-b");
                     tabelTransaksi.innerHTML = barisKosong("Data transaksi gagal dimuat.");
                 }
 

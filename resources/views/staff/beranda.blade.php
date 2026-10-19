@@ -113,13 +113,6 @@
                 placeholder="Cari nama organisasi, kategori, atau wilayah..."
                 class="w-full bg-transparent text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
             />
-            <button
-                id="reset-search-btn"
-                onclick="resetSearch()"
-                class="hidden text-xs text-gray-400 hover:text-gray-600 font-semibold px-2 py-1 rounded-md bg-gray-100 cursor-pointer"
-            >
-                Reset
-            </button>
         </div>
 
         <!-- TABEL DATA HOMESTAFF -->
@@ -143,10 +136,10 @@
                     <thead>
                         <tr class="border-b border-gray-200 text-sm font-bold text-gray-900 bg-white text-center">
                             <th class="py-3 px-6 w-16">No.</th>
+                            <th class="py-3 px-6 w-40">Tanggal Daftar</th>
                             <th class="py-3 px-6 ">Nama Organisasi</th>
                             <th class="py-3 px-6 w-48">Kategori</th>
                             <th class="py-3 px-6 w-48">Wilayah</th>
-                            <th class="py-3 px-6 w-40">Tanggal Daftar</th>
                             <th class="py-3 px-6 w-32">Aksi</th>
                         </tr>
                     </thead>
@@ -189,7 +182,6 @@
             currentTab = tab;
             const searchInput = document.getElementById('search-input');
             searchInput.value = '';
-            document.getElementById('reset-search-btn').classList.add('hidden');
 
             const tabOrg = document.getElementById('tab-btn-organisasi');
             const tabBukti = document.getElementById('tab-btn-bukti');
@@ -239,14 +231,7 @@
 
         function handleSearch() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
-            const resetBtn = document.getElementById('reset-search-btn');
             const countBadge = document.getElementById('table-count-badge');
-
-            if (query.length > 0) {
-                resetBtn.classList.remove('hidden');
-            } else {
-                resetBtn.classList.add('hidden');
-            }
 
             if (currentTab === 'organisasi') {
                 const rows = document.querySelectorAll('.org-row');
@@ -283,11 +268,6 @@
                 countBadge.textContent = `${visibleCount} Data Ditampilkan`;
                 toggleEmptyState('empty-state-bukti', visibleCount, query);
             }
-        }
-
-        function resetSearch() {
-            document.getElementById('search-input').value = '';
-            handleSearch();
         }
 
         // Pesan kosong: hasil pencarian tidak cocok, atau memang belum ada antrian
@@ -331,10 +311,10 @@
             document.getElementById('tbody-organisasi').innerHTML = items.map((item, index) => `
                 <tr class="org-row hover:bg-gray-50/70 transition-colors">
                     <td class="py-3.5 px-6 text-gray-800 text-center">${index + 1}.</td>
+                    <td class="py-3.5 px-6 text-gray-800 text-center">${escapeHtml(item.registered_at)}</td>
                     <td class="py-3.5 px-6 font-medium text-gray-900 cell-name">${escapeHtml(item.name)}</td>
                     <td class="py-3.5 px-6 text-gray-600 cell-cat text-center">${escapeHtml(item.type)}</td>
                     <td class="py-3.5 px-6 text-gray-600 cell-loc text-center">${escapeHtml(item.city)}</td>
-                    <td class="py-3.5 px-6 text-gray-800 text-center">${escapeHtml(item.registered_at)}</td>
                     <td class="py-3.5 px-6 text-center">${detailButton(DETAIL_ORGANISASI_URL, item.id)}</td>
                 </tr>
             `).join('');
