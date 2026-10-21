@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Foundation\Events\DiagnosingHealth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
@@ -26,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production') && str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
         }
+
+        // /up (health check untuk monitoring uptime) ikut gagal bila database tidak bisa dihubungi.
+        Event::listen(DiagnosingHealth::class, fn () => DB::select('select 1'));
 
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
             return route('password.reset', [

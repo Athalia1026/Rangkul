@@ -22,11 +22,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withSchedule(function (Schedule $schedule) {
+        $syncPing = config('services.healthchecks.sync_url');
         $backupPing = config('services.healthchecks.backup_url');
 
-        $schedule->command('donations:sync-midtrans')->everyMinute()->withoutOverlapping();
+        // Ping healthchecks.io setiap sukses: bila ping berhenti, cron/scheduler mati dan tim diberi alert.
+        $schedule->command('donations:sync-midtrans')->everyMinute()->withoutOverlapping()
+            ->pingOnSuccessIf(filled($syncPing), (string) $syncPing);
         // Bersihkan token login yang sudah kedaluwarsa (lihat sanctum.expiration).
         $schedule->command('sanctum:prune-expired --hours=24')->daily();
+        // Email & notifikasi 7 hari sebelum langganan premium berakhir.
+        $schedule->command('premium:send-expiry-reminders')->dailyAt('08:00');
 
         // Kirim email yang mengantre (QUEUE_CONNECTION=database). Berhenti saat antrean kosong,
         // sehingga cukup cron schedule:run tanpa proses worker terpisah.
