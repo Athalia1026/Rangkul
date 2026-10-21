@@ -46,6 +46,10 @@ class DonationController extends Controller
     public function checkout(string $campaignId)
     {
         $campaign = \App\Models\Campaign::with('organization')->where('status', 'aktif')->findOrFail($campaignId);
+        // Kampanye yang sudah berakhir tidak menerima donasi: kembali ke detail yang menampilkan statusnya.
+        if (!$campaign->isOpenForDonation()) {
+            return redirect()->route('campaign.detail', $campaign->id);
+        }
         return view('donatur.donasi-detail', ['campaign' => $campaign, 'fee' => DonationService::PAYMENT_FEE]);
     }
 

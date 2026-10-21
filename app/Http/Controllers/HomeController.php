@@ -16,8 +16,9 @@ class HomeController extends Controller
             ])
             ->whereIn('status', ['aktif', 'disalurkan'])
             ->where(function ($query) {
+                // Sama dengan Campaign::scopeOpenForDonation: dibuka sampai akhir hari tanggal selesai.
                 $query->whereNull('tanggal_selesai')
-                    ->orWhere('tanggal_selesai', '>=', now());
+                    ->orWhereDate('tanggal_selesai', '>=', today());
             })
             ->latest()
             ->get()

@@ -51,9 +51,15 @@
                 <span class="text-gray-950 font-bold text-[16px] sm:text-[17px]">Rp {{ number_format($campaign['target_dana'] ?? 0, 0, ',', '.') }}</span>
             </div>
 
-            <button type="button" onclick="openDonateModal()" class="w-full sm:w-[280px] px-10 sm:px-14 py-2.5 sm:py-3 bg-[#05522d] hover:bg-[#044023] text-white font-semibold text-[15px] sm:text-[16px] rounded-xl shadow-xs transition-colors cursor-pointer text-center">
-                Donasi
-            </button>
+            @if($campaign['is_open'] ?? true)
+                <button type="button" onclick="openDonateModal()" class="w-full sm:w-[280px] px-10 sm:px-14 py-2.5 sm:py-3 bg-[#05522d] hover:bg-[#044023] text-white font-semibold text-[15px] sm:text-[16px] rounded-xl shadow-xs transition-colors cursor-pointer text-center">
+                    Donasi
+                </button>
+            @else
+                <button type="button" disabled class="w-full sm:w-[280px] px-10 sm:px-14 py-2.5 sm:py-3 bg-gray-200 text-gray-500 font-semibold text-[15px] sm:text-[16px] rounded-xl cursor-not-allowed text-center">
+                    Kampanye Telah Berakhir
+                </button>
+            @endif
         </div>
 
         <!-- Metrics Box -->

@@ -66,7 +66,7 @@ class SearchController extends Controller
             ->with(['organization', 'donations' => function ($query) {
                 $query->where('status', 'sudah_bayar');
             }])
-            ->where('status', 'aktif');
+            ->openForDonation();
 
         $organizationQuery = Organization::query()
             ->where('verification_status', 'disetujui');

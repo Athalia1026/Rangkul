@@ -2,10 +2,20 @@
 
 namespace Tests\Feature;
 
+use App\Models\Campaign;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class SearchPageTest extends TestCase
 {
+    use DatabaseTransactions;
+
+    /** Pencarian hanya menampilkan kampanye yang masih berjalan, jadi pastikan kampanye seed belum berakhir. */
+    private function keepSembakoCampaignRunning(): void
+    {
+        Campaign::where('judul', 'Bantuan Sembako Anak Asuh')->update(['tanggal_selesai' => now()->addDays(7)]);
+    }
+
     public function test_search_page_can_be_rendered(): void
     {
         $response = $this->get('/search');
@@ -19,6 +29,7 @@ class SearchPageTest extends TestCase
 
     public function test_search_page_with_query(): void
     {
+        $this->keepSembakoCampaignRunning();
         $response = $this->get('/search?q=sembako');
 
         $response->assertStatus(200);
@@ -51,6 +62,7 @@ class SearchPageTest extends TestCase
 
     public function test_search_results_page_with_query(): void
     {
+        $this->keepSembakoCampaignRunning();
         $response = $this->get('/search-results?q=sembako');
 
         $response->assertStatus(200);

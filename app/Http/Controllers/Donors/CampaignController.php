@@ -64,7 +64,7 @@ class CampaignController extends Controller
         $otherCampaigns = Campaign::with(['organization'])
             ->where('id_organisasi', $organization->id ?? null)
             ->where('id', '!=', $campaign->id)
-            ->where('status', 'aktif')
+            ->openForDonation()
             ->orderByDesc('created_at')
             ->limit(6)
             ->get()
@@ -93,6 +93,9 @@ class CampaignController extends Controller
             'terkumpul' => $terkumpul,
             'persentase' => $persentase,
             'sisa_hari' => (int) $campaign->sisa_hari,
+            // Halaman detail kampanye yang sudah berakhir tetap bisa dibuka (mis. dari riwayat donasi),
+            // tetapi tombol donasi dinonaktifkan.
+            'is_open' => $campaign->isOpenForDonation(),
             'donatur' => $campaign->donations()->where('status', 'sudah_bayar')->count(),
             'kebutuhan' => $campaign->kebutuhan ?? (str_starts_with($campaign->id, 'demo-campaign-')
                 ? (in_array($campaign->id, ['demo-campaign-1', 'demo-campaign-7'])

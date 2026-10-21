@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\LogsActivity;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,6 +50,24 @@ class Campaign extends Model
     {
         // Replace 'campaign_id' or 'id_campaign' with your actual foreign key in the donations table
         return $this->hasMany(Donation::class, 'id_campaign');
+    }
+
+    /**
+     * Kampanye yang masih menerima donasi: berstatus aktif dan hari terakhirnya belum lewat
+     * (kampanye tetap dibuka sampai akhir hari tanggal_selesai). Status kampanye tidak berubah
+     * otomatis saat tanggal selesai lewat, jadi daftar publik wajib memakai scope ini, bukan status saja.
+     */
+    public function scopeOpenForDonation(Builder $query): Builder
+    {
+        return $query->where('status', 'aktif')
+            ->where(fn (Builder $query) => $query->whereNull('tanggal_selesai')
+                ->orWhereDate('tanggal_selesai', '>=', today()));
+    }
+
+    public function isOpenForDonation(): bool
+    {
+        return $this->status === 'aktif'
+            && (!$this->tanggal_selesai || !$this->tanggal_selesai->copy()->endOfDay()->isPast());
     }
 
     protected $appends = ['sisa_hari'];

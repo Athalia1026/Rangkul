@@ -15,7 +15,7 @@ class OrganizationProfileController extends Controller
         $organization = Organization::where('verification_status', 'disetujui')
             ->with(['galleries', 'user'])->findOrFail($organizationId);
         $campaigns = Campaign::where('id_organisasi', $organization->id)
-            ->where('status', 'aktif')
+            ->openForDonation()
             ->withSum(['donations as collected' => fn ($query) => $query->where('status', 'sudah_bayar')], 'nominal')
             ->latest()->paginate(8);
 
@@ -145,7 +145,7 @@ class OrganizationProfileController extends Controller
         }
         // 2. Ambil campaign milik organisasi & hitung sum nominal dari relasi donations (hanya yang sudah_bayar)
         $campaigns = Campaign::where('id_organisasi', $organizationId)
-            ->where('status', 'aktif')
+            ->openForDonation()
             ->withSum([
                 'donations as total_donasi_terkumpul' => function ($query) {
                     $query->where('status', 'sudah_bayar');
