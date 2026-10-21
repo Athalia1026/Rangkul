@@ -4,10 +4,11 @@ namespace App\Mail;
 
 use App\Models\FundDisbursement;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class DisbursementVerificationMail extends Mailable
+class DisbursementVerificationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

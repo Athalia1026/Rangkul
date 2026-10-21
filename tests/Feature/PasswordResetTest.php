@@ -3,7 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -42,7 +43,9 @@ class PasswordResetTest extends TestCase
 
         $this->postJson('/api/forgot-password', ['email' => $user->email])->assertOk();
 
-        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
+        Notification::assertSentTo($user, ResetPasswordNotification::class, function (ResetPasswordNotification $notification) use ($user) {
+            // Lewat antrean: respons lupa password tidak menunggu SMTP (waktu respons seragam).
+            $this->assertInstanceOf(ShouldQueue::class, $notification);
             $url = $notification->toMail($user)->actionUrl;
 
             return str_contains($url, '/reset-password?token=' . $notification->token)

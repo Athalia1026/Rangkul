@@ -37,6 +37,13 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /** Email reset password dikirim lewat antrean (lihat ResetPasswordNotification). */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
+
     /** URL foto profil (path storage atau URL penuh), null jika belum ada foto. */
     public function profilePhotoUrl(): ?string
     {

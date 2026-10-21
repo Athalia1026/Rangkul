@@ -25,6 +25,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('donations:sync-midtrans')->everyMinute()->withoutOverlapping();
         // Bersihkan token login yang sudah kedaluwarsa (lihat sanctum.expiration).
         $schedule->command('sanctum:prune-expired --hours=24')->daily();
+
+        // Kirim email yang mengantre (QUEUE_CONNECTION=database). Berhenti saat antrean kosong,
+        // sehingga cukup cron schedule:run tanpa proses worker terpisah.
+        $schedule->command('queue:work --stop-when-empty --tries=3 --backoff=60 --max-time=50')
+            ->everyMinute()->withoutOverlapping()->runInBackground();
     })
     ->withMiddleware(function (Middleware $middleware) {
         // Catatan: app/Http/Kernel.php tidak dipakai Laravel 12; middleware global didaftarkan di sini.
