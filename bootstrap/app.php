@@ -27,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('sanctum:prune-expired --hours=24')->daily();
     })
     ->withMiddleware(function (Middleware $middleware) {
+        // Catatan: app/Http/Kernel.php tidak dipakai Laravel 12; middleware global didaftarkan di sini.
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
         $middleware->alias([
             'is_admin' => CheckIsAdmin::class,
         ]);
