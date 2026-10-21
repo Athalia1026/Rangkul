@@ -34,6 +34,17 @@ class ActivityLog extends Model
         'new_data'      => 'array',
     ];
 
+    /**
+     * Audit trail bersifat append-only: log yang sudah tercatat tidak boleh diubah atau dihapus,
+     * agar jejak tindakan tidak bisa dihilangkan. Database juga menolaknya lewat trigger
+     * (migration 2026_10_21_000001_make_activity_logs_append_only).
+     */
+    protected static function booted(): void
+    {
+        static::updating(fn () => throw new \LogicException('Log aktivitas tidak boleh diubah.'));
+        static::deleting(fn () => throw new \LogicException('Log aktivitas tidak boleh dihapus.'));
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
