@@ -1,4 +1,5 @@
 import './bootstrap';
+import './search-guard';
 import '../css/donor.css';
 import './donor';
 import '../css/panti-profile.css';

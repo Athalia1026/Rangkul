@@ -14,7 +14,7 @@
     @if(request()->routeIs('donatur.search.results'))
         <div class="donor-header-inner donor-results-header max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
             <x-back-link :href="route('donatur.cari')" class="shrink-0" />
-            <form action="{{ route('donatur.search.results') }}" method="GET" role="search" class="donor-results-search">
+            <form action="{{ route('donatur.search.results') }}" method="GET" role="search" data-search-form class="donor-results-search">
                 <button type="submit" aria-label="Cari" class="p-2 text-[#05522d]"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5" stroke-linecap="round"/></svg></button>
                 <input type="search" name="q" value="{{ $query ?? request('q', '') }}" aria-label="Cari kampanye atau organisasi" placeholder="Cari kampanye atau organisasi..." class="min-w-0 w-full bg-transparent py-2 pr-3 outline-none text-sm">
                 @foreach(['sort', 'category', 'tab'] as $parameter)

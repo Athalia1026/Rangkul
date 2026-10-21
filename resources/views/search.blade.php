@@ -34,7 +34,7 @@
 
             <!-- Search Bar Input -->
             <div class="w-full max-w-[580px] mt-6 relative">
-                <form action="{{ route($isDonorSearch ? 'donatur.search.results' : 'search.results') }}" method="GET" role="search" class="relative flex items-center bg-white/90 backdrop-blur-md hover:bg-white focus-within:bg-white rounded-xl shadow-lg border border-white/40 transition-all">
+                <form action="{{ route($isDonorSearch ? 'donatur.search.results' : 'search.results') }}" method="GET" role="search" data-search-form class="relative flex items-center bg-white/90 backdrop-blur-md hover:bg-white focus-within:bg-white rounded-xl shadow-lg border border-white/40 transition-all">
                     <svg class="w-5 h-5 text-gray-500 ml-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8" stroke-width="2"/>
                         <path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/>

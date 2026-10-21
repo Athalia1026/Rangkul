@@ -15,7 +15,7 @@
 
             <!-- Center: Search Bar with Green Border -->
             <div class="flex-1 max-w-[560px] mx-2">
-                <form action="{{ route('search.results') }}" method="GET" class="relative flex items-center bg-white rounded-xl border-2 border-[#05522d] shadow-xs px-3.5 py-1.5 sm:py-2">
+                <form action="{{ route('search.results') }}" method="GET" role="search" data-search-form class="relative flex items-center bg-white rounded-xl border-2 border-[#05522d] shadow-xs px-3.5 py-1.5 sm:py-2">
                     <svg class="w-4 sm:w-5 h-4 sm:h-5 text-gray-800 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35" stroke-linecap="round"/>
