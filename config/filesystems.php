@@ -56,6 +56,25 @@ return [
             'throw' => false,
         ],
 
+        // Backup di server yang sama (di luar storage/app agar tidak ikut terarsip).
+        'backups' => [
+            'driver' => 'local',
+            'root' => storage_path('backups'),
+            'throw' => true,
+        ],
+
+        // Backup di luar server: bucket S3-compatible, mis. Cloudflare R2 (lihat BACKUP_S3_*).
+        'backups_offsite' => [
+            'driver' => 's3',
+            'key' => env('BACKUP_S3_KEY'),
+            'secret' => env('BACKUP_S3_SECRET'),
+            'region' => env('BACKUP_S3_REGION', 'auto'),
+            'bucket' => env('BACKUP_S3_BUCKET'),
+            'endpoint' => env('BACKUP_S3_ENDPOINT'),
+            'use_path_style_endpoint' => env('BACKUP_S3_PATH_STYLE', true),
+            'throw' => true,
+        ],
+
     ],
 
     /*

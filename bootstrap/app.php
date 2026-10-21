@@ -22,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withSchedule(function (Schedule $schedule) {
+        $backupPing = config('services.healthchecks.backup_url');
+
         $schedule->command('donations:sync-midtrans')->everyMinute()->withoutOverlapping();
         // Bersihkan token login yang sudah kedaluwarsa (lihat sanctum.expiration).
         $schedule->command('sanctum:prune-expired --hours=24')->daily();
@@ -30,6 +32,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // sehingga cukup cron schedule:run tanpa proses worker terpisah.
         $schedule->command('queue:work --stop-when-empty --tries=3 --backoff=60 --max-time=50')
             ->everyMinute()->withoutOverlapping()->runInBackground();
+
+        // Backup harian + verifikasi mingguan bahwa backup terbaru bisa dipakai untuk restore.
+        $schedule->command('backup:create')->dailyAt('01:30')->withoutOverlapping()
+            ->pingOnSuccessIf(filled($backupPing), (string) $backupPing)
+            ->pingOnFailureIf(filled($backupPing), $backupPing . '/fail');
+        $schedule->command('backup:verify')->weeklyOn(1, '03:00')
+            ->pingOnFailureIf(filled($backupPing), $backupPing . '/fail');
     })
     ->withMiddleware(function (Middleware $middleware) {
         // Catatan: app/Http/Kernel.php tidak dipakai Laravel 12; middleware global didaftarkan di sini.

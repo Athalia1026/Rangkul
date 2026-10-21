@@ -43,4 +43,10 @@ return [
         'tax_rate' => env('PREMIUM_TAX_RATE', 0.11),
     ],
 
+    // URL ping healthchecks.io: jika ping berhenti masuk, tugas terjadwal dianggap mati dan tim diberi alert.
+    'healthchecks' => [
+        'sync_url' => env('HEALTHCHECK_SYNC_URL'),
+        'backup_url' => env('HEALTHCHECK_BACKUP_URL'),
+    ],
+
 ];
