@@ -14,6 +14,7 @@ use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -211,8 +212,19 @@ class AuthService
 
     public function login(array $credentials): array
     {
+        $lockKey = $this->loginLockKey($credentials['email']);
+        $this->ensureAccountIsNotLocked($lockKey);
+
         $user = $this->findUserByEmail($credentials['email']);
-        $this->ensureCredentialsAreValid($user, $credentials['password']);
+
+        try {
+            $this->ensureCredentialsAreValid($user, $credentials['password']);
+        } catch (ValidationException $exception) {
+            RateLimiter::hit($lockKey, config('security.login_lockout_seconds'));
+            throw $exception;
+        }
+
+        RateLimiter::clear($lockKey);
         $this->ensureAccountIsActive($user);
 
         $blockedResponse = $this->resolveOrganizationVerificationBlock($user);
@@ -224,6 +236,29 @@ class AuthService
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return $this->buildSuccessfulLoginResponse($user, $token);
+    }
+
+    /**
+     * Kunci per email (bukan per IP): menghentikan brute force yang memakai banyak IP.
+     * Berlaku juga untuk email yang tidak terdaftar, sehingga penguncian tidak membocorkan
+     * email mana yang punya akun.
+     */
+    private function loginLockKey(string $email): string
+    {
+        return 'login-lock:' . sha1(Str::lower(trim($email)));
+    }
+
+    private function ensureAccountIsNotLocked(string $lockKey): void
+    {
+        if (!RateLimiter::tooManyAttempts($lockKey, config('security.login_max_attempts'))) {
+            return;
+        }
+
+        $minutes = (int) ceil(RateLimiter::availableIn($lockKey) / 60);
+
+        throw ValidationException::withMessages([
+            'email' => ["Terlalu banyak percobaan login gagal. Coba lagi dalam {$minutes} menit."],
+        ])->status(429);
     }
 
     private function findUserByEmail(string $email): ?User

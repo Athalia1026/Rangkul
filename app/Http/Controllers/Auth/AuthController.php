@@ -151,9 +151,10 @@ class AuthController extends Controller
                 'user' => $result['user'],
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // 429 = akun terkunci sementara karena terlalu banyak percobaan gagal.
             return response()->json([
                 'message' => $e->validator->errors()->first(),
-            ], 401);
+            ], $e->status === 429 ? 429 : 401);
         }
     }
 
