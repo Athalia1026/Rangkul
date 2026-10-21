@@ -33,9 +33,9 @@ class DonationCheckoutTest extends TestCase
     public function test_checkout_validates_amount_and_handles_missing_gateway(): void
     {
         Sanctum::actingAs($this->donor());
-        $this->postJson('/api/donations', ['id_campaign' => 'demo-campaign-1', 'nominal' => 9999])->assertUnprocessable();
+        $this->postJson('/api/donations', ['id_campaign' => 'demo-campaign-2', 'nominal' => 9999])->assertUnprocessable();
         config(['services.midtrans.server_key' => null]);
-        $this->postJson('/api/donations', ['id_campaign' => 'demo-campaign-1', 'nominal' => 10000])->assertStatus(503);
+        $this->postJson('/api/donations', ['id_campaign' => 'demo-campaign-2', 'nominal' => 10000])->assertStatus(503);
     }
 
     public function test_gateway_called_once_and_payment_requires_verified_callback(): void
