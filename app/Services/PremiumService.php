@@ -83,6 +83,7 @@ class PremiumService
                     'phone' => $data['nomor_pic'],
                 ],
                 'enabled_payments' => ['gopay', 'qris'],
+                'expiry' => ['unit' => 'hours', 'duration' => DonationService::PAYMENT_WINDOW_HOURS],
                 // Setelah bayar, Midtrans mengarahkan kembali ke halaman hasil premium (bukan Finish URL di dashboard Midtrans).
                 'callbacks' => ['finish' => route('donatur.premium.berhasil', $subscription->id)],
             ];
@@ -136,14 +137,24 @@ class PremiumService
             return $subscription;
         }
 
+        $pending = false;
         try {
             $payload = (array) \Midtrans\Transaction::status($subscription->transaction_id);
             if ((int) ($payload['gross_amount'] ?? 0) === $this->pricing()['total']) {
                 $this->applyPaymentStatus($subscription, $payload);
+                $pending = ($payload['transaction_status'] ?? null) === 'pending';
             }
         } catch (\Throwable $exception) {
             // 404 dari Midtrans berarti donatur belum memilih metode pembayaran.
             Log::info('Premium payment status unavailable', ['order_id' => $subscription->transaction_id, 'message' => $exception->getMessage()]);
+        }
+
+        // Lewat batas waktu bayar tanpa pembayaran yang berjalan: nonaktifkan agar tidak tertahan
+        // "menunggu pembayaran" selamanya (Midtrans tidak mengirim status bila metode belum dipilih).
+        $subscription->refresh();
+        if ($subscription->status === 'menunggu_bayar' && !$pending
+            && $subscription->created_at->lte(now()->subHours(DonationService::PAYMENT_WINDOW_HOURS))) {
+            $subscription->update(['status' => 'nonaktif']);
         }
 
         return $subscription->fresh();

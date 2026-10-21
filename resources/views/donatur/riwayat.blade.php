@@ -13,7 +13,7 @@
     <section class="activity-section" aria-labelledby="donation-history-title">
         <h2 id="donation-history-title">Riwayat Donasi</h2>
         <div class="activity-filters" aria-label="Filter riwayat donasi" data-filter="donations">
-            @foreach(['all' => 'Semua', 'belum_bayar' => 'Belum Bayar', 'sudah_bayar' => 'Selesai', 'sudah_disalurkan' => 'Tersalurkan'] as $value => $label)
+            @foreach(['all' => 'Semua', 'belum_bayar' => 'Belum Bayar', 'sudah_bayar' => 'Selesai', 'sudah_disalurkan' => 'Tersalurkan', 'gagal' => 'Gagal'] as $value => $label)
                 <button type="button" data-value="{{ $value }}" aria-pressed="{{ $loop->first ? 'true' : 'false' }}">{{ $label }}</button>
             @endforeach
         </div>

@@ -8,6 +8,8 @@
 .activity-cover{position:absolute;inset:0 auto 0 0;height:100%;width:260px;object-fit:cover}
 .activity-content{margin-left:260px;padding:26px 28px}
 .activity-top>div{min-width:0;flex:1}
+.activity-badge[data-status=gagal]{background:#f4dddd;color:#972f35}
+.activity-note{align-self:center;font-size:13px;font-weight:600;color:#77808e}
 .activity-title{overflow-wrap:anywhere}
 .activity-badge{flex-shrink:0}
 @media(min-width:768px){

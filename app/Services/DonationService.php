@@ -14,22 +14,72 @@ use Midtrans\Snap;
 class DonationService
 {
     public const PAYMENT_FEE = 3000;
+
+    /** Batas waktu menyelesaikan pembayaran (juga dikirim ke Midtrans sebagai expiry Snap). */
+    public const PAYMENT_WINDOW_HOURS = 24;
+
+    /**
+     * Cocokkan status donasi belum_bayar dengan Midtrans, lalu tandai gagal (kedaluwarsa) donasi
+     * yang tidak mungkin dibayar lagi. Tanpa ini donasi tertahan "belum dibayar" selamanya, karena
+     * Midtrans tidak pernah mengirim status untuk transaksi yang metode pembayarannya belum dipilih (404).
+     */
     public function refreshPayment(Donation $donation): Donation
     {
-        if ($donation->status !== 'belum_bayar' || !$donation->snap_token) return $donation;
-        try {
-            $payload = (array) \Midtrans\Transaction::status($donation->id);
-            DB::transaction(function () use ($donation, $payload) {
-                $locked = Donation::lockForUpdate()->findOrFail($donation->id);
-                if ($locked->status === 'sudah_bayar') return;
-                if (($payload['order_id'] ?? '') !== $locked->id) return;
-                if ((float) ($payload['gross_amount'] ?? 0) !== (float) ($locked->nominal + ($locked->payment_fee ?? self::PAYMENT_FEE))) return;
-                $this->processDonationCallback($locked, $payload);
-            });
-        } catch (\Throwable $exception) {
-            // A not-yet-started Snap transaction can return 404; keep it pending.
+        if ($donation->status !== 'belum_bayar') return $donation;
+
+        $payload = null;
+        if ($donation->snap_token) {
+            try {
+                $payload = (array) \Midtrans\Transaction::status($donation->id);
+            } catch (\Throwable $exception) {
+                // 404: donatur belum memilih metode pembayaran, transaksi belum ada di Midtrans.
+            }
         }
+
+        DB::transaction(function () use ($donation, $payload) {
+            $locked = Donation::with('campaign')->lockForUpdate()->findOrFail($donation->id);
+            if ($locked->status !== 'belum_bayar') return;
+
+            $matches = $payload
+                && ($payload['order_id'] ?? '') === $locked->id
+                && (float) ($payload['gross_amount'] ?? 0) === (float) ($locked->nominal + ($locked->payment_fee ?? self::PAYMENT_FEE));
+
+            if ($matches) {
+                $this->processDonationCallback($locked, $payload);
+                if ($locked->status !== 'belum_bayar') return;
+
+                // Pembayaran sedang berjalan di Midtrans (mis. QRIS sudah dipindai): biarkan selesai,
+                // walaupun kampanye baru saja berakhir. Midtrans sendiri yang akan mengakhirinya.
+                if (($payload['transaction_status'] ?? null) === 'pending' && !$this->paymentWindowPassed($locked)) return;
+            }
+
+            if ($this->isPaymentAbandoned($locked)) {
+                $this->markDonationFailed($locked, $locked->transaction_id);
+            }
+        });
+
         return $donation->fresh();
+    }
+
+    /**
+     * Donasi belum_bayar yang tidak bisa diselesaikan lagi: batas waktu bayar sudah lewat,
+     * atau kampanyenya sudah tidak menerima donasi.
+     */
+    public function isPaymentAbandoned(Donation $donation): bool
+    {
+        return $donation->status === 'belum_bayar'
+            && ($this->paymentWindowPassed($donation) || !$donation->campaign?->isOpenForDonation());
+    }
+
+    /** Donasi belum_bayar yang masih bisa dilanjutkan pembayarannya dari riwayat. */
+    public function canContinuePayment(Donation $donation): bool
+    {
+        return $donation->status === 'belum_bayar' && $donation->snap_token && !$this->isPaymentAbandoned($donation);
+    }
+
+    private function paymentWindowPassed(Donation $donation): bool
+    {
+        return $donation->created_at->lte(now()->subHours(self::PAYMENT_WINDOW_HOURS));
     }
     public function __construct()
     {
@@ -66,6 +116,8 @@ class DonationService
                     'email' => $user->email,
                 ],
                 'enabled_payments' => ['gopay', 'qris'],
+                // Sesi pembayaran ditutup Midtrans setelah batas waktu yang sama dengan pengecekan kedaluwarsa.
+                'expiry' => ['unit' => 'hours', 'duration' => self::PAYMENT_WINDOW_HOURS],
                 // Setelah bayar, Midtrans mengarahkan kembali ke halaman status donasi (bukan Finish URL di dashboard Midtrans).
                 'callbacks' => ['finish' => route('donatur.pembayaran', $donation->id)],
             ];

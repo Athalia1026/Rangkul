@@ -50,7 +50,10 @@ if (payment) {
         try {
             const data = await request(`/api/donations/${id}${refresh ? '?refresh=1' : ''}`);
             if (data.status === 'sudah_bayar') { finished = true; location.replace(`/donatur/donasi-berhasil/${id}`); }
-            else if (data.status === 'gagal') stop('Pembayaran gagal atau kedaluwarsa. Silakan buat donasi baru.', data.campaign_id);
+            // Tombol "Buat Donasi Baru" hanya muncul bila kampanye masih menerima donasi.
+            else if (data.status === 'gagal') stop(data.campaign_open
+                ? 'Pembayaran gagal atau kedaluwarsa. Silakan buat donasi baru.'
+                : 'Pembayaran kedaluwarsa dan kampanye ini sudah berakhir, sehingga tidak dapat menerima donasi lagi.', data.campaign_open ? data.campaign_id : null);
             else if (manual) message.textContent = 'Pembayaran belum terkonfirmasi. Jika sudah membayar, tunggu sebentar lalu periksa kembali.';
             return data;
         } catch (error) { message.textContent = error.message; }
@@ -84,7 +87,7 @@ if (payment) {
             const url = new URL(data.payment_url);
             if (url.protocol === 'https:' && ['app.midtrans.com', 'app.sandbox.midtrans.com'].includes(url.hostname)) paymentUrl = url.href;
         }
-        if (!data.snap_token) { stop('Sesi pembayaran untuk transaksi ini tidak tersedia. Silakan buat donasi baru.', data.campaign_id); return; }
+        if (!data.snap_token) { stop('Sesi pembayaran untuk transaksi ini tidak tersedia.' + (data.campaign_open ? ' Silakan buat donasi baru.' : ''), data.campaign_open ? data.campaign_id : null); return; }
         const fallbackMessage = 'Tekan Bayar Sekarang untuk membuka halaman pembayaran Midtrans.';
         if (!payment.dataset.clientKey) { open.hidden = !paymentUrl; message.textContent = fallbackMessage; return; }
         try {

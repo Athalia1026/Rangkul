@@ -43,11 +43,17 @@ class ActivityHistoryController extends Controller
         ])->setPaper('a5', 'portrait')->download('bukti-pembayaran-' . $invoiceId . '.pdf');
     }
 
-    public function index(Request $request)
+    public function index(Request $request, DonationService $donationService)
     {
         $user = Auth::user();
         abort_unless($user->account_type === 'donatur', 403);
         $donorId = $user?->donor?->id ?? $user?->id;
+
+        // Tandai kedaluwarsa donasi yang sudah tidak bisa dibayar (batas waktu lewat / kampanye berakhir),
+        // agar riwayat benar walaupun scheduler belum sempat berjalan.
+        Donation::with('campaign')->where('id_donatur', $donorId)->where('status', 'belum_bayar')->get()
+            ->filter(fn (Donation $donation) => $donationService->isPaymentAbandoned($donation))
+            ->each(fn (Donation $donation) => $donationService->refreshPayment($donation));
 
         // ==========================================
         // 1. Kalkulasi Statistik Atas (Header Stats)
@@ -73,7 +79,7 @@ class ActivityHistoryController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $donations = $rawDonations->map(function ($donation) {
+        $donations = $rawDonations->map(function ($donation) use ($donationService) {
             $displayStatus = $donation->status;
 
             if ($donation->status === 'sudah_bayar') {
@@ -105,6 +111,11 @@ class ActivityHistoryController extends Controller
                 'distributed_at'    => $displayStatus === 'sudah_disalurkan' ? $donation->campaign->fundDisbursements->flatMap(fn ($item) => $item->purchaseProofs->where('status', 'diterima'))->max('updated_at') : null,
                 'status_asli'       => $donation->status,
                 'display_status'    => $displayStatus,
+                // Menentukan tombol di riwayat: lanjutkan bayar hanya jika masih mungkin,
+                // donasi lagi hanya jika kampanye masih menerima donasi.
+                'campaign_id'          => $donation->id_campaign,
+                'campaign_open'        => (bool) $donation->campaign?->isOpenForDonation(),
+                'can_continue_payment' => (bool) $donationService->canContinuePayment($donation),
                 'campaign_image'    => $donation->campaign?->foto_cover ? asset('storage/' . $donation->campaign->foto_cover) : null,
             ];
         });

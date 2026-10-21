@@ -2,7 +2,7 @@ const page = document.getElementById('activity-page');
 if (page) {
     const money = value => 'Rp ' + new Intl.NumberFormat('id-ID').format(Number(value || 0));
     const date = value => value ? new Date(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
-    const labels = { belum_bayar: 'Belum Dibayar', sudah_bayar: 'Sudah Dibayar', sudah_disalurkan: 'Sudah Disalurkan', terkirim: 'Terkirim', dikonfirmasi: 'Dikonfirmasi', ditolak: 'Ditolak', selesai: 'Selesai' };
+    const labels = { belum_bayar: 'Belum Dibayar', sudah_bayar: 'Sudah Dibayar', sudah_disalurkan: 'Sudah Disalurkan', gagal: 'Gagal / Kedaluwarsa', terkirim: 'Terkirim', dikonfirmasi: 'Dikonfirmasi', ditolak: 'Ditolak', selesai: 'Selesai' };
     const filters = { donations: 'all', visits: 'all' };
     // Hanya 3 riwayat terbaru yang tampil sampai pengguna menekan "Lihat Selengkapnya".
     const PREVIEW_LIMIT = 3;
@@ -124,7 +124,10 @@ if (page) {
         } else {
             info.append(el('span', 'Nominal Donasi', 'activity-label'), el('p', money(item.amount), 'activity-amount'));
             if (item.status_asli === 'sudah_bayar') actions.append(action('Unduh Bukti Pembayaran', event => receipt(item, event.currentTarget)));
-            else actions.append(action('Lanjutkan Pembayaran', () => { location.assign(`/donatur/pembayaran/${encodeURIComponent(item.id)}`); }));
+            // Pembayaran hanya bisa dilanjutkan selama batas waktu bayar belum lewat dan kampanye masih berjalan.
+            else if (item.can_continue_payment) actions.append(action('Lanjutkan Pembayaran', () => { location.assign(`/donatur/pembayaran/${encodeURIComponent(item.id)}`); }));
+            else if (item.campaign_open) actions.append(action('Donasi Lagi', () => { location.assign(`/donatur/donasi/${encodeURIComponent(item.campaign_id)}`); }));
+            else actions.append(el('span', 'Kampanye telah berakhir', 'activity-note'));
             // Bukti penyaluran hanya tersedia setelah panti mengunggah bukti yang diterima.
             if (item.display_status === 'sudah_disalurkan') actions.append(action('Lihat Bukti Penyaluran', () => { location.assign(`/donatur/penyaluran/${encodeURIComponent(item.id)}`); }, true));
         }

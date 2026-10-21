@@ -60,6 +60,7 @@ class DonationController extends Controller
         if ($request->boolean('refresh')) $donation = $this->donationService->refreshPayment($donation)->load('campaign');
         return response()->json(['id' => $donation->id, 'campaign' => $donation->campaign?->judul,
             'campaign_id' => $donation->id_campaign,
+            'campaign_open' => (bool) $donation->campaign?->isOpenForDonation(),
             'nominal' => (int) $donation->nominal, 'fee' => $donation->payment_fee,
             'status' => $donation->status, 'paid_at' => $donation->paid_at,
             'created_at' => $donation->created_at, 'snap_token' => $donation->snap_token,
