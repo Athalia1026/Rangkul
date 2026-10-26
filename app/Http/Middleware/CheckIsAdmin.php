@@ -20,8 +20,9 @@ class CheckIsAdmin
             ], 403);
         }
 
-        // 2. Cek status akun di tabel admins melalui relasi adminProfile
-        if ($user->adminProfile && $user->adminProfile->status_akun !== 'aktif') {
+        // 2. Cek status akun di tabel admins melalui relasi adminProfile.
+        //    Tanpa profil admin berarti akses ditolak (gagal tertutup), bukan dianggap aktif.
+        if ($user->adminProfile?->status_akun !== 'aktif') {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Akun admin Anda sedang dalam status nonaktif.'
