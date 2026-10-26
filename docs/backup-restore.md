@@ -17,6 +17,14 @@ Arsip disimpan ke setiap disk di `BACKUP_DISKS`:
 
 Backup yang lebih tua dari `BACKUP_KEEP_DAYS` (default 14 hari) dihapus otomatis. Backup terbaru selalu disimpan.
 
+### Keamanan arsip
+
+Arsip backup tidak dienkripsi oleh aplikasi, padahal isinya sensitif: KTP penanggung jawab, SK dan dokumen lembaga, nomor rekening, data donatur, dan bukti transfer. Karena itu:
+
+- Bucket `backups_offsite` harus privat dan memakai enkripsi sisi server (SSE). Simpan `BACKUP_S3_KEY`/`BACKUP_S3_SECRET` hanya di `.env` server.
+- Folder `storage/backups` di server hanya boleh dibaca user yang menjalankan aplikasi. Folder ini berada di luar `public/`, sehingga tidak bisa diunduh lewat web.
+- Arsip yang diunduh untuk restore atau latihan restore dihapus setelah selesai (lihat langkah `rm` di bawah).
+
 ## Jadwal (bootstrap/app.php)
 
 | Waktu | Perintah | Fungsi |
@@ -48,10 +56,16 @@ mysql -u rangkul -p rangkul < /tmp/restore/database.sql
 # 5. Pulihkan file unggahan
 rsync -a /tmp/restore/storage/ storage/app/
 
-# 6. Hidupkan kembali aplikasi
+# 6. Jalankan migrasi yang lebih baru dari backup (mis. bila restore ke versi kode terbaru)
+php artisan migrate --force
+
+# 7. Hidupkan kembali aplikasi
 php artisan storage:link
 php artisan config:cache
 php artisan up
+
+# 8. Hapus salinan sementara (berisi data sensitif)
+rm -rf /tmp/restore
 ```
 
 Setelah restore, cek: `/up` membalas 200, login berhasil, dokumen organisasi bisa dibuka dari halaman admin, dan foto kampanye tampil.
