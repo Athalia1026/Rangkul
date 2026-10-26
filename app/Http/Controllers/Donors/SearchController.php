@@ -62,10 +62,10 @@ class SearchController extends Controller
         $limit = max(1, min($limit, 20));
         $limit = max(1, min($limit, 50));
 
+        // Total terkumpul dihitung di database (SUM), bukan memuat seluruh baris donasi ke memori.
         $campaignQuery = Campaign::query()
-            ->with(['organization', 'donations' => function ($query) {
-                $query->where('status', 'sudah_bayar');
-            }])
+            ->with('organization')
+            ->withSum(['donations as total_terkumpul' => fn ($query) => $query->where('status', 'sudah_bayar')], 'nominal')
             ->openForDonation();
 
         $organizationQuery = Organization::query()
@@ -99,9 +99,14 @@ class SearchController extends Controller
             }
         }
 
+        // Urutan "terbaru" dibatasi langsung di database; "mendesak" diurutkan dari sisa_hari (accessor).
+        if ($sort === 'latest') {
+            $campaignQuery->latest()->limit($limit);
+        }
+
         $campaigns = $campaignQuery->get()->map(function ($campaign) {
             $targetDana = (int) $campaign->target_dana;
-            $terkumpul = (int) $campaign->donations->sum('nominal');
+            $terkumpul = (int) $campaign->total_terkumpul;
 
             $persentase = $targetDana > 0
                 ? min(100, round(($terkumpul / $targetDana) * 100, 1))
@@ -140,7 +145,7 @@ class SearchController extends Controller
 
         $organizations = $organizationQuery->with(['galleries' => function ($query) {
             $query->orderBy('display_order', 'asc')->limit(1);
-        }])->get()->map(function ($organization) {
+        }])->latest()->limit($limit)->get()->map(function ($organization) {
             return [
                 'id' => $organization->id,
                 'jenis' => 'organization',

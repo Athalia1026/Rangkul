@@ -178,14 +178,17 @@ Route::post('/organization/resubmit', [AuthController::class, 'resubmitOrganizat
 */
 
 Route::get('/search', [SearchController::class, 'page'])
+    ->middleware('throttle:60,1,search-page')
     ->name('search');
 
 
 Route::get('/search-results', [SearchController::class, 'results'])
+    ->middleware('throttle:60,1,search-page')
     ->name('search.results');
 
 
 Route::get('/search_result', [SearchController::class, 'results'])
+    ->middleware('throttle:60,1,search-page')
     ->name('search.result');
 
 
@@ -211,8 +214,8 @@ Route::get('/campaign/{id}/prayers', [CampaignController::class, 'prayers'])
 
 Route::get('/beranda', [HomeController::class, 'index']);
 Route::get('/donatur/beranda', [HomeController::class, 'index'])->name('donatur.beranda');
-Route::get('/donatur/cari', [SearchController::class, 'page'])->name('donatur.cari');
-Route::get('/donatur/hasil-pencarian', [SearchController::class, 'results'])->name('donatur.search.results');
+Route::get('/donatur/cari', [SearchController::class, 'page'])->middleware('throttle:60,1,search-page')->name('donatur.cari');
+Route::get('/donatur/hasil-pencarian', [SearchController::class, 'results'])->middleware('throttle:60,1,search-page')->name('donatur.search.results');
 
 
 /*
