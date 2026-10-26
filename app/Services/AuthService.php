@@ -266,9 +266,24 @@ class AuthService
         return User::where('email', $email)->first();
     }
 
+    /**
+     * Cek password dengan waktu proses yang setara untuk email terdaftar maupun tidak:
+     * tanpa ini, respons yang lebih cepat untuk email tak terdaftar membocorkan daftar akun.
+     */
+    private function passwordMatches(?User $user, string $password): bool
+    {
+        if (!$user) {
+            Hash::make($password);
+
+            return false;
+        }
+
+        return Hash::check($password, $user->password);
+    }
+
     private function ensureCredentialsAreValid(?User $user, string $password): void
     {
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (!$this->passwordMatches($user, $password)) {
             throw ValidationException::withMessages([
                 'email' => ['Email atau password salah.'],
             ]);
@@ -371,13 +386,26 @@ class AuthService
     public function resubmit(Request $request): array
     {
         $validated = $request->validated();
+
+        // Endpoint ini memeriksa password tanpa login, jadi ikut kunci per email yang sama dengan
+        // login: tanpa itu, endpoint ini bisa dipakai menebak password akun mana pun tanpa batas.
+        $lockKey = $this->loginLockKey($validated['email']);
+        $this->ensureAccountIsNotLocked($lockKey);
+
         $user = $this->findUserByEmail($validated['email']);
 
-        $this->ensureResubmissionCredentialsAreValid($user, $validated['password']);
+        try {
+            $this->ensureResubmissionCredentialsAreValid($user, $validated['password']);
+        } catch (ValidationException $exception) {
+            RateLimiter::hit($lockKey, config('security.login_lockout_seconds'));
+            throw $exception;
+        }
+
+        RateLimiter::clear($lockKey);
 
         $organization = $this->resolveRejectedOrganization($user);
         $this->updateRejectedOrganizationProfile($organization, $validated);
-        $this->updateRejectedOrganizationBankAccount($organization, $validated);
+        $this->updateRejectedOrganizationBankAccount($organization, $validated, $user);
 
         $existingDocuments = $this->getOrganizationDocumentsByOrganizationId($organization->id);
         $this->resubmitOrganizationDocuments($request, $organization, $existingDocuments);
@@ -390,9 +418,15 @@ class AuthService
         ];
     }
 
+    /**
+     * Akun non-organisasi selalu dianggap kredensial salah (pesan yang sama), sehingga respons
+     * tidak membedakan "password benar tapi bukan organisasi" dari "password salah".
+     */
     private function ensureResubmissionCredentialsAreValid(?User $user, string $password): void
     {
-        if (!$user || !Hash::check($password, $user->password)) {
+        $candidate = $user?->organization ? $user : null;
+
+        if (!$this->passwordMatches($candidate, $password)) {
             throw ValidationException::withMessages([
                 'email' => ['Kredensial email atau password tidak valid.'],
             ]);
@@ -444,14 +478,41 @@ class AuthService
             ->get();
     }
 
-    private function updateRejectedOrganizationBankAccount(Organization $organization, array $validated): void
+    /**
+     * Rekening tujuan pencairan dana: perubahannya wajib tercatat di audit trail. Pengajuan ulang
+     * berjalan tanpa sesi login, sehingga pencatatan otomatis model (butuh user login) tidak jalan
+     * dan aktornya dicatat manual di sini.
+     */
+    private function updateRejectedOrganizationBankAccount(Organization $organization, array $validated, User $actor): void
     {
-        BankAccount::where('id_organisasi', $organization->id)->update([
+        $bankAccount = BankAccount::where('id_organisasi', $organization->id)->first();
+        if (!$bankAccount) {
+            return;
+        }
+
+        $before = $bankAccount->only(['bank', 'no_rekening', 'pemilik_rekening', 'status_verifikasi']);
+
+        $bankAccount->update([
             'bank' => $validated['bank'],
             'no_rekening' => $validated['no_rekening'],
             'pemilik_rekening' => $validated['pemilik_rekening'],
             'status_verifikasi' => 'menunggu',
         ]);
+
+        $changes = collect($bankAccount->getChanges())->except(['updated_at']);
+        if ($changes->isEmpty()) {
+            return;
+        }
+
+        app(ActivityLogService::class)->log(
+            'update',
+            'bank_account',
+            'Memperbarui rekening lembaga saat pengajuan ulang pendaftaran',
+            $bankAccount,
+            array_intersect_key($before, $changes->all()),
+            $changes->all(),
+            $actor
+        );
     }
 
     private function resubmitOrganizationDocuments(Request $request, Organization $organization, $existingDocuments): void

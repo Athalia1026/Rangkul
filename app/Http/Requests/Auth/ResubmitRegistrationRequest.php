@@ -7,15 +7,15 @@ class ResubmitRegistrationRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Pastikan user sudah login dan statusnya sedang ditolak
+        // Kepemilikan dibuktikan lewat email + password di AuthService::resubmit (tanpa sesi login).
         return true;
-        return $user && ($user->status === 'rejected' || $user->organization?->status === 'rejected');
     }
 
     public function rules(): array
     {
         return [
-            'email' => 'required|email:rfc,filter|exists:users,email',
+            // Tanpa aturan exists: pesan "email tidak terdaftar" membocorkan daftar akun.
+            'email' => 'required|email:rfc,filter',
             'password' => 'required|string',
 
             'nama_lembaga'   => 'required|string|max:500',
