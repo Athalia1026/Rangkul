@@ -122,7 +122,21 @@ class PremiumService
             return ['statusCode' => 404, 'response' => ['status' => 'error', 'message' => 'Subscription tidak ditemukan.']];
         }
 
-        $this->applyPaymentStatus($subscription, $payload);
+        // transaction_status tidak ikut ditandatangani Midtrans: status diambil ulang langsung dari Midtrans.
+        try {
+            $status = $this->fetchGatewayStatus($orderId);
+        } catch (\Throwable $exception) {
+            Log::warning('Midtrans premium status check failed', ['order_id' => $orderId, 'message' => $exception->getMessage()]);
+
+            // Respons non-2xx membuat Midtrans mengirim ulang notifikasi ini nanti.
+            return ['statusCode' => 502, 'response' => ['status' => 'error', 'message' => 'Status transaksi belum dapat dikonfirmasi.']];
+        }
+
+        if (($status['order_id'] ?? null) !== $orderId || !$this->amountMatches($status)) {
+            return ['statusCode' => 422, 'response' => ['status' => 'error', 'message' => 'Nominal atau status transaksi tidak sesuai.']];
+        }
+
+        $this->applyPaymentStatus($subscription, $status);
 
         return ['statusCode' => 200, 'response' => ['status' => 'success', 'message' => 'Callback premium berhasil diproses.']];
     }
@@ -139,8 +153,8 @@ class PremiumService
 
         $pending = false;
         try {
-            $payload = (array) \Midtrans\Transaction::status($subscription->transaction_id);
-            if ((int) ($payload['gross_amount'] ?? 0) === $this->pricing()['total']) {
+            $payload = $this->fetchGatewayStatus($subscription->transaction_id);
+            if ($this->amountMatches($payload)) {
                 $this->applyPaymentStatus($subscription, $payload);
                 $pending = ($payload['transaction_status'] ?? null) === 'pending';
             }
@@ -158,6 +172,18 @@ class PremiumService
         }
 
         return $subscription->fresh();
+    }
+
+    /** Status transaksi langsung dari API Midtrans (sumber yang dipercaya, bukan isi notifikasi). */
+    protected function fetchGatewayStatus(string $orderId): array
+    {
+        return (array) \Midtrans\Transaction::status($orderId);
+    }
+
+    /** Langganan hanya aktif bila yang dibayar sama dengan harga paket + PPN. */
+    private function amountMatches(array $payload): bool
+    {
+        return (int) ($payload['gross_amount'] ?? 0) === $this->pricing()['total'];
     }
 
     private function applyPaymentStatus(Subscription $subscription, array $payload): void

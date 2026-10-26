@@ -30,7 +30,7 @@ class DonationService
         $payload = null;
         if ($donation->snap_token) {
             try {
-                $payload = (array) \Midtrans\Transaction::status($donation->id);
+                $payload = $this->fetchGatewayStatus($donation->id);
             } catch (\Throwable $exception) {
                 // 404: donatur belum memilih metode pembayaran, transaksi belum ada di Midtrans.
             }
@@ -149,6 +149,12 @@ class DonationService
         return Snap::createTransaction($params);
     }
 
+    /** Status transaksi langsung dari API Midtrans (sumber yang dipercaya, bukan isi notifikasi). */
+    protected function fetchGatewayStatus(string $orderId): array
+    {
+        return (array) \Midtrans\Transaction::status($orderId);
+    }
+
     public function handleCallback(array $payload): array
     {
         try {
@@ -174,12 +180,27 @@ class DonationService
                 return $this->buildAlreadyProcessedResponse();
             }
 
-            if ((float) ($payload['gross_amount'] ?? 0) !== (float) ($donation->nominal + ($donation->payment_fee ?? self::PAYMENT_FEE))) {
+            // Signature Midtrans hanya mencakup order_id, status_code, dan gross_amount; transaction_status
+            // tidak ikut ditandatangani. Status yang dipakai diambil ulang langsung dari Midtrans.
+            try {
+                $status = $this->fetchGatewayStatus($orderId);
+            } catch (\Throwable $exception) {
+                Log::warning('Midtrans status check failed', ['order_id' => $orderId, 'message' => $exception->getMessage()]);
+
+                // Respons non-2xx membuat Midtrans mengirim ulang notifikasi ini nanti.
+                return $this->buildErrorResponse(502, 'Status transaksi belum dapat dikonfirmasi.');
+            }
+
+            if (($status['order_id'] ?? null) !== $orderId) {
+                return $this->buildErrorResponse(422, 'Status transaksi tidak sesuai.');
+            }
+
+            if ((float) ($status['gross_amount'] ?? 0) !== (float) ($donation->nominal + ($donation->payment_fee ?? self::PAYMENT_FEE))) {
                 return $this->buildErrorResponse(422, 'Nominal pembayaran tidak sesuai.');
             }
-            DB::transaction(function () use ($donation, $payload) {
+            DB::transaction(function () use ($donation, $status) {
                 $locked = Donation::lockForUpdate()->findOrFail($donation->id);
-                if (!$this->isAlreadyProcessed($locked)) $this->processDonationCallback($locked, $payload);
+                if (!$this->isAlreadyProcessed($locked)) $this->processDonationCallback($locked, $status);
             });
 
             return $this->buildSuccessResponse();
