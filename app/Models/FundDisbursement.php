@@ -23,7 +23,7 @@ class FundDisbursement extends Model
     public const FILE_COLUMNS = ['lampiran' => 'lampiran_pendukung', 'bukti-transfer' => 'manual_transfer_proof'];
 
     protected $fillable = [
-        'id', 'id_campaign', 'id_bank_account', 'alokasi_dana',
+        'id', 'id_campaign', 'id_bank_account', 'rekening_bank', 'rekening_nomor', 'rekening_pemilik', 'alokasi_dana',
         'nominal_diajukan', 'alasan', 'lampiran_pendukung', 'status',
         'alasan_tolak', 'verified_by', 'verified_at', 'nominal_dicairkan',
         'transaction_id', 'transfer_method', 'transfer_status',
@@ -44,6 +44,25 @@ class FundDisbursement extends Model
     public function fileUrl(string $type): string
     {
         return URL::temporarySignedRoute('disbursement.file', now()->addMinutes(30), ['disbursement' => $this->id, 'type' => $type]);
+    }
+
+    /**
+     * Rekening tujuan transfer: salinan saat disetujui (tidak ikut berubah bila rekening lembaga
+     * diganti), atau rekening lembaga saat ini selama pengajuan belum disetujui.
+     *
+     * @return array{bank: ?string, no_rekening: ?string, pemilik_rekening: ?string}
+     */
+    public function destinationAccount(): array
+    {
+        if ($this->rekening_nomor) {
+            return ['bank' => $this->rekening_bank, 'no_rekening' => $this->rekening_nomor, 'pemilik_rekening' => $this->rekening_pemilik];
+        }
+
+        return [
+            'bank' => $this->bankAccount?->bank,
+            'no_rekening' => $this->bankAccount?->no_rekening,
+            'pemilik_rekening' => $this->bankAccount?->pemilik_rekening,
+        ];
     }
 
     public function campaign() {

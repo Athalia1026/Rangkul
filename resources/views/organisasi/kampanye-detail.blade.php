@@ -444,12 +444,12 @@
 
                         <div>
                             <dt class="{{ $labelClass }}">Rekening Tujuan</dt>
-                            <dd class="{{ $valueClass }}">{{ $latestDisbursement->bankAccount?->no_rekening ?? '-' }}</dd>
+                            <dd class="{{ $valueClass }}">{{ $latestDisbursement->destinationAccount()['no_rekening'] ?? '-' }}</dd>
                         </div>
 
                         <div>
                             <dt class="{{ $labelClass }}">Bank Tujuan</dt>
-                            <dd class="{{ $valueClass }}">{{ $latestDisbursement->bankAccount?->bank ?? '-' }}</dd>
+                            <dd class="{{ $valueClass }}">{{ $latestDisbursement->destinationAccount()['bank'] ?? '-' }}</dd>
                         </div>
 
                         <div>

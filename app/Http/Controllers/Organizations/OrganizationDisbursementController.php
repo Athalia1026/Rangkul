@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Organizations;
 
 use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -12,6 +13,8 @@ use App\Models\Campaign;
 use App\Models\FundDisbursement;
 use App\Models\PurchaseProof;
 use App\Models\BankAccount;
+use App\Models\Organization;
+use App\Support\OrgFormat;
 
 class OrganizationDisbursementController extends Controller
 {
@@ -69,16 +72,19 @@ class OrganizationDisbursementController extends Controller
             ], 403);
         }
 
+        // Endpoint API tidak melewati middleware EnsureOrganizationAccount, jadi status verifikasi dicek di sini.
+        if ($organization->verification_status !== 'disetujui') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Organisasi Anda belum terverifikasi oleh Admin.'
+            ], 403);
+        }
+
         $organizationId = $organization->id;
 
         // Guardrail: pencairan sebelumnya harus sudah diunggah bukti penyalurannya
-        $blockingDisbursement = FundDisbursement::blockingNewRequestFor($organizationId);
-
-        if ($blockingDisbursement) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $blockingDisbursement->newRequestBlockMessage(),
-            ], 403);
+        if ($blockedResponse = $this->blockedRequestResponse($organizationId)) {
+            return $blockedResponse;
         }
 
         $request->validate([
@@ -101,6 +107,23 @@ class OrganizationDisbursementController extends Controller
         }
 
         return DB::transaction(function () use ($request, $organizationId, $bankAccount) {
+            // Kunci baris organisasi: dua pengajuan yang dikirim bersamaan diproses bergantian,
+            // sehingga syarat "tidak ada pengajuan lain yang tertunda" tidak bisa dilewati.
+            Organization::whereKey($organizationId)->lockForUpdate()->first();
+
+            if ($blockedResponse = $this->blockedRequestResponse($organizationId)) {
+                return $blockedResponse;
+            }
+
+            $campaign = Campaign::withFinancialSummary()->findOrFail($request->id_campaign);
+            if ((float) $request->nominal_diajukan > $campaign->saldoTersisa()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Nominal pencairan melebihi saldo kampanye yang tersedia (' . OrgFormat::rupiah($campaign->saldoTersisa()) . ').',
+                    'errors' => ['nominal_diajukan' => ['Nominal pencairan melebihi saldo kampanye yang tersedia.']],
+                ], 422);
+            }
+
             $lampiranPath = $request->hasFile('lampiran')
                 ? $request->file('lampiran')->store('disbursements/lampiran', FundDisbursement::DISK)
                 : null;
@@ -127,7 +150,7 @@ class OrganizationDisbursementController extends Controller
     {
         $request->validate([
             'bukti_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'nominal'    => 'required|numeric',
+            'nominal'    => 'required|numeric|min:1',
             'deskripsi'  => 'required|string'
         ]);
 
@@ -161,5 +184,17 @@ class OrganizationDisbursementController extends Controller
 
             return response()->json(['status' => 'success', 'data' => $proof], 201);
         });
+    }
+
+    private function blockedRequestResponse(string $organizationId): ?JsonResponse
+    {
+        $blockingDisbursement = FundDisbursement::blockingNewRequestFor($organizationId);
+
+        return $blockingDisbursement
+            ? response()->json([
+                'status' => 'error',
+                'message' => $blockingDisbursement->newRequestBlockMessage(),
+            ], 403)
+            : null;
     }
 }

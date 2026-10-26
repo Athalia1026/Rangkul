@@ -108,6 +108,34 @@
                         >
                     </div>
 
+                    <div class="pt-3">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">
+                            Saldo Kampanye Tersedia
+                        </label>
+
+                        <input
+                            id="saldoKampanye"
+                            type="text"
+                            readonly
+                            value=""
+                            class="w-full border border-black rounded-lg px-3 py-2 focus:outline-none"
+                        >
+                    </div>
+
+                    <div class="pt-3">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">
+                            Rekening Tujuan
+                        </label>
+
+                        <input
+                            id="rekeningTujuan"
+                            type="text"
+                            readonly
+                            value=""
+                            class="w-full border border-black rounded-lg px-3 py-2 focus:outline-none"
+                        >
+                    </div>
+
                     <div class="py-3">
                         <label class="block text-sm font-bold text-gray-700 mb-1">
                             Deskripsi
@@ -410,6 +438,13 @@
 
             document.getElementById('namaOrganisasi').value = data.organization_name;
             document.getElementById('jumlahDiajukan').value = formatRupiah(data.amount);
+            document.getElementById('saldoKampanye').value = formatRupiah(data.campaign_balance);
+
+            const rekening = data.destination_account || {};
+            document.getElementById('rekeningTujuan').value = rekening.no_rekening
+                ? `(${rekening.bank || '-'}) ${rekening.no_rekening} a.n. ${rekening.pemilik_rekening || '-'}`
+                    + (rekening.status && rekening.status !== 'diterima' ? ' — belum terverifikasi' : '')
+                : 'Belum ada rekening';
             document.getElementById('deskripsiPengajuan').value = [data.alokasi_dana, data.alasan]
                 .filter(Boolean)
                 .join('\n\n');
