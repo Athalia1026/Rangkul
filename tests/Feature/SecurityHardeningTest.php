@@ -49,7 +49,7 @@ class SecurityHardeningTest extends TestCase
         $response->assertHeader('X-Frame-Options', 'DENY')
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-            ->assertHeader('Content-Security-Policy', "frame-ancestors 'none'")
+            ->assertHeader('Content-Security-Policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'")
             ->assertHeaderMissing('Strict-Transport-Security');
 
         $this->getJson('/api/campaigns')->assertHeader('X-Frame-Options', 'DENY');

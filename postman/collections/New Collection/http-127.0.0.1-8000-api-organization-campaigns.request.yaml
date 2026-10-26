@@ -45,5 +45,5 @@ body:
 auth:
   type: bearer
   credentials:
-    token: 4|yMO8CozaDz8JHmhbwjAG9pofNKtfMeVHcjCcqV390604b992
+    token: "{{auth_token}}"
 order: 832539482013692

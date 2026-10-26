@@ -27,9 +27,11 @@ class SecurityHeaders
         $headers->set('Referrer-Policy', 'strict-origin-when-cross-origin', false);
         $headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), usb=()', false);
 
-        // CSP di sini hanya mengatur pembingkaian; CSP penuh untuk skrip belum diterapkan.
+        // CSP: larang pembingkaian, plugin (<object>/<embed>), penggantian <base> yang membelokkan URL
+        // relatif, dan form yang dikirim ke domain lain (mis. form login palsu hasil injeksi HTML).
+        // script-src belum dibatasi karena halaman masih memakai skrip inline.
         if (!$headers->has('Content-Security-Policy')) {
-            $headers->set('Content-Security-Policy', "frame-ancestors 'none'");
+            $headers->set('Content-Security-Policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
         }
 
         $maxAge = config('security.hsts_max_age');
