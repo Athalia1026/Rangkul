@@ -24,9 +24,7 @@
 
     @include('superadmin.layouts.navbar')
 
-    <!-- ========================================================= -->
     <!-- MAIN CONTENT -->
-    <!-- ========================================================= -->
     <main class="w-full max-w-[1200px] mx-auto px-8 py-6 space-y-6">
 
         <div id="dashboard-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
@@ -187,7 +185,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-gray-200 text-xs font-semibold text-gray-800 bg-white">
+                        <tr class="border-b border-gray-200 text-xs font-semibold text-gray-800 bg-white text-center">
                             <th class="py-3 px-6 w-16">No.</th>
                             <th class="py-3 px-6 w-48">Nama</th>
                             <th class="py-3 px-6">Email</th>
@@ -213,7 +211,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-gray-200 text-xs font-semibold text-gray-800 bg-white">
+                        <tr class="border-b border-gray-200 text-xs font-semibold text-gray-800 bg-white text-center">
                             <th class="py-3 px-6 w-16">No.</th>
                             <th class="py-3 px-6 w-48">Nama</th>
                             <th class="py-3 px-6">Email</th>

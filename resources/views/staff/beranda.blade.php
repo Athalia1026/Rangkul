@@ -31,7 +31,7 @@
             <!-- 1. Total Antrian Verifikasi Panti -->
             <div class="bg-white rounded-2xl border border-gray-300 shadow-sm px-6 py-4 flex items-center justify-between cursor-default">
                 <div>
-                    <span class="text-base font-bold text-gray-900 block tracking-tight">Total Antrian Verifikasi Panti</span>
+                    <span class="text-base font-bold text-gray-900 block tracking-tight">Total Antrian Verifikasi Organisasi</span>
                     <span id="summary-pending-organizations" class="text-3xl font-bold text-gray-900 leading-none mt-2 block">0</span>
                 </div>
                 <div class="text-[#086538] pl-3">
