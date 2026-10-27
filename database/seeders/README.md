@@ -15,7 +15,12 @@ Seeder demo dapat dijalankan sendiri dengan `php artisan db:seed --class=DonorDe
 
 Data demo: 6 kategori, 3 donatur, 3 organisasi terverifikasi, 9 kampanye aktif,
 36 donasi (lunas, belum dibayar, gagal), 6 kunjungan, dan 3 gambar galeri.
-Gambar disalin dari aset repository ke `storage/app/public/demo`.
+Setiap organisasi juga memiliki rekening bank dan 4 dokumen pendaftaran (SK, KTP, foto bangunan, foto kegiatan)
+yang sudah berstatus `diterima`, sehingga alur pencairan dana bisa langsung diuji.
+Setiap kampanye memiliki foto cover sesuai temanya dari `public/images/demo-campaigns`
+(foto [Unsplash](https://unsplash.com/license), bebas dipakai tanpa atribusi), disalin ke `storage/app/public/demo/campaigns`.
+Gambar disalin dari aset repository ke `storage/app/public/demo`; dokumen pendaftaran ke disk privat
+`storage/app/documents/{sk,ktp,bangunan,kegiatan}/demo-*`.
 Tanggal kampanye dihitung relatif terhadap tanggal seeding agar beranda selalu berisi data aktif.
 Tidak ada transaksi pembayaran atau pengiriman email sungguhan.
 
