@@ -28,8 +28,8 @@
             <h1
                 class="text-white
                        text-[56px]
-                       lg:text-[63px]
-                       xl:text-[68px]
+                       lg:text-[45px]
+                       xl:text-[54px]
                        font-bold
                        leading-[1.08]"
             >
