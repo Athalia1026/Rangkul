@@ -124,23 +124,27 @@
 
                     <tr class="text-[24px]">
 
-                        <th class="w-[37%] px-7 py-6 text-left font-semibold">
+                        <th class="w-[8%] px-7 py-6 text-center font-semibold">
+                            No
+                        </th>
+
+                        <th class="w-[34%] px-7 py-6 text-left font-semibold">
                             Campaign
                         </th>
 
-                        <th class="w-[18%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[17%] px-7 py-6 text-center font-semibold">
                             Donasi Masuk
                         </th>
 
-                        <th class="w-[17%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[16%] px-7 py-6 text-center font-semibold">
                             Pencairan
                         </th>
 
-                        <th class="w-[15%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[14%] px-7 py-6 text-center font-semibold">
                             Saldo
                         </th>
 
-                        <th class="w-[13%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[11%] px-7 py-6 text-center font-semibold">
                             Status
                         </th>
 
@@ -153,6 +157,10 @@
 
                     @forelse ($campaignSummaries as $campaign)
                         <tr class="hover:bg-[#F0F8F4] transition">
+
+                            <td class="px-7 py-6 text-center">
+                                {{ $loop->iteration }}
+                            </td>
 
                             <td class="px-7 py-6 font-medium">
                                 {{ $campaign->judul }}
@@ -190,7 +198,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-7 py-10 text-center text-gray-500">Belum ada kampanye.</td>
+                            <td colspan="6" class="px-7 py-10 text-center text-gray-500">Belum ada kampanye.</td>
                         </tr>
                     @endforelse
 
@@ -255,19 +263,23 @@
 
                     <tr class="text-[24px]">
 
-                        <th class="w-[52%] px-7 py-6 text-left font-semibold">
+                        <th class="w-[8%] px-7 py-6 text-center font-semibold">
+                            No
+                        </th>
+
+                        <th class="w-[48%] px-7 py-6 text-left font-semibold">
                             Nama
                         </th>
 
-                        <th class="w-[20%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[19%] px-7 py-6 text-center font-semibold">
                             Tanggal
                         </th>
 
-                        <th class="w-[15%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[14%] px-7 py-6 text-center font-semibold">
                             Jumlah Orang
                         </th>
 
-                        <th class="w-[13%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[11%] px-7 py-6 text-center font-semibold">
                             Status
                         </th>
 
@@ -280,6 +292,10 @@
 
                     @forelse ($visits as $visit)
                         <tr class="hover:bg-[#F0F8F4] transition">
+
+                            <td class="px-7 py-6 text-center">
+                                {{ $loop->iteration }}
+                            </td>
 
                             <td class="px-7 py-6 font-medium">
                                 {{ $visit->donor?->user?->nama ?? '-' }}
@@ -313,7 +329,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-7 py-10 text-center text-gray-500">Belum ada kunjungan pada periode ini.</td>
+                            <td colspan="5" class="px-7 py-10 text-center text-gray-500">Belum ada kunjungan pada periode ini.</td>
                         </tr>
                     @endforelse
 

@@ -415,23 +415,27 @@
 
                     <tr class="text-[24px]">
 
-                        <th class="w-[18%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[7%] px-7 py-6 text-center font-semibold">
+                            No
+                        </th>
+
+                        <th class="w-[17%] px-7 py-6 text-center font-semibold">
                             Donatur
                         </th>
 
-                        <th class="w-[29%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[27%] px-7 py-6 text-center font-semibold">
                             Kampanye
                         </th>
 
-                        <th class="w-[18%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[17%] px-7 py-6 text-center font-semibold">
                             Nominal
                         </th>
 
-                        <th class="w-[20%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[18%] px-7 py-6 text-center font-semibold">
                             Tanggal
                         </th>
 
-                        <th class="w-[15%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[14%] px-7 py-6 text-center font-semibold">
                             Status
                         </th>
 
@@ -451,6 +455,10 @@
                                    hover:bg-[#EAF7F1]
                                    hover:shadow-[inset_5px_0_0_#08703F]"
                         >
+
+                            <td class="px-7 py-6 text-center">
+                                {{ $donations->firstItem() + $loop->index }}
+                            </td>
 
                             <td class="px-7 py-6 text-center font-medium">
                                 {{ $donation->anonim ? 'Anonim' : ($donation->donor?->user?->nama ?? '-') }}
@@ -486,7 +494,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-7 py-10 text-center text-gray-500">
+                            <td colspan="6" class="px-7 py-10 text-center text-gray-500">
                                 Belum ada donasi.
                             </td>
                         </tr>

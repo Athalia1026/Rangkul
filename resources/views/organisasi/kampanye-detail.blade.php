@@ -40,9 +40,9 @@
         <div class="flex flex-wrap items-center gap-6">
 
             <h1
-                class="text-[54px]
-                       lg:text-[60px]
-                       xl:text-[64px]
+                class="                                text-[54px]
+                lg:text-[60px]
+                xl:text-[64px]
                        font-bold
                        text-gray-950
                        leading-tight"
@@ -558,7 +558,16 @@
                             <tr class="text-[24px]">
 
                                 <th
-                                    class="w-[34%]
+                                    class="w-[8%]
+                                           px-8 py-6
+                                           text-center
+                                           font-semibold"
+                                >
+                                    No
+                                </th>
+
+                                <th
+                                    class="w-[31%]
                                            px-8 py-6
                                            text-center
                                            font-semibold"
@@ -567,7 +576,7 @@
                                 </th>
 
                                 <th
-                                    class="w-[22%]
+                                    class="w-[21%]
                                            px-8 py-6
                                            text-center
                                            font-semibold"
@@ -576,7 +585,7 @@
                                 </th>
 
                                 <th
-                                    class="w-[22%]
+                                    class="w-[20%]
                                            px-8 py-6
                                            text-center
                                            font-semibold"
@@ -585,7 +594,7 @@
                                 </th>
 
                                 <th
-                                    class="w-[22%]
+                                    class="w-[20%]
                                            px-8 py-6
                                            text-center
                                            font-semibold"
@@ -602,6 +611,10 @@
 
                             @forelse ($disbursements as $disbursement)
                                 <tr class="hover:bg-[#F0F8F4] transition">
+
+                                    <td class="px-8 py-6 text-center">
+                                        {{ $loop->iteration }}
+                                    </td>
 
                                     <td class="px-8 py-6 text-center font-medium">
                                         {{ $disbursement->alokasi_dana }}
@@ -635,7 +648,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-8 py-10 text-center text-gray-500">
+                                    <td colspan="5" class="px-8 py-10 text-center text-gray-500">
                                         Belum ada riwayat pencairan.
                                     </td>
                                 </tr>

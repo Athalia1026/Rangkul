@@ -29,6 +29,55 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        .org-scale h1:not(.text-white) {
+            font-size: 40px !important;
+        }
+
+        .org-scale h2 {
+            font-size: 36px !important;
+        }
+
+        .org-scale h3 {
+            font-size: 24px !important;
+        }
+
+        .org-scale p:not([class*="text-white/95"]),
+        .org-scale span,
+        .org-scale li,
+        .org-scale dd,
+        .org-scale dt {
+            font-size: 23px !important;
+        }
+
+        .org-scale p.font-bold {
+            font-size: 27px !important;
+        }
+
+        .org-scale label {
+            font-size: 21px !important;
+        }
+
+        .org-scale input,
+        .org-scale select,
+        .org-scale textarea,
+        .org-scale a,
+        .org-scale button {
+            font-size: 20px !important;
+        }
+
+        .org-scale a[class*="bg-[#08703F]"],
+        .org-scale button[class*="bg-[#08703F]"] {
+            font-size: 24px !important;
+        }
+
+        .org-scale th {
+            font-size: 20px !important;
+        }
+
+        .org-scale td {
+            font-size: 22px !important;
+        }
     </style>
 </head>
 <body class="bg-[#F5F7F4] text-gray-800 font-['Plus_Jakarta_Sans',sans-serif] antialiased min-h-screen flex flex-col">

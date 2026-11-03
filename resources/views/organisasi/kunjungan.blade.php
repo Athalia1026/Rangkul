@@ -257,19 +257,23 @@
 
                     <tr class="text-[24px]">
 
-                        <th class="w-[25%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[8%] px-7 py-6 text-center font-semibold">
+                            No
+                        </th>
+
+                        <th class="w-[23%] px-7 py-6 text-center font-semibold">
                             Nama
                         </th>
 
-                        <th class="w-[25%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[23%] px-7 py-6 text-center font-semibold">
                             Tanggal
                         </th>
 
-                        <th class="w-[15%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[14%] px-7 py-6 text-center font-semibold">
                             Orang
                         </th>
 
-                        <th class="w-[35%] px-7 py-6 text-center font-semibold">
+                        <th class="w-[32%] px-7 py-6 text-center font-semibold">
                             Aksi
                         </th>
 
@@ -283,6 +287,10 @@
 
                     @forelse ($visits as $visit)
                         <tr class="hover:bg-[#F0F8F4] transition">
+
+                            <td class="px-7 py-7 text-center">
+                                {{ $visits->firstItem() + $loop->index }}
+                            </td>
 
                             <td class="px-7 py-7 text-center font-medium">
                                 {{ $visit->donor?->user?->nama ?? '-' }}
@@ -384,7 +392,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-7 py-10 text-center text-gray-500">
+                            <td colspan="5" class="px-7 py-10 text-center text-gray-500">
                                 Belum ada permintaan kunjungan.
                             </td>
                         </tr>

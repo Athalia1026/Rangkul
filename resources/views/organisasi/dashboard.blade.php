@@ -303,19 +303,23 @@
 
                     <tr class="text-[24px]">
 
-                        <th class="w-[24%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[8%] px-8 py-6 text-center font-semibold">
+                            No
+                        </th>
+
+                        <th class="w-[22%] px-8 py-6 text-center font-semibold">
                             Donatur
                         </th>
 
-                        <th class="w-[34%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[31%] px-8 py-6 text-center font-semibold">
                             Kampanye
                         </th>
 
-                        <th class="w-[27%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[25%] px-8 py-6 text-center font-semibold">
                             Donasi
                         </th>
 
-                        <th class="w-[15%] px-4 py-6 text-center font-semibold">
+                        <th class="w-[14%] px-4 py-6 text-center font-semibold">
                             Status
                         </th>
 
@@ -331,6 +335,7 @@
                             onclick="window.location='{{ route('organisasi.donasi.detail', $donation->id) }}'"
                             class="cursor-pointer hover:bg-[#EAF7F1] transition"
                         >
+                            <td class="px-8 py-6 text-center">{{ $loop->iteration }}</td>
                             <td class="px-8 py-6 text-center font-medium">
                                 {{ $donation->anonim ? 'Anonim' : ($donation->donor?->user?->nama ?? '-') }}
                             </td>
@@ -342,7 +347,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-8 py-10 text-center text-gray-500">Belum ada donasi masuk.</td>
+                            <td colspan="5" class="px-8 py-10 text-center text-gray-500">Belum ada donasi masuk.</td>
                         </tr>
                     @endforelse
 
@@ -398,19 +403,23 @@
 
                     <tr class="text-[24px]">
 
-                        <th class="w-[25%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[8%] px-8 py-6 text-center font-semibold">
+                            No
+                        </th>
+
+                        <th class="w-[23%] px-8 py-6 text-center font-semibold">
                             Nama
                         </th>
 
-                        <th class="w-[30%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[27%] px-8 py-6 text-center font-semibold">
                             Tanggal
                         </th>
 
-                        <th class="w-[20%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[18%] px-8 py-6 text-center font-semibold">
                             Orang
                         </th>
 
-                        <th class="w-[25%] px-8 py-6 text-center font-semibold">
+                        <th class="w-[24%] px-8 py-6 text-center font-semibold">
                             Status
                         </th>
 
@@ -426,6 +435,7 @@
                             onclick="window.location='{{ route('organisasi.kunjungan.detail', $visit->id) }}'"
                             class="cursor-pointer hover:bg-[#EAF7F1] transition"
                         >
+                            <td class="px-8 py-6 text-center">{{ $loop->iteration }}</td>
                             <td class="px-8 py-6 text-center font-medium">{{ $visit->donor?->user?->nama ?? '-' }}</td>
                             <td class="px-8 py-6 text-center">{{ OrgFormat::date($visit->tanggal_kunjungan) }}</td>
                             <td class="px-8 py-6 text-center">{{ $visit->pengunjung }}</td>
@@ -435,7 +445,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-8 py-10 text-center text-gray-500">Belum ada permintaan kunjungan.</td>
+                            <td colspan="5" class="px-8 py-10 text-center text-gray-500">Belum ada permintaan kunjungan.</td>
                         </tr>
                     @endforelse
 
