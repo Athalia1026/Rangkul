@@ -26,9 +26,9 @@
 
             <h1
                 class="text-white
-                       text-[62px]
-                       lg:text-[70px]
-                       xl:text-[76px]
+                       text-[56px]
+                       lg:text-[63px]
+                       xl:text-[68px]
                        font-bold
                        leading-[1.08]"
             >
@@ -38,8 +38,8 @@
             <p
                 class="mt-7
                        text-white/95
-                       text-[28px]
-                       lg:text-[31px]
+                       text-[25px]
+                       lg:text-[28px]
                        font-medium"
             >
                 Pantau seluruh donasi yang diterima oleh campaign panti.

@@ -29,9 +29,9 @@
 
                 <h1
                     class="text-white
-                           text-[62px]
-                           lg:text-[50px]
-                           xl:text-[60px]
+                           text-[56px]
+                           lg:text-[45px]
+                           xl:text-[54px]
                            font-bold
                            leading-[1.08]"
                 >
@@ -41,8 +41,8 @@
                 <p
                     class="mt-7
                            text-white/95
-                           text-[28px]
-                           lg:text-[31px]
+                           text-[25px]
+                           lg:text-[28px]
                            font-medium"
                 >
                     Kelola kampanye dan pantau donasi anda disini
