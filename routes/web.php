@@ -266,6 +266,11 @@ Route::prefix('organisasi')
         Route::get('/kampanye', [OrganizationCampaignController::class, 'index'])
             ->name('kampanye');
 
+        Route::get('/kampanye/tambah', [OrganizationCampaignController::class, 'create'])
+            ->name('kampanye.create');
+
+        Route::post('/kampanye', [OrganizationCampaignController::class, 'store'])
+            ->name('kampanye.store');
 
         Route::get('/kampanye/{campaign}', [OrganizationCampaignController::class, 'show'])
             ->name('kampanye.detail');

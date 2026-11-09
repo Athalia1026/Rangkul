@@ -6,6 +6,7 @@ use App\Services\NotificationService;
 use App\Http\Controllers\Controller;
 use App\Models\BankAccount;
 use App\Models\Campaign;
+use App\Models\Category;
 use App\Models\PurchaseProof;
 use Illuminate\Http\Request;
 
@@ -30,6 +31,13 @@ class CampaignController extends Controller
             ->withQueryString();
 
         return view('organisasi.kampanye', compact('organization', 'campaigns'));
+    }
+
+    public function create()
+    {
+        $categories = Category::query()->orderBy('name')->get();
+
+        return view('organisasi.kampanye-create', compact('categories'));
     }
 
     // Halaman detail kampanye beserta pencairan dana & bukti penyaluran (web)
@@ -92,13 +100,19 @@ class CampaignController extends Controller
 
         // Validasi: hanya akun organisasi yang sudah terverifikasi 'disetujui'
         if ($organization?->verification_status !== 'disetujui') {
+            $message = 'Organisasi Anda belum terverifikasi oleh Admin.';
+
+            if (!$request->expectsJson()) {
+                return back()->withInput()->with('error', $message);
+            }
+
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Organisasi Anda belum terverifikasi oleh Admin.'
+                'message' => $message,
             ], 403);
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'judul'           => 'required|string|max:255',
             'deskripsi'       => 'required|string',
             'tanggal_mulai'   => 'required|date',
@@ -112,17 +126,23 @@ class CampaignController extends Controller
 
         $campaign = Campaign::create([
             'id_organisasi'   => $organization->id,
-            'judul'           => $request->judul,
-            'deskripsi'       => $request->deskripsi,
-            'tanggal_mulai'   => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-            'target_dana'     => $request->target_dana,
-            'id_categories'   => $request->id_categories,
+            'judul'           => $validated['judul'],
+            'deskripsi'       => $validated['deskripsi'],
+            'tanggal_mulai'   => $validated['tanggal_mulai'],
+            'tanggal_selesai' => $validated['tanggal_selesai'],
+            'target_dana'     => $validated['target_dana'],
+            'id_categories'   => $validated['id_categories'],
             'foto_cover'      => $path,
             'status'          => 'menunggu', // Default menunggu verifikasi admin
         ]);
 
         app(NotificationService::class)->campaignSubmitted($campaign);
+
+        if (!$request->expectsJson()) {
+            return redirect()
+                ->route('organisasi.kampanye')
+                ->with('success', 'Kampanye berhasil dibuat dan sedang menunggu verifikasi admin.');
+        }
 
         return response()->json([
             'status'  => 'success',

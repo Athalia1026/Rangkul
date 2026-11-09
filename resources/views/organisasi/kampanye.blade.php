@@ -190,8 +190,8 @@
         {{-- TAMBAH CAMPAIGN --}}
         <div class="flex justify-end mt-10">
 
-            <button
-                type="button"
+            <a
+                href="{{ route('organisasi.kampanye.create') }}"
                 class="bg-[#08703F]
                        hover:bg-[#065D35]
                        text-white
@@ -202,7 +202,7 @@
                        transition"
             >
                 Tambah Kampanye
-            </button>
+            </a>
 
         </div>
 
