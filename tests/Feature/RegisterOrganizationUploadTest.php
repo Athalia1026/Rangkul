@@ -55,6 +55,19 @@ class RegisterOrganizationUploadTest extends TestCase
         $this->assertSame([], Storage::disk('public')->allFiles());
     }
 
+    public function test_organization_document_over_size_limit_is_rejected(): void
+    {
+        $oversizedDocument = UploadedFile::fake()->create('sk-terlalu-besar.pdf', 10000, 'application/pdf');
+
+        $this->postJson('/api/register/organization', $this->payload([
+            'sk_operasional' => $oversizedDocument,
+        ]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('sk_operasional');
+
+        $this->assertSame([], Storage::disk(OrganizationDocument::DISK)->allFiles());
+    }
+
     public function test_image_profile_photo_is_stored_without_exposing_path(): void
     {
         $response = $this->postJson('/api/register/organization', $this->payload([

@@ -47,7 +47,7 @@
         id="toast"
         role="status"
         aria-live="polite"
-        class="hidden fixed top-5 right-5 z-[70] flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg border text-sm font-semibold transition-all"
+        class="hidden fixed top-5 right-5 z-[70] items-center gap-3 px-5 py-3 rounded-xl shadow-lg border text-sm font-semibold transition-all"
     >
         <span id="toast-icon">✓</span>
         <span id="toast-text">Pesan</span>
@@ -232,7 +232,7 @@
         <!-- MODAL KONFIRMASI PENOLAKAN -->
         <div
             id="modalTolak"
-            class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm items-center justify-center z-50 p-4"
         >
             <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
 
@@ -474,6 +474,7 @@
 
         setTimeout(() => {
             toast.classList.add('hidden');
+            toast.classList.remove('flex');
         }, 3000);
 
     }
@@ -503,6 +504,7 @@
 
         // Tampilkan modal alasan penolakan
         modalTolak.classList.remove('hidden');
+        modalTolak.classList.add('flex');
 
     });
 
@@ -514,6 +516,7 @@
     btnBatalTolak.addEventListener('click', function () {
 
         modalTolak.classList.add('hidden');
+        modalTolak.classList.remove('flex');
 
         alasanTolak.value = '';
         warningAlasan.classList.add('hidden');
@@ -543,6 +546,7 @@
         warningAlasan.classList.add('hidden');
 
         modalTolak.classList.add('hidden');
+        modalTolak.classList.remove('flex');
 
         verifikasiBukti({ status: 'ditolak', catatan: alasan });
 
@@ -571,6 +575,7 @@
         if (event.target === modalTolak) {
 
             modalTolak.classList.add('hidden');
+            modalTolak.classList.remove('flex');
 
             warningAlasan.classList.add('hidden');
 

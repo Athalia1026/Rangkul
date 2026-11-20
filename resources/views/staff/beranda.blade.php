@@ -25,10 +25,12 @@
     <main class="max-w-[1200px] mx-auto px-6 py-8 space-y-6">
 
         <div id="dashboard-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+        <div id="campaign-queue-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+        <div id="campaign-action-message" class="hidden rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-center text-sm text-green-700" role="status"></div>
 
-        <!-- 3 KARTU METRIK DI ATAS -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 select-none">
-            <!-- 1. Total Antrian Verifikasi Panti -->
+        <!-- KARTU METRIK -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 select-none">
+            <!-- 1. Total Antrian Verifikasi Organisasi -->
             <div class="bg-white rounded-2xl border border-gray-300 shadow-sm px-6 py-4 flex items-center justify-between cursor-default">
                 <div>
                     <span class="text-base font-bold text-gray-900 block tracking-tight">Total Antrian Verifikasi Organisasi</span>
@@ -54,7 +56,20 @@
                 </div>
             </div>
 
-            <!-- 3. Total Selesai Verifikasi -->
+            <!-- 3. Total Antrian Verifikasi Kampanye -->
+            <div class="bg-white rounded-2xl border border-gray-300 shadow-sm px-6 py-4 flex items-center justify-between cursor-default">
+                <div>
+                    <span class="text-base font-bold text-gray-900 block tracking-tight">Total Antrian Kampanye</span>
+                    <span id="summary-pending-campaigns" class="text-3xl font-bold text-gray-900 leading-none mt-2 block">0</span>
+                </div>
+                <div class="text-[#086538] pl-3">
+                    <svg class="w-10 h-10 fill-[#086538]" viewBox="0 0 24 24">
+                        <path d="M12 2 3 6v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm0 18.9c-3.8-1.2-7-5.3-7-9.9V7.3l7-3.1 7 3.1V11c0 4.6-3.2 8.7-7 9.9zm-1-5.3-3-3 1.4-1.4 1.6 1.6 4.6-4.6 1.4 1.4-6 6z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 4. Total Selesai Verifikasi -->
             <div class="bg-white rounded-2xl border border-gray-300 shadow-sm px-6 py-4 flex items-center justify-between cursor-default">
                 <div>
                     <span class="text-base font-bold text-gray-900 block tracking-tight">Total Selesai Verifikasi</span>
@@ -68,8 +83,8 @@
             </div>
         </div>
 
-        <!-- 2 KARTU PEMILIH TABEL (BISA DIKLIK) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- KARTU PEMILIH TABEL (BISA DIKLIK) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- Card Tab 1: Verifikasi Organisasi -->
             <div id="tab-btn-organisasi" onclick="switchTab('organisasi')"
                  class="bg-white rounded-2xl p-4 border-2 border-[#0e4b33] bg-[#0e4b33]/5 shadow-sm transition-all duration-150 cursor-pointer flex items-center justify-between">
@@ -99,6 +114,21 @@
                     Pilih
                 </span>
             </div>
+
+            <!-- Card Tab 3: Verifikasi Kampanye -->
+            <div id="tab-btn-kampanye" onclick="switchTab('kampanye')"
+                 class="bg-white rounded-2xl p-4 border border-gray-200/90 shadow-xs hover:border-gray-300 transition-all duration-150 cursor-pointer flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📒</span>
+                    <div>
+                        <h3 class="font-bold text-sm text-gray-900 leading-snug">Antrian Kampanye</h3>
+                        <span id="tab-caption-kampanye" class="text-xs text-gray-500">0 kampanye menunggu verifikasi</span>
+                    </div>
+                </div>
+                <span id="badge-kampanye" class="text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-600">
+                    Pilih
+                </span>
+            </div>
         </div>
 
         <!-- CARD PENCARIAN (SEARCH CARD) -->
@@ -110,7 +140,7 @@
                 id="search-input"
                 type="text"
                 oninput="handleSearch()"
-                placeholder="Cari nama organisasi, kategori, atau wilayah..."
+                placeholder="Cari nama organisasi, kampanye, kategori, atau wilayah..."
                 class="w-full bg-transparent text-sm text-gray-800 placeholder-gray-400 focus:outline-none"
             />
         </div>
@@ -170,13 +200,82 @@
                     Tidak ada data verifikasi bukti yang cocok dengan pencarian.
                 </div>
             </div>
+
+            <!-- 3. TABEL KAMPANYE -->
+            <div id="section-table-kampanye" class="hidden overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-sm font-bold text-gray-900 bg-white text-center">
+                            <th class="py-3 px-6 w-16">No.</th>
+                            <th class="py-3 px-6">Kampanye</th>
+                            <th class="py-3 px-6">Organisasi</th>
+                            <th class="py-3 px-6 w-44">Target Dana</th>
+                            <th class="py-3 px-6 w-48">Periode</th>
+                            <th class="py-3 px-6 w-32">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-kampanye" class="divide-y divide-gray-200/80 text-sm"></tbody>
+                </table>
+                <div id="empty-state-kampanye" class="hidden py-8 text-center text-gray-400 text-xs">
+                    Belum ada kampanye yang menunggu verifikasi.
+                </div>
+            </div>
         </div>
 
     </main>
 
+    <div id="campaign-detail-modal" class="hidden fixed inset-0 z-50 bg-black/50 px-4 py-8 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl mx-auto p-6 space-y-5" role="dialog" aria-modal="true" aria-labelledby="campaign-detail-title">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h2 id="campaign-detail-title" class="text-xl font-bold text-gray-900"></h2>
+                    <p id="campaign-detail-organization" class="text-sm text-gray-500 mt-1"></p>
+                </div>
+                <button id="campaign-detail-close" type="button" class="text-gray-500 hover:text-gray-900 text-2xl leading-none" aria-label="Tutup">&times;</button>
+            </div>
+            <img id="campaign-detail-cover" class="hidden w-full max-h-72 object-cover rounded-xl" alt="Foto sampul kampanye">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <span class="block text-gray-500">Target dana</span>
+                    <strong id="campaign-detail-target" class="text-gray-900"></strong>
+                </div>
+                <div>
+                    <span class="block text-gray-500">Periode kampanye</span>
+                    <strong id="campaign-detail-period" class="text-gray-900"></strong>
+                </div>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-900 mb-1">Deskripsi</h3>
+                <p id="campaign-detail-description" class="text-sm text-gray-700 whitespace-pre-line"></p>
+            </div>
+            <p id="campaign-detail-feedback" class="hidden rounded-lg px-3 py-2 text-sm" role="status"></p>
+            <div id="campaign-action-options" class="flex justify-end gap-3">
+                <button id="campaign-detail-reject" type="button" class="px-4 py-2 rounded-lg bg-red-700 text-white font-semibold hover:bg-red-700">Tolak</button>
+                <button id="campaign-detail-approve" type="button" class="px-4 py-2 rounded-lg bg-[#0e4b33] text-white font-semibold hover:bg-[#093524]">Setujui kampanye</button>
+            </div>
+            <div id="campaign-approve-confirmation" class="hidden rounded-xl border border-green-200 bg-green-50 p-4">
+                <p id="campaign-approve-confirmation-text" class="text-sm text-gray-800"></p>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button id="campaign-approve-cancel" type="button" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-white">Batal</button>
+                    <button id="campaign-approve-confirm" type="button" class="px-4 py-2 rounded-lg bg-[#0e4b33] text-white font-semibold hover:bg-[#093524]">Ya, setujui</button>
+                </div>
+            </div>
+            <div id="campaign-reject-form" class="hidden rounded-xl border border-red-200 bg-red-50 p-4">
+                <label for="campaign-reject-reason" class="block text-sm font-semibold text-gray-800 mb-2">Alasan penolakan</label>
+                <textarea id="campaign-reject-reason" rows="3" class="w-full rounded-lg border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Tuliskan alasan penolakan kampanye"></textarea>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button id="campaign-reject-cancel" type="button" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-white">Batal</button>
+                    <button id="campaign-reject-confirm" type="button" class="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700">Kirim penolakan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JAVASCRIPT LOGIC -->
     <script>
         let currentTab = 'organisasi';
+        let campaigns = [];
+        let selectedCampaignId = null;
 
         function switchTab(tab) {
             currentTab = tab;
@@ -185,10 +284,13 @@
 
             const tabOrg = document.getElementById('tab-btn-organisasi');
             const tabBukti = document.getElementById('tab-btn-bukti');
+            const tabKampanye = document.getElementById('tab-btn-kampanye');
             const badgeOrg = document.getElementById('badge-organisasi');
             const badgeBukti = document.getElementById('badge-bukti');
+            const badgeKampanye = document.getElementById('badge-kampanye');
             const secOrg = document.getElementById('section-table-organisasi');
             const secBukti = document.getElementById('section-table-bukti');
+            const secKampanye = document.getElementById('section-table-kampanye');
             const title = document.getElementById('table-title');
             const countBadge = document.getElementById('table-count-badge');
 
@@ -200,16 +302,20 @@
                 tabBukti.className = "bg-white rounded-2xl p-4 border border-gray-200/90 shadow-xs hover:border-gray-300 transition-all duration-150 cursor-pointer flex items-center justify-between";
                 badgeBukti.className = "text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-600";
                 badgeBukti.textContent = "Pilih";
+                tabKampanye.className = "bg-white rounded-2xl p-4 border border-gray-200/90 shadow-xs hover:border-gray-300 transition-all duration-150 cursor-pointer flex items-center justify-between";
+                badgeKampanye.className = "text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-600";
+                badgeKampanye.textContent = "Pilih";
 
                 secOrg.classList.remove('hidden');
                 secBukti.classList.add('hidden');
+                secKampanye.classList.add('hidden');
                 title.textContent = "Data Verifikasi Organisasi";
                 searchInput.placeholder = "Cari nama organisasi, kategori, atau wilayah...";
 
                 resetRowsVisibility('org-row');
                 countBadge.textContent = `${totalData.organisasi} Data Ditampilkan`;
                 toggleEmptyState('empty-state-org', totalData.organisasi);
-            } else {
+            } else if (tab === 'bukti') {
                 tabBukti.className = "bg-white rounded-2xl p-4 border-2 border-[#0e4b33] bg-[#0e4b33]/5 shadow-sm transition-all duration-150 cursor-pointer flex items-center justify-between";
                 badgeBukti.className = "text-xs font-bold px-3 py-1 rounded-full bg-[#0e4b33] text-white";
                 badgeBukti.textContent = "Aktif";
@@ -217,15 +323,40 @@
                 tabOrg.className = "bg-white rounded-2xl p-4 border border-gray-200/90 shadow-xs hover:border-gray-300 transition-all duration-150 cursor-pointer flex items-center justify-between";
                 badgeOrg.className = "text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-600";
                 badgeOrg.textContent = "Pilih";
+                tabKampanye.className = "bg-white rounded-2xl p-4 border border-gray-200/90 shadow-xs hover:border-gray-300 transition-all duration-150 cursor-pointer flex items-center justify-between";
+                badgeKampanye.className = "text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-600";
+                badgeKampanye.textContent = "Pilih";
 
                 secBukti.classList.remove('hidden');
                 secOrg.classList.add('hidden');
+                secKampanye.classList.add('hidden');
                 title.textContent = "Daftar Verifikasi Bukti";
                 searchInput.placeholder = "Cari nama organisasi, keterangan pengajuan, atau nominal...";
 
                 resetRowsVisibility('bukti-row');
                 countBadge.textContent = `${totalData.bukti} Data Ditampilkan`;
                 toggleEmptyState('empty-state-bukti', totalData.bukti);
+            } else {
+                tabKampanye.className = "bg-white rounded-2xl p-4 border-2 border-[#0e4b33] bg-[#0e4b33]/5 shadow-sm transition-all duration-150 cursor-pointer flex items-center justify-between";
+                badgeKampanye.className = "text-xs font-bold px-3 py-1 rounded-full bg-[#0e4b33] text-white";
+                badgeKampanye.textContent = "Aktif";
+
+                tabOrg.className = "bg-white rounded-2xl p-4 border border-gray-200/90 shadow-xs hover:border-gray-300 transition-all duration-150 cursor-pointer flex items-center justify-between";
+                badgeOrg.className = "text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-600";
+                badgeOrg.textContent = "Pilih";
+                tabBukti.className = "bg-white rounded-2xl p-4 border border-gray-200/90 shadow-xs hover:border-gray-300 transition-all duration-150 cursor-pointer flex items-center justify-between";
+                badgeBukti.className = "text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-600";
+                badgeBukti.textContent = "Pilih";
+
+                secKampanye.classList.remove('hidden');
+                secOrg.classList.add('hidden');
+                secBukti.classList.add('hidden');
+                title.textContent = "Antrian Kampanye";
+                searchInput.placeholder = "Cari judul kampanye atau nama organisasi...";
+
+                resetRowsVisibility('campaign-row');
+                countBadge.textContent = `${totalData.kampanye} Data Ditampilkan`;
+                toggleEmptyState('empty-state-kampanye', totalData.kampanye);
             }
         }
 
@@ -250,7 +381,7 @@
                 });
                 countBadge.textContent = `${visibleCount} Data Ditampilkan`;
                 toggleEmptyState('empty-state-org', visibleCount, query);
-            } else {
+            } else if (currentTab === 'bukti') {
                 const rows = document.querySelectorAll('.bukti-row');
                 let visibleCount = 0;
                 rows.forEach(row => {
@@ -267,13 +398,30 @@
                 });
                 countBadge.textContent = `${visibleCount} Data Ditampilkan`;
                 toggleEmptyState('empty-state-bukti', visibleCount, query);
+            } else {
+                const rows = document.querySelectorAll('.campaign-row');
+                let visibleCount = 0;
+                rows.forEach(row => {
+                    const title = row.querySelector('.cell-campaign-name').textContent.toLowerCase();
+                    const organization = row.querySelector('.cell-campaign-org').textContent.toLowerCase();
+
+                    if (title.includes(query) || organization.includes(query)) {
+                        row.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+                countBadge.textContent = `${visibleCount} Data Ditampilkan`;
+                toggleEmptyState('empty-state-kampanye', visibleCount, query);
             }
         }
 
         // Pesan kosong: hasil pencarian tidak cocok, atau memang belum ada antrian
         const EMPTY_TEXT = {
             'empty-state-org': ['Tidak ada data organisasi yang cocok dengan pencarian.', 'Belum ada pendaftaran organisasi yang menunggu verifikasi.'],
-            'empty-state-bukti': ['Tidak ada data verifikasi bukti yang cocok dengan pencarian.', 'Belum ada bukti penyaluran yang menunggu verifikasi.']
+            'empty-state-bukti': ['Tidak ada data verifikasi bukti yang cocok dengan pencarian.', 'Belum ada bukti penyaluran yang menunggu verifikasi.'],
+            'empty-state-kampanye': ['Tidak ada kampanye yang cocok dengan pencarian.', 'Belum ada kampanye yang menunggu verifikasi.']
         };
 
         function toggleEmptyState(id, visibleCount, query = '') {
@@ -287,6 +435,7 @@
             document.querySelectorAll('.' + rowClass).forEach(row => row.classList.remove('hidden'));
             document.getElementById('empty-state-org').classList.add('hidden');
             document.getElementById('empty-state-bukti').classList.add('hidden');
+            document.getElementById('empty-state-kampanye').classList.add('hidden');
         }
 
         // ==========================
@@ -296,7 +445,7 @@
         const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
         const DETAIL_ORGANISASI_URL = @json(route('staff.pengajuandanauser', ['organization' => '__ID__']));
         const DETAIL_BUKTI_URL = @json(route('staff.ajuanpencairandana', ['proof' => '__ID__']));
-        const totalData = { organisasi: 0, bukti: 0 };
+        const totalData = { organisasi: 0, bukti: 0, kampanye: 0 };
 
         function detailButton(url, id) {
             return `
@@ -332,6 +481,151 @@
             `).join('');
         }
 
+        function formatCampaignDate(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+
+            return Number.isNaN(date.getTime())
+                ? '-'
+                : date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function renderCampaigns() {
+            document.getElementById('tbody-kampanye').innerHTML = campaigns.map((campaign, index) => `
+                <tr class="campaign-row hover:bg-gray-50/70 transition-colors">
+                    <td class="py-3.5 px-6 text-gray-800 text-center">${index + 1}.</td>
+                    <td class="py-3.5 px-6 font-medium text-gray-900 cell-campaign-name">${escapeHtml(campaign.judul)}</td>
+                    <td class="py-3.5 px-6 text-gray-700 cell-campaign-org">${escapeHtml(campaign.organization?.nama_lembaga || '-')}</td>
+                    <td class="py-3.5 px-6 text-gray-900 font-semibold text-center">${escapeHtml(formatRupiah(campaign.target_dana))}</td>
+                    <td class="py-3.5 px-6 text-gray-600 text-center">${escapeHtml(formatCampaignDate(campaign.tanggal_mulai))} - ${escapeHtml(formatCampaignDate(campaign.tanggal_selesai))}</td>
+                    <td class="py-3.5 px-6 text-center">
+                        <button type="button" data-campaign-action="detail" data-campaign-id="${escapeHtml(campaign.id)}"
+                            class="inline-block px-5 py-1.5 bg-[#0e4b33] text-white text-xs font-semibold rounded-xl hover:bg-[#093524] transition-all">
+                            Tinjau
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            totalData.kampanye = campaigns.length;
+            document.getElementById('summary-pending-campaigns').textContent = campaigns.length;
+            document.getElementById('tab-caption-kampanye').textContent = `${campaigns.length} kampanye menunggu verifikasi`;
+            if (currentTab === 'kampanye') {
+                handleSearch();
+            }
+        }
+
+        function showCampaignDetail(campaign) {
+            selectedCampaignId = campaign.id;
+            document.getElementById('campaign-detail-title').textContent = campaign.judul || '-';
+            document.getElementById('campaign-detail-organization').textContent = campaign.organization?.nama_lembaga || 'Organisasi tidak tersedia';
+            document.getElementById('campaign-detail-target').textContent = formatRupiah(campaign.target_dana);
+            document.getElementById('campaign-detail-period').textContent =
+                `${formatCampaignDate(campaign.tanggal_mulai)} - ${formatCampaignDate(campaign.tanggal_selesai)}`;
+            document.getElementById('campaign-detail-description').textContent = campaign.deskripsi || '-';
+
+            const cover = document.getElementById('campaign-detail-cover');
+            if (campaign.foto_cover) {
+                cover.src = '/storage/' + campaign.foto_cover.split('/').map(encodeURIComponent).join('/');
+                cover.classList.remove('hidden');
+            } else {
+                cover.removeAttribute('src');
+                cover.classList.add('hidden');
+            }
+
+            const feedback = document.getElementById('campaign-detail-feedback');
+            feedback.textContent = '';
+            feedback.className = 'hidden rounded-lg px-3 py-2 text-sm';
+            document.getElementById('campaign-action-options').classList.remove('hidden');
+            document.getElementById('campaign-approve-confirmation').classList.add('hidden');
+            document.getElementById('campaign-reject-form').classList.add('hidden');
+            document.getElementById('campaign-reject-reason').value = '';
+            document.getElementById('campaign-detail-modal').classList.remove('hidden');
+        }
+
+        async function verifyCampaign(status) {
+            const campaign = campaigns.find(item => item.id === selectedCampaignId);
+            if (!campaign) return;
+
+            let body = { status };
+            if (status === 'ditolak') {
+                const reason = document.getElementById('campaign-reject-reason').value;
+                if (!reason.trim()) {
+                    showCampaignFeedback('Alasan penolakan wajib diisi.');
+                    return;
+                }
+                body.alasan_tolak = reason.trim();
+            }
+
+            const approveButton = document.getElementById('campaign-approve-confirm');
+            const rejectButton = document.getElementById('campaign-reject-confirm');
+            approveButton.disabled = true;
+            rejectButton.disabled = true;
+
+            try {
+                const result = await request('/api/admin/campaigns/' + encodeURIComponent(campaign.id) + '/verify', {
+                    method: 'PUT',
+                    body
+                });
+                campaigns = campaigns.filter(item => item.id !== campaign.id);
+                renderCampaigns();
+                document.getElementById('campaign-detail-modal').classList.add('hidden');
+                const message = document.getElementById('campaign-action-message');
+                message.textContent = result.message || 'Status kampanye berhasil diperbarui.';
+                message.classList.remove('hidden');
+            } catch (exception) {
+                showCampaignFeedback(exception.message);
+            } finally {
+                approveButton.disabled = false;
+                rejectButton.disabled = false;
+            }
+        }
+
+        function showCampaignFeedback(message) {
+            const feedback = document.getElementById('campaign-detail-feedback');
+            feedback.textContent = message;
+            feedback.className = 'rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700';
+        }
+
+        document.getElementById('tbody-kampanye').addEventListener('click', event => {
+            const button = event.target.closest('[data-campaign-action="detail"]');
+            if (!button) return;
+            const campaign = campaigns.find(item => item.id === button.dataset.campaignId);
+            if (campaign) showCampaignDetail(campaign);
+        });
+
+        document.getElementById('campaign-detail-close').addEventListener('click', () => {
+            document.getElementById('campaign-detail-modal').classList.add('hidden');
+        });
+        document.getElementById('campaign-detail-modal').addEventListener('click', event => {
+            if (event.target.id === 'campaign-detail-modal') {
+                event.currentTarget.classList.add('hidden');
+            }
+        });
+        document.getElementById('campaign-detail-approve').addEventListener('click', () => {
+            const campaign = campaigns.find(item => item.id === selectedCampaignId);
+            if (!campaign) return;
+            document.getElementById('campaign-action-options').classList.add('hidden');
+            document.getElementById('campaign-approve-confirmation-text').textContent =
+                `Yakin ingin menyetujui kampanye "${campaign.judul}"?`;
+            document.getElementById('campaign-approve-confirmation').classList.remove('hidden');
+        });
+        document.getElementById('campaign-detail-reject').addEventListener('click', () => {
+            document.getElementById('campaign-action-options').classList.add('hidden');
+            document.getElementById('campaign-reject-form').classList.remove('hidden');
+            document.getElementById('campaign-reject-reason').focus();
+        });
+        document.getElementById('campaign-approve-cancel').addEventListener('click', () => {
+            document.getElementById('campaign-approve-confirmation').classList.add('hidden');
+            document.getElementById('campaign-action-options').classList.remove('hidden');
+        });
+        document.getElementById('campaign-approve-confirm').addEventListener('click', () => verifyCampaign('aktif'));
+        document.getElementById('campaign-reject-cancel').addEventListener('click', () => {
+            document.getElementById('campaign-reject-form').classList.add('hidden');
+            document.getElementById('campaign-action-options').classList.remove('hidden');
+        });
+        document.getElementById('campaign-reject-confirm').addEventListener('click', () => verifyCampaign('ditolak'));
+
         async function loadDashboard() {
             const error = document.getElementById('dashboard-error');
 
@@ -356,7 +650,22 @@
             }
         }
 
+        async function loadCampaigns() {
+            const error = document.getElementById('campaign-queue-error');
+
+            try {
+                const { data } = await request('/api/admin/campaigns/pending');
+                campaigns = data;
+                error.classList.add('hidden');
+                renderCampaigns();
+            } catch (exception) {
+                error.textContent = exception.message;
+                error.classList.remove('hidden');
+            }
+        }
+
         loadDashboard();
+        loadCampaigns();
     </script>
 </body>
 </html>

@@ -126,27 +126,41 @@
 
                 @php
                     $uploads = [
-                        ['name' => 'sk_operasional', 'label' => 'Upload SK Operasional', 'accept' => '.pdf,.jpg,.jpeg,.png'],
-                        ['name' => 'ktp_pj', 'label' => 'Upload KTP PIC', 'accept' => '.pdf,.jpg,.jpeg,.png'],
-                        ['name' => 'foto_kegiatan', 'label' => 'Upload Foto Kegiatan', 'accept' => '.jpg,.jpeg,.png,.webp'],
-                        ['name' => 'foto_bangunan', 'label' => 'Upload Tampak Depan Bangunan', 'accept' => '.jpg,.jpeg,.png,.webp'],
+                        ['name' => 'sk_operasional', 'label' => 'Upload SK Operasional', 'accept' => '.pdf,.jpg,.jpeg,.png', 'max_size_kb' => 2048],
+                        ['name' => 'ktp_pj', 'label' => 'Upload KTP PIC', 'accept' => '.pdf,.jpg,.jpeg,.png', 'max_size_kb' => 2048],
+                        ['name' => 'foto_kegiatan', 'label' => 'Upload Foto Kegiatan', 'accept' => '.jpg,.jpeg,.png,.webp', 'max_size_kb' => 3072],
+                        ['name' => 'foto_bangunan', 'label' => 'Upload Tampak Depan Bangunan', 'accept' => '.jpg,.jpeg,.png,.webp', 'max_size_kb' => 3072],
                     ];
                 @endphp
                 @foreach ($uploads as $upload)
-                    <div>
-                        <label class="block text-[13.5px] font-medium text-gray-950 mb-1.5">{{ $upload['label'] }} <span class="text-red-600">(Wajib)</span></label>
-                        <label class="group flex min-h-[116px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#207466] bg-[#effcf8] px-4 py-4 text-center hover:border-[#05522d] hover:bg-[#e3f8f0] transition-colors">
-                            <span class="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-[#d6f0e2] text-[#05522d] group-hover:bg-[#c8ead8] transition-colors">
-                                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <div class="file-upload-item">
+                        <label class="block text-[15px] font-medium text-gray-950 mb-1.5">{{ $upload['label'] }} <span class="text-red-600">(Wajib)</span></label>
+                        <button type="button" class="file-picker group flex min-h-[76px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#207466] bg-[#effcf8] px-3 py-2 text-center hover:border-[#05522d] hover:bg-[#e3f8f0] transition-colors">
+                            <span class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-[#d6f0e2] text-[#05522d] group-hover:bg-[#c8ead8] transition-colors">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <path d="M16 16l-4-4-4 4M12 12v8" />
                                     <path d="M20 16.5a4.5 4.5 0 0 0-2.5-8.17A6 6 0 0 0 6.12 10 4 4 0 0 0 6 18h2" />
                                 </svg>
                             </span>
-                            <span class="text-[12.5px] font-bold text-gray-900">Pilih file untuk diunggah</span>
-                            <span class="mt-1 text-[10.5px] text-gray-600">{{ strtoupper(str_replace('.', '', str_replace(',', ', ', $upload['accept']))) }} • Maks. {{ str_contains($upload['name'], 'foto_') ? '3MB' : '2MB' }}</span>
-                            <input type="file" name="{{ $upload['name'] }}" accept="{{ $upload['accept'] }}" required class="hidden" onchange="showSelectedFile(this)">
-                        </label>
-                        <p class="selected-file mt-1.5 min-h-[18px] text-[11px] font-medium text-[#05522d]"></p>
+                            <span class="text-[14px] font-bold text-gray-900">Pilih file untuk diunggah</span>
+                            <span class="mt-1 text-[12px] text-gray-600">{{ strtoupper(str_replace('.', '', str_replace(',', ', ', $upload['accept']))) }} • Maks. {{ $upload['max_size_kb'] / 1024 }} MB</span>
+                            <span class="mt-1 text-[13px] text-gray-700">Belum ada file dipilih</span>
+                        </button>
+                        <input type="file" name="{{ $upload['name'] }}" accept="{{ $upload['accept'] }}" data-max-size-kb="{{ $upload['max_size_kb'] }}" required aria-label="{{ $upload['label'] }}" class="sr-only" onchange="showSelectedFile(this)">
+                        <p class="file-error hidden mt-1 text-[13px] font-medium text-red-600" role="alert"></p>
+                        <div class="file-selected hidden mt-2 rounded-xl border border-gray-200 bg-white p-3">
+                            <div class="flex min-w-0 items-center gap-3">
+                                <div class="file-thumbnail flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100"></div>
+                                <div class="min-w-0">
+                                    <p class="file-name max-w-full truncate text-[14px] font-semibold text-gray-900"></p>
+                                </div>
+                            </div>
+                            <div class="mt-3 grid w-full grid-cols-3 gap-2">
+                                <button type="button" class="file-preview-open w-full rounded-lg bg-emerald-100 px-2 py-2 text-[13px] font-semibold text-emerald-800 hover:bg-emerald-200">Pratinjau</button>
+                                <button type="button" class="file-replace w-full rounded-lg bg-blue-100 px-2 py-2 text-[13px] font-semibold text-blue-800 hover:bg-blue-200">Ganti file</button>
+                                <button type="button" class="file-remove w-full rounded-lg bg-red-100 px-2 py-2 text-[13px] font-semibold text-red-800 hover:bg-red-200">Hapus file</button>
+                            </div>
+                        </div>
                     </div>
                 @endforeach
 
@@ -157,6 +171,17 @@
             </form>
         </div>
     </main>
+
+    <div id="file-preview-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="file-preview-title">
+        <div class="w-full max-w-3xl rounded-xl bg-white p-4 shadow-xl">
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <h2 id="file-preview-title" class="truncate text-sm font-bold text-gray-900"></h2>
+                <button id="file-preview-close" type="button" class="shrink-0 rounded-lg px-3 py-1 text-sm font-semibold text-gray-600 hover:bg-gray-100" aria-label="Tutup pratinjau">Tutup</button>
+            </div>
+            <img id="file-preview-image" class="hidden mx-auto max-h-[75vh] max-w-full rounded-lg object-contain" alt="">
+            <iframe id="file-preview-pdf" class="hidden h-[75vh] w-full rounded-lg border border-gray-200" title="Pratinjau dokumen PDF"></iframe>
+        </div>
+    </div>
 
     <script>
         const eyeIcon = (crossed = false) => `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" /><circle cx="12" cy="12" r="2.5" />${crossed ? '<path d="m4 4 16 16" />' : ''}</svg>`;
@@ -194,9 +219,137 @@
         }
 
         function showSelectedFile(input) {
-            const label = input.closest('label').parentElement.querySelector('.selected-file');
-            label.textContent = input.files.length ? `File dipilih: ${input.files[0].name}` : '';
+            const container = input.closest('.file-upload-item');
+            const picker = container.querySelector('.file-picker');
+            const selectedFile = container.querySelector('.file-selected');
+            const thumbnail = container.querySelector('.file-thumbnail');
+            const previousUrl = input.dataset.previewUrl;
+            const error = container.querySelector('.file-error');
+
+            if (previousUrl) {
+                URL.revokeObjectURL(previousUrl);
+                delete input.dataset.previewUrl;
+            }
+
+            thumbnail.replaceChildren();
+            const file = input.files[0];
+            if (!file) {
+                picker.classList.remove('hidden');
+                selectedFile.classList.add('hidden');
+                error.textContent = '';
+                error.classList.add('hidden');
+                return;
+            }
+
+            const maximumSizeKb = Number(input.dataset.maxSizeKb);
+            if (file.size > maximumSizeKb * 1024) {
+                input.value = '';
+                picker.classList.remove('hidden');
+                selectedFile.classList.add('hidden');
+                error.textContent = `Ukuran file terlalu besar. Maksimal ${maximumSizeKb / 1024} MB. Silakan pilih file yang lebih kecil.`;
+                error.classList.remove('hidden');
+                return;
+            }
+
+            const previewUrl = URL.createObjectURL(file);
+            input.dataset.previewUrl = previewUrl;
+            error.textContent = '';
+            error.classList.add('hidden');
+            picker.classList.add('hidden');
+            selectedFile.classList.remove('hidden');
+            container.querySelector('.file-name').textContent = file.name;
+            container.querySelector('.file-name').title = file.name;
+
+            if (file.type.startsWith('image/') || /\.(jpe?g|png|webp)$/i.test(file.name)) {
+                const image = document.createElement('img');
+                image.src = previewUrl;
+                image.alt = `Pratinjau ${file.name}`;
+                image.className = 'h-full w-full object-cover';
+                thumbnail.append(image);
+            } else {
+                const fileType = document.createElement('span');
+                fileType.textContent = 'PDF';
+                fileType.className = 'text-[12px] font-bold text-red-700';
+                thumbnail.append(fileType);
+            }
         }
+
+        function openFilePreview(input) {
+            const file = input.files[0];
+            const previewUrl = input.dataset.previewUrl;
+            if (!file || !previewUrl) return;
+
+            const modal = document.getElementById('file-preview-modal');
+            const image = document.getElementById('file-preview-image');
+            const pdf = document.getElementById('file-preview-pdf');
+            document.getElementById('file-preview-title').textContent = file.name;
+
+            if (file.type.startsWith('image/') || /\.(jpe?g|png|webp)$/i.test(file.name)) {
+                pdf.removeAttribute('src');
+                pdf.classList.add('hidden');
+                image.src = previewUrl;
+                image.alt = `Pratinjau ${file.name}`;
+                image.classList.remove('hidden');
+            } else {
+                image.removeAttribute('src');
+                image.classList.add('hidden');
+                pdf.src = previewUrl;
+                pdf.title = `Pratinjau ${file.name}`;
+                pdf.classList.remove('hidden');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeFilePreview() {
+            const modal = document.getElementById('file-preview-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('file-preview-image').removeAttribute('src');
+            document.getElementById('file-preview-pdf').removeAttribute('src');
+        }
+
+        const organizationRegisterForm = document.getElementById('organizationRegisterForm');
+        organizationRegisterForm.addEventListener('click', event => {
+            const button = event.target.closest('.file-picker, .file-preview-open, .file-replace, .file-remove');
+            if (!button) return;
+
+            const container = button.closest('.file-upload-item');
+            const input = container.querySelector('input[type="file"]');
+            if (button.classList.contains('file-picker') || button.classList.contains('file-replace')) {
+                input.click();
+                return;
+            }
+
+            if (button.classList.contains('file-preview-open')) {
+                openFilePreview(input);
+                return;
+            }
+
+            input.value = '';
+            showSelectedFile(input);
+        });
+
+        document.getElementById('file-preview-close').addEventListener('click', closeFilePreview);
+        document.getElementById('file-preview-modal').addEventListener('click', event => {
+            if (event.target.id === 'file-preview-modal') closeFilePreview();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeFilePreview();
+        });
+
+        organizationRegisterForm.addEventListener('submit', event => {
+            const submitButton = event.currentTarget.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Mengunggah dokumen...';
+        });
+
+        window.addEventListener('pagehide', () => {
+            document.querySelectorAll('input[type="file"][data-preview-url]').forEach(input => {
+                URL.revokeObjectURL(input.dataset.previewUrl);
+            });
+        });
     </script>
 </body>
 </html>
