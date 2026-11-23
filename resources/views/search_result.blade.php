@@ -140,7 +140,7 @@
         <!-- ========================================================== -->
         <div id="contentOrganisasi" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse ($organizations as $org)
-                <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-2xs hover:shadow-md transition-all flex flex-col group cursor-pointer">
+                <a href="{{ route('donatur.panti.show', $org['id']) }}" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-2xs hover:shadow-md transition-all flex flex-col group cursor-pointer">
                     <div class="relative h-44 sm:h-48 overflow-hidden bg-gray-100">
                         @if (!empty($org['image_url']))
                             <img src="{{ $org['image_url'] }}" alt="{{ $org['nama_lembaga'] }}" class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300">
@@ -174,7 +174,7 @@
                             <span class="text-[13px] text-gray-700 font-medium">{{ $org['kota'] ?? 'Indonesia' }}</span>
                         </div>
                     </div>
-                </div>
+                </a>
             @empty
                 <div class="col-span-full bg-white rounded-2xl border border-gray-100 p-8 sm:p-12 text-center text-gray-500">
                     <p class="text-[15px] font-medium">Tidak ada organisasi yang cocok dengan pencarian Anda.</p>

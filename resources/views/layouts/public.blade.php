@@ -1,4 +1,5 @@
 {{-- resources/views/layouts/public.blade.php --}}
+@php($isPublicOrganizationProfile = request()->routeIs('donatur.panti.show'))
 <!DOCTYPE html>
 <html lang="id">
 
@@ -19,13 +20,13 @@
 </head>
 
 <body class="bg-[#f5f7f4] text-[#000000] font-['Plus_Jakarta_Sans',sans-serif] antialiased flex flex-col items-center"
-    @if (request()->routeIs('donatur.*')) data-donor-page data-login-url="{{ route('login') }}" @endif>
+    @if (request()->routeIs('donatur.*') && !$isPublicOrganizationProfile) data-donor-page data-login-url="{{ route('login') }}" @endif>
 
     <!-- Main Canvas Frame: 1200px Width -->
     <div class="w-full bg-[#F5F7F4] shadow-xl flex flex-col">
 
         <!-- NAVBAR -->
-        @if (request()->routeIs('donatur.*'))
+        @if (request()->routeIs('donatur.*') && !$isPublicOrganizationProfile)
             <x-donor-navbar />
         @else
         <header id="public-navbar" class="w-full bg-white border-b border-gray-100 sticky top-0 z-30 shadow-2xs">
@@ -103,7 +104,7 @@
             (function () {
                 try {
                     var user = JSON.parse(localStorage.getItem('auth_user') || '{}');
-                    if (!localStorage.getItem('auth_token') || user.account_type !== 'donatur') return;
+                    if (@json($isPublicOrganizationProfile) || !localStorage.getItem('auth_token') || user.account_type !== 'donatur') return;
 
                     document.body.setAttribute('data-donor-page', '');
                     document.body.dataset.loginUrl = '{{ route('login') }}';

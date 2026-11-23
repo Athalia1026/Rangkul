@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Campaign;
+use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -58,6 +60,41 @@ class SearchPageTest extends TestCase
         $response->assertSee('tabBtnOrganisasi');
         $response->assertSee('contentPenggalangan');
         $response->assertSee('contentOrganisasi');
+    }
+
+    public function test_organization_search_result_links_to_its_public_profile_without_login(): void
+    {
+        config(['scout.driver' => 'null']);
+
+        $user = User::create([
+            'nama' => 'Uji Organisasi',
+            'email' => 'uji-organisasi-' . uniqid() . '@example.com',
+            'password' => bcrypt('passwordbenar1'),
+            'account_type' => 'organisasi',
+            'status' => 'aktif',
+        ]);
+        $organization = Organization::create([
+            'user_id' => $user->id,
+            'tipe' => 'Panti Asuhan',
+            'nama_lembaga' => 'Panti Uji ' . uniqid(),
+            'no_telp' => '081234567890',
+            'deskripsi' => 'Lembaga uji',
+            'kota' => 'Bandung',
+            'alamat' => 'Jl. Uji',
+            'verification_status' => 'disetujui',
+        ]);
+
+        $response = $this->get('/search-results?tab=organisasi');
+
+        $response->assertStatus(200);
+        $response->assertSee('href="' . route('donatur.panti.show', $organization->id) . '"', false);
+        $response->assertSee($organization->nama_lembaga);
+
+        $profileResponse = $this->get(route('donatur.panti.show', $organization->id));
+
+        $profileResponse->assertStatus(200);
+        $profileResponse->assertSee('Tentang Kami');
+        $profileResponse->assertDontSee('data-donor-page data-login-url=', false);
     }
 
     public function test_search_results_page_with_query(): void
