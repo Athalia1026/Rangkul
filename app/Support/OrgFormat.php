@@ -31,6 +31,7 @@ class OrgFormat
         ],
         'disbursement' => [
             'menunggu' => ['Menunggu Verifikasi', 'blue'],
+            'menunggu_transfer' => ['Menunggu Transfer Admin', 'yellow'],
             'diterima' => ['Disetujui', 'green'],
             'ditolak'  => ['Ditolak', 'red'],
         ],
@@ -83,6 +84,13 @@ class OrgFormat
     public static function statusText(string $type, ?string $status): string
     {
         return self::TONES[self::tone($type, $status)]['text'];
+    }
+
+    public static function disbursementStatus(?string $status, ?string $transferStatus): ?string
+    {
+        return $status === 'diterima' && $transferStatus === 'menunggu_transfer_manual'
+            ? 'menunggu_transfer'
+            : $status;
     }
 
     public static function storageUrl(?string $path): ?string

@@ -7,7 +7,7 @@
 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
     <h2>
         @if ($disbursement->status === 'diterima')
-            Pencairan Dana Anda Telah Disetujui
+            Pengajuan Pencairan Dana Menunggu Transfer
         @else
             Pencairan Dana Anda Ditolak
         @endif
@@ -19,11 +19,12 @@
         <p>
             Permohonan pencairan dana untuk campaign
             <strong>{{ $disbursement->campaign?->judul }}</strong>
-            telah disetujui oleh admin.
+            telah diterima admin dan sedang menunggu transfer ke rekening organisasi Anda.
         </p>
         <p>
             Nominal yang dicairkan: <strong>Rp {{ number_format($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan, 0, ',', '.') }}</strong>
         </p>
+        <p>Status pengajuan pencairan akan berubah menjadi Disetujui setelah admin menyelesaikan transfer.</p>
     @else
         <p>
             Permohonan pencairan dana untuk campaign

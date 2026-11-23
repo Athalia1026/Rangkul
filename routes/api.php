@@ -118,6 +118,7 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . 
 
 // Keputusan pencairan dana & pencatatan transfer: khusus manajer (staf hanya memverifikasi bukti & pendaftaran).
 Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER])->prefix('admin')->group(function () {
+    Route::get('/disbursements/manual-transfer/pending', [AdminDisbursementVerificationController::class, 'pendingManualTransfers']);
     Route::put('/disbursements/{id}/verify', [AdminDisbursementVerificationController::class, 'verify'])
         ->middleware('throttle:10,1,verify-disbursement');
     Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer'])

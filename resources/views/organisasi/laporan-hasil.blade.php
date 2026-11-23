@@ -325,14 +325,15 @@
                 <tbody class="text-[23px] text-gray-900">
 
                     @forelse ($disbursements as $disbursement)
+                        @php $disbursementStatus = OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status); @endphp
                         <tr class="hover:bg-[#F0F8F4] transition">
                             <td class="px-4 py-6 text-center">{{ $loop->iteration }}</td>
                             <td class="px-4 py-6 text-center">{{ OrgFormat::date($disbursement->created_at, 'd/m/Y') }}</td>
                             <td class="px-4 py-6 text-center">{{ OrgFormat::date($disbursement->paid_at, 'd/m/Y') }}</td>
                             <td class="px-4 py-6 text-center font-medium">{{ OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan) }}</td>
                             <td class="px-7 py-6 text-center">
-                                <span class="inline-flex min-w-[125px] justify-center {{ OrgFormat::statusBadge('disbursement', $disbursement->status) }} px-5 py-3 rounded-full text-[19px] font-semibold">
-                                    {{ OrgFormat::statusLabel('disbursement', $disbursement->status) }}
+                                <span class="inline-flex min-w-[125px] justify-center {{ OrgFormat::statusBadge('disbursement', $disbursementStatus) }} px-5 py-3 rounded-full text-[19px] font-semibold">
+                                    {{ OrgFormat::statusLabel('disbursement', $disbursementStatus) }}
                                 </span>
                             </td>
                         </tr>

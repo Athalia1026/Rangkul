@@ -238,7 +238,7 @@ class SecurityFixesTest extends TestCase
 
     public function test_manager_approval_is_capped_and_snapshots_destination_account(): void
     {
-        [, $organization, $bank] = $this->organization();
+        [$organizationUser, $organization, $bank] = $this->organization();
         $campaign = $this->campaign($organization, 300000);
         $disbursement = $this->disbursement($campaign, $bank, 200000);
         Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
@@ -253,6 +253,10 @@ class SecurityFixesTest extends TestCase
 
         $this->putJson($url . '/verify', ['status' => 'diterima'])->assertOk();
         $this->putJson($url . '/verify', ['status' => 'diterima'])->assertStatus(409);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $organizationUser->id,
+            'judul' => 'Pengajuan Pencairan Dana Menunggu Transfer',
+        ]);
 
         // Rekening lembaga diganti setelah disetujui: tujuan transfer tetap rekening yang disetujui.
         $bank->update(['no_rekening' => '9999999999']);
@@ -260,9 +264,98 @@ class SecurityFixesTest extends TestCase
         $this->assertSame('1111111111', $fresh->rekening_nomor);
         $this->assertSame('1111111111', $fresh->destinationAccount()['no_rekening']);
 
-        $this->postJson($url . '/manual-transfer', ['referensi_transfer' => 'TRF-1'])->assertOk();
-        $this->postJson($url . '/manual-transfer', ['referensi_transfer' => 'TRF-2'])->assertStatus(409);
-        $this->assertSame('TRF-1', $disbursement->fresh()->transaction_id);
+        $this->postJson($url . '/manual-transfer', ['referensi_transfer' => 'TRF-1'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('bukti_transfer');
+
+        \Illuminate\Support\Facades\Storage::fake(FundDisbursement::DISK);
+        $this->post($url . '/manual-transfer', [
+            'referensi_transfer' => 'TRF-1',
+            'bukti_transfer' => \Illuminate\Http\UploadedFile::fake()->create('bukti.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertOk();
+        $this->post($url . '/manual-transfer', [
+            'referensi_transfer' => 'TRF-2',
+            'bukti_transfer' => \Illuminate\Http\UploadedFile::fake()->create('bukti-kedua.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertStatus(409);
+        $transferred = $disbursement->fresh();
+        $this->assertSame('TRF-1', $transferred->transaction_id);
+        $this->assertSame('selesai', $transferred->transfer_status);
+        \Illuminate\Support\Facades\Storage::disk(FundDisbursement::DISK)->assertExists($transferred->manual_transfer_proof);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $organizationUser->id,
+            'judul' => 'Dana Berhasil Ditransfer',
+        ]);
+    }
+
+    public function test_manager_can_reach_transfer_page_and_queue_after_approval(): void
+    {
+        [, $organization, $bank] = $this->organization();
+        $campaign = $this->campaign($organization, 300000);
+        $waiting = $this->disbursement($campaign, $bank, 200000);
+        $waiting->update([
+            'status' => 'diterima',
+            'transfer_status' => 'menunggu_transfer_manual',
+            'rekening_bank' => 'BCA',
+            'rekening_nomor' => '1111111111',
+            'rekening_pemilik' => 'Panti Uji',
+            'nominal_dicairkan' => 200000,
+        ]);
+        $completed = $this->disbursement($campaign, $bank, 50000);
+        $completed->update(['status' => 'diterima', 'transfer_status' => 'selesai']);
+
+        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
+
+        $this->getJson('/api/admin/disbursements/manual-transfer/pending')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $waiting->id, 'amount' => 200000])
+            ->assertJsonMissing(['id' => $completed->id]);
+
+        $this->get(route('manager.transfer', $waiting->id))
+            ->assertOk()
+            ->assertSee('Simpan Bukti dan Selesaikan Transfer')
+            ->assertSee('Rekening tujuan yang disetujui');
+    }
+
+    public function test_organization_sees_pending_transfer_until_admin_completes_it(): void
+    {
+        [$user, $organization, $bank] = $this->organization();
+        $campaign = $this->campaign($organization, 100000);
+        $disbursement = $this->disbursement($campaign, $bank, 50000);
+        $disbursement->update([
+            'status' => 'diterima',
+            'transfer_status' => 'menunggu_transfer_manual',
+        ]);
+
+        $this->actingAs($user, 'web')
+            ->get(route('organisasi.kampanye.detail', $campaign->id))
+            ->assertOk()
+            ->assertSee('Menunggu Transfer Admin')
+            ->assertSee('Status akan berubah menjadi');
+
+        $disbursement->update(['transfer_status' => 'selesai']);
+
+        $this->get(route('organisasi.kampanye.detail', $campaign->id))
+            ->assertOk()
+            ->assertSee('Disetujui');
+    }
+
+    public function test_organization_cannot_upload_expense_proof_before_manual_transfer_is_complete(): void
+    {
+        [$user, $organization, $bank] = $this->organization();
+        $disbursement = $this->disbursement($this->campaign($organization, 100000), $bank, 50000);
+        $disbursement->update([
+            'status' => 'diterima',
+            'transfer_status' => 'menunggu_transfer_manual',
+        ]);
+        Sanctum::actingAs($user);
+
+        $this->post('/api/organizations/disbursements/' . $disbursement->id . '/proofs', [
+            'bukti_file' => \Illuminate\Http\UploadedFile::fake()->create('bukti.pdf', 10, 'application/pdf'),
+            'nominal' => 10000,
+            'deskripsi' => 'Pengeluaran uji',
+        ], ['Accept' => 'application/json'])
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Bukti penyaluran hanya dapat diunggah setelah admin menyelesaikan transfer dana.');
     }
 
     public function test_manager_cannot_approve_more_than_campaign_balance_or_to_unverified_account(): void

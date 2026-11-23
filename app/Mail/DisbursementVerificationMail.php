@@ -22,7 +22,7 @@ class DisbursementVerificationMail extends Mailable implements ShouldQueue
     public function build()
     {
         $subject = $this->disbursement->status === 'diterima'
-            ? 'Pencairan Dana Anda Telah Disetujui'
+            ? 'Pengajuan Pencairan Dana Menunggu Transfer'
             : 'Pencairan Dana Anda Ditolak';
 
         return $this

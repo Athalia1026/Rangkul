@@ -68,16 +68,19 @@ window.RangkulAdmin = (function () {
             return new Promise(() => {});
         }
 
+        const isFormData = options.body instanceof FormData;
         const headers = {
             Accept: 'application/json',
             Authorization: 'Bearer ' + token,
-            ...(options.body ? { 'Content-Type': 'application/json' } : {})
+            ...(options.body && !isFormData ? { 'Content-Type': 'application/json' } : {})
         };
 
         const response = await fetch(path, {
             method: options.method || 'GET',
             headers,
-            body: options.body ? JSON.stringify(options.body) : undefined
+            body: options.body
+                ? (isFormData ? options.body : JSON.stringify(options.body))
+                : undefined
         });
 
         if (response.status === 401) {

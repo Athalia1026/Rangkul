@@ -412,6 +412,7 @@
                     @php
                         $labelClass = 'text-[20px] text-gray-500';
                         $valueClass = 'mt-2 text-[26px] font-semibold text-gray-950 break-words';
+                        $disbursementStatus = OrgFormat::disbursementStatus($latestDisbursement->status, $latestDisbursement->transfer_status);
                     @endphp
 
                     <dl class="mt-9 grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
@@ -426,13 +427,13 @@
                             <dd class="mt-2">
                                 <span
                                     class="inline-flex
-                                           {{ OrgFormat::statusBadge('disbursement', $latestDisbursement->status) }}
+                                    {{ OrgFormat::statusBadge('disbursement', $disbursementStatus) }}
                                            px-5 py-2
                                            rounded-[10px]
                                            text-[20px]
                                            font-semibold"
                                 >
-                                    {{ OrgFormat::statusLabel('disbursement', $latestDisbursement->status) }}
+                                    {{ OrgFormat::statusLabel('disbursement', $disbursementStatus) }}
                                 </span>
                             </dd>
                         </div>
@@ -456,6 +457,12 @@
                             <dt class="{{ $labelClass }}">Nama Alokasi</dt>
                             <dd class="{{ $valueClass }}">{{ $latestDisbursement->alokasi_dana }}</dd>
                         </div>
+
+                        @if ($latestDisbursement->status === 'diterima' && $latestDisbursement->transfer_status === 'menunggu_transfer_manual')
+                            <div class="sm:col-span-2 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-[18px] leading-7 text-amber-900">
+                                Pengajuan Anda telah diterima admin dan sedang menunggu transfer. Status akan berubah menjadi <strong>Disetujui</strong> setelah admin menyelesaikan transfer ke rekening tujuan.
+                            </div>
+                        @endif
 
                         {{-- ALASAN + TOMBOL AJUKAN (satu baris) --}}
                         <div class="sm:col-span-2 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
@@ -634,13 +641,13 @@
                                             class="inline-flex
                                                    min-w-[135px]
                                                    justify-center
-                                                   {{ OrgFormat::statusBadge('disbursement', $disbursement->status) }}
+                                                   {{ OrgFormat::statusBadge('disbursement', OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status)) }}
                                                    px-6 py-3
                                                    rounded-full
                                                    text-[20px]
                                                    font-semibold"
                                         >
-                                            {{ OrgFormat::statusLabel('disbursement', $disbursement->status) }}
+                                            {{ OrgFormat::statusLabel('disbursement', OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status)) }}
                                         </span>
 
                                     </td>

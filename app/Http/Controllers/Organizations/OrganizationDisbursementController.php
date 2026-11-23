@@ -41,6 +41,10 @@ class OrganizationDisbursementController extends Controller
 
         $disbursements = $campaign->fundDisbursements()
             ->where('status', 'diterima')
+            ->where(function ($query) {
+                $query->whereNull('transfer_status')
+                    ->orWhere('transfer_status', 'selesai');
+            })
             ->latest()
             ->get();
 
@@ -160,10 +164,10 @@ class OrganizationDisbursementController extends Controller
             ->whereHas('campaign', fn ($q) => $q->where('id_organisasi', $organizationId))
             ->firstOrFail();
 
-        if ($disbursement->status !== 'diterima') {
+        if ($disbursement->status !== 'diterima' || $disbursement->transfer_status === 'menunggu_transfer_manual') {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Bukti pengeluaran hanya dapat diunggah setelah pencairan dana disetujui admin.'
+                'message' => 'Bukti penyaluran hanya dapat diunggah setelah admin menyelesaikan transfer dana.'
             ], 403);
         }
 

@@ -233,6 +233,8 @@ Route::prefix('manager')->name('manager.')->group(function () {
     Route::view('/laporantransaksi', 'manager.laporantransaksi')->name('laporantransaksi');
     Route::get('/detailpengajuan/{disbursement}', fn (string $disbursement) => view('manager.detailpengajuan', ['disbursementId' => $disbursement]))
         ->name('detailpengajuan');
+    Route::get('/transfer/{disbursement}', fn (string $disbursement) => view('manager.transferpengajuan', ['disbursementId' => $disbursement]))
+        ->name('transfer');
 });
 
 

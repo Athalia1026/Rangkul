@@ -194,40 +194,15 @@
 
         </div>
 
-    </div>
-
-    <!-- ====================================== -->
-    <!-- ALERT BERHASIL DISETUJUI -->
-    <!-- ====================================== -->
-
-    <div
-        id="alertSetujui"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] hidden"
-    >
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
-
-            <div class="flex justify-center mb-4">
-                <div class="text-rangkul-green text-5xl">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-            </div>
-
-            <h2 class="text-2xl font-bold text-gray-900 mb-3">
-                Pengajuan Disetujui
-            </h2>
-
-            <p class="text-gray-600 text-base">
-                Permohonan pencairan dana berhasil disetujui.
-            </p>
-
-            <button
-                id="btnTutupAlertSetujui"
-                class="mt-6 px-8 py-3 bg-rangkul-green hover:bg-green-900 text-white font-bold rounded-xl transition shadow-md"
+        <div id="aksiTransfer" class="hidden mt-10">
+            <a
+                href="{{ route('manager.transfer', $disbursementId) }}"
+                class="inline-flex items-center gap-2 bg-rangkul-green hover:bg-green-900 text-white font-bold py-4 px-8 rounded-xl shadow-md transition"
             >
-                Mengerti
-            </button>
-
+                Catat Transfer Dana
+            </a>
         </div>
+
     </div>
 
     <!-- ====================================== -->
@@ -379,6 +354,7 @@
 
         const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
         const disbursementId = @json($disbursementId);
+        const transferUrl = @json(route('manager.transfer', $disbursementId));
 
         const STATUS_TAMPIL = {
             menunggu: { label: 'Menunggu', className: 'text-orange-400' },
@@ -451,8 +427,12 @@
 
             renderBukti(data.attachment);
 
-            // Tombol aksi hanya untuk pengajuan yang belum diverifikasi
+            // Tampilkan aksi sesuai tahap pengajuan dan transfer manual.
             document.getElementById('aksiPengajuan').classList.toggle('hidden', data.status !== 'menunggu');
+            document.getElementById('aksiTransfer').classList.toggle(
+                'hidden',
+                data.status !== 'diterima' || data.transfer_status !== 'menunggu_transfer_manual'
+            );
 
         }
 
@@ -501,29 +481,21 @@
         // ==========================
 
         const btnSetujui = document.getElementById('btnSetujui');
-        const alertSetujui = document.getElementById('alertSetujui');
-        const btnTutupAlertSetujui = document.getElementById('btnTutupAlertSetujui');
 
-        // Klik Setujui → simpan persetujuan lalu tampilkan popup berhasil
+        // Persetujuan langsung mengarahkan manajer ke form pencatatan transfer.
         btnSetujui.addEventListener('click', async () => {
 
             btnSetujui.disabled = true;
 
             try {
                 await verifikasiPengajuan({ status: 'diterima' });
-                alertSetujui.classList.remove('hidden');
+                window.location.href = transferUrl;
             } catch (exception) {
                 tampilkanPeringatan('Gagal Menyetujui', exception.message);
             } finally {
                 btnSetujui.disabled = false;
             }
 
-        });
-
-        // Klik Mengerti → tutup popup
-        btnTutupAlertSetujui.addEventListener('click', () => {
-            alertSetujui.classList.add('hidden');
-            loadPengajuan();
         });
 
         // ==========================
@@ -604,11 +576,6 @@
 
         if (e.target === alertTolakBerhasil) {
             alertTolakBerhasil.classList.add('hidden');
-            loadPengajuan();
-        }
-
-        if (e.target === alertSetujui) {
-            alertSetujui.classList.add('hidden');
             loadPengajuan();
         }
 

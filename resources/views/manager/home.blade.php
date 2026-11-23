@@ -249,6 +249,30 @@
 
         </div>
 
+        <section class="overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between bg-amber-100 px-6 py-4">
+                <h2 class="font-bold text-amber-950">Transfer Menunggu Dicatat</h2>
+                <span class="text-sm text-amber-900">Pengajuan disetujui, menunggu transfer bank</span>
+            </div>
+            <div id="pendingTransferError" role="alert" class="hidden px-6 py-3 text-sm text-red-700"></div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="border-b text-center">
+                            <th class="px-4 py-4 font-bold">Organisasi</th>
+                            <th class="px-4 py-4 font-bold">Kampanye</th>
+                            <th class="px-4 py-4 font-bold">Nominal</th>
+                            <th class="px-4 py-4 font-bold">Disetujui</th>
+                            <th class="px-4 py-4 font-bold">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTransferRows">
+                        <tr><td colspan="5" class="px-6 py-7 text-center text-gray-500">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- DAFTAR PENCAIRAN DANA TABLE -->
         <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
@@ -522,6 +546,46 @@
 
         }
 
+        function renderPendingTransfers(items) {
+            const rows = document.getElementById('pendingTransferRows');
+
+            if (!items.length) {
+                rows.innerHTML = `
+                    <tr><td colspan="5" class="px-6 py-7 text-center text-gray-500">Tidak ada transfer yang menunggu dicatat.</td></tr>
+                `;
+                return;
+            }
+
+            rows.innerHTML = items.map((item) => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-4">${escapeHtml(item.organization_name)}</td>
+                    <td class="px-4 py-4">${escapeHtml(item.campaign_title)}</td>
+                    <td class="px-4 py-4 text-center">${formatRupiah(item.amount)}</td>
+                    <td class="px-4 py-4 text-center">${escapeHtml(item.approved_at)}</td>
+                    <td class="px-4 py-4 text-center">
+                        <a href="/manager/transfer/${encodeURIComponent(item.id)}"
+                            class="inline-block rounded-lg bg-rangkul-green px-4 py-2 text-xs font-semibold text-white hover:bg-opacity-90">
+                            Transfer / Catat Bukti
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadPendingTransfers() {
+            const error = document.getElementById('pendingTransferError');
+
+            try {
+                const { data } = await request('/api/admin/disbursements/manual-transfer/pending');
+                error.classList.add('hidden');
+                renderPendingTransfers(data);
+            } catch (exception) {
+                error.textContent = exception.message;
+                error.classList.remove('hidden');
+                document.getElementById('pendingTransferRows').innerHTML = '';
+            }
+        }
+
         function showDashboardError(message) {
             const error = document.getElementById('dashboard-error');
             error.textContent = message;
@@ -571,6 +635,7 @@
         tanggalSelesai.addEventListener('change', loadDashboard);
 
         loadDashboard();
+        loadPendingTransfers();
 
     </script>
 

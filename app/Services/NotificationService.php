@@ -188,11 +188,11 @@ class NotificationService
 
         $this->send(
             $disbursement->campaign?->organization?->user_id,
-            $approved ? 'Pengajuan Pencairan Dana Disetujui' : 'Pengajuan Pencairan Dana Ditolak',
+            $approved ? 'Pengajuan Pencairan Dana Menunggu Transfer' : 'Pengajuan Pencairan Dana Ditolak',
             $approved
                 ? 'Pencairan "' . $disbursement->alokasi_dana . '" sebesar '
                     . OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan)
-                    . ' disetujui dan menunggu transfer oleh admin.'
+                    . ' telah diterima dan sedang menunggu transfer oleh admin. Status pengajuan pencairan akan berubah menjadi Disetujui setelah transfer selesai.'
                 : 'Pencairan "' . $disbursement->alokasi_dana . '" ditolak. Alasan: ' . ($disbursement->alasan_tolak ?: '-'),
             'fund_disbursement',
             $disbursement->id
@@ -207,7 +207,7 @@ class NotificationService
             $disbursement->campaign?->organization?->user_id,
             'Dana Berhasil Ditransfer',
             'Dana sebesar ' . OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan)
-                . ' untuk "' . $disbursement->alokasi_dana . '" telah ditransfer ke rekening Anda. Jangan lupa unggah bukti penyaluran.',
+                . ' untuk "' . $disbursement->alokasi_dana . '" telah ditransfer ke rekening Anda. Status pengajuan pencairan sekarang Disetujui. Jangan lupa unggah bukti penyaluran.',
             'fund_disbursement',
             $disbursement->id
         );

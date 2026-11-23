@@ -28,6 +28,24 @@ class AdminDisbursementVerificationController extends Controller
         ]);
     }
 
+    public function pendingManualTransfers()
+    {
+        $disbursements = FundDisbursement::with('campaign.organization')
+            ->where('status', 'diterima')
+            ->where('transfer_status', 'menunggu_transfer_manual')
+            ->latest('verified_at')
+            ->get()
+            ->map(fn (FundDisbursement $disbursement) => [
+                'id' => $disbursement->id,
+                'organization_name' => $disbursement->campaign?->organization?->nama_lembaga ?? '-',
+                'campaign_title' => $disbursement->campaign?->judul ?? '-',
+                'amount' => (float) ($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan),
+                'approved_at' => optional($disbursement->verified_at)->format('d/m/Y'),
+            ]);
+
+        return response()->json(['status' => 'success', 'data' => $disbursements]);
+    }
+
     // Detail satu pengajuan pencairan untuk halaman detail pengajuan manajer
     public function show($id)
     {
@@ -47,9 +65,11 @@ class AdminDisbursementVerificationController extends Controller
             'data' => [
                 'id' => $disbursement->id,
                 'status' => $disbursement->status,
+                'transfer_status' => $disbursement->transfer_status,
                 'organization_name' => $disbursement->campaign?->organization?->nama_lembaga ?? '-',
                 'campaign_title' => $disbursement->campaign?->judul,
                 'amount' => (float) $disbursement->nominal_diajukan,
+                'approved_amount' => (float) ($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan),
                 // Saldo kampanye yang belum dicairkan, agar manajer bisa membandingkan dengan nominal diajukan.
                 'campaign_balance' => (float) $campaignBalance,
                 'destination_account' => $disbursement->destinationAccount() + [
@@ -137,7 +157,7 @@ class AdminDisbursementVerificationController extends Controller
     public function completeManualTransfer(Request $request, $id)
     {
         $request->validate([
-            'bukti_transfer' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bukti_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'catatan' => 'nullable|string',
             'referensi_transfer' => 'nullable|string|max:255',
         ]);
@@ -160,9 +180,7 @@ class AdminDisbursementVerificationController extends Controller
                 ], 409);
             }
 
-            $proofPath = $request->hasFile('bukti_transfer')
-                ? $request->file('bukti_transfer')->store('disbursements/manual-transfer', FundDisbursement::DISK)
-                : $disbursement->manual_transfer_proof;
+            $proofPath = $request->file('bukti_transfer')->store('disbursements/manual-transfer', FundDisbursement::DISK);
 
             $disbursement->update([
                 'transfer_method' => 'manual_bank',

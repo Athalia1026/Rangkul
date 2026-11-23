@@ -106,7 +106,7 @@
 
                 @if ($disbursements->isEmpty())
                     <p class="mt-3 text-[19px] text-red-500">
-                        Belum ada pencairan yang disetujui admin untuk kampanye ini.
+                        Belum ada pencairan yang sudah ditransfer admin untuk kampanye ini.
                     </p>
                 @endif
 
