@@ -249,30 +249,6 @@
 
         </div>
 
-        <section class="overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm">
-            <div class="flex items-center justify-between bg-amber-100 px-6 py-4">
-                <h2 class="font-bold text-amber-950">Transfer Menunggu Dicatat</h2>
-                <span class="text-sm text-amber-900">Pengajuan disetujui, menunggu transfer bank</span>
-            </div>
-            <div id="pendingTransferError" role="alert" class="hidden px-6 py-3 text-sm text-red-700"></div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead>
-                        <tr class="border-b text-center">
-                            <th class="px-4 py-4 font-bold">Organisasi</th>
-                            <th class="px-4 py-4 font-bold">Kampanye</th>
-                            <th class="px-4 py-4 font-bold">Nominal</th>
-                            <th class="px-4 py-4 font-bold">Disetujui</th>
-                            <th class="px-4 py-4 font-bold">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pendingTransferRows">
-                        <tr><td colspan="5" class="px-6 py-7 text-center text-gray-500">Memuat data...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
         <!-- DAFTAR PENCAIRAN DANA TABLE -->
         <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
@@ -285,30 +261,35 @@
 
             <div class="overflow-x-auto">
 
-                <table class="w-full text-left border-collapse">
-
+                <table class="w-full min-w-[960px] table-fixed text-left border-collapse">
+                    <colgroup>
+                        <col class="w-[6%]">
+                        <col class="w-[14%]">
+                        <col class="w-[28%]">
+                        <col class="w-[13%]">
+                        <col class="w-[30%]">
+                        <col class="w-[9%]">
+                    </colgroup>
                     <thead>
-
                         <tr class="text-black text-sm border-b text-center">
-
-                            <th class="px-6 py-4 font-bold">
+                            <th class="px-2 py-4 font-bold">
                                 No.
                             </th>
 
                             <th class="px-2 py-4 font-bold">
+                                Tanggal Pengajuan
+                            </th>
+
+                            <th class="px-3 py-4 font-bold">
                                 Nama Organisasi
                             </th>
 
-                            <th class="px-2 py-4 font-bold">
-                                Nominal Dana
-                            </th>
-
-                            <th class="px-2 py-4 font-bold">
+                            <th class="px-3 py-4 font-bold">
                                 Verifikator
                             </th>
 
-                            <th class="px-2 py-4 font-bold">
-                                Tanggal Pengajuan
+                            <th class="px-3 py-4 font-bold">
+                                Nominal Dana
                             </th>
 
                             <th class="px-2 py-4 font-bold">
@@ -335,6 +316,45 @@
 
         </section>
 
+        <div id="proof-queue-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+
+        <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="bg-rangkul-green text-white px-6 py-4 flex items-center gap-2">
+                <span>📒</span>
+                <h2 class="font-bold">Verifikasi Bukti Penyaluran</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[960px] table-fixed text-left border-collapse">
+                    <colgroup>
+                        <col class="w-[6%]">
+                        <col class="w-[12%]">
+                        <col class="w-[24%]">
+                        <col class="w-[20%]">
+                        <col class="w-[12%]">
+                        <col class="w-[17%]">
+                        <col class="w-[9%]">
+                    </colgroup>
+                    <thead>
+                        <tr class="text-black text-sm border-b text-center">
+                            <th class="px-2 py-4 font-bold">No.</th>
+                            <th class="px-2 py-4 font-bold">Tanggal Unggah</th>
+                            <th class="px-3 py-4 font-bold">Nama Organisasi</th>
+                            <th class="px-3 py-4 font-bold">Kampanye</th>
+                            <th class="px-3 py-4 font-bold">Verifikator</th>
+                            <th class="px-3 py-4 font-bold">Nominal</th>
+                            <th class="px-2 py-4 font-bold">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="proofVerificationRows" class="text-sm">
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">Memuat bukti penyaluran...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
     </main>
 
     <script>
@@ -342,6 +362,7 @@
         const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
         const tanggalMulai = document.getElementById('tanggalMulai');
         const tanggalSelesai = document.getElementById('tanggalSelesai');
+        const MANAGER_PROOF_URL = @json(route('manager.buktipenyaluran', ['proof' => '__ID__']));
 
         let trenChart;
         let gaugeChart;
@@ -510,27 +531,27 @@
             rows.innerHTML = items.map((item, index) => `
                 <tr class="border-b hover:bg-gray-50 transition">
 
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-2 py-4 text-center">
                         ${index + 1}.
                     </td>
 
-                    <td class="px-6 py-4">
-                        ${escapeHtml(item.organization_name)}
-                    </td>
-
-                    <td class="px-6 py-4">
-                        ${formatRupiah(item.amount)}
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        ${escapeHtml(item.verifier_name)}
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-2 py-4 text-center">
                         ${escapeHtml(item.submitted_at)}
                     </td>
 
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-3 py-4">
+                        ${escapeHtml(item.organization_name)}
+                    </td>
+
+                    <td class="px-3 py-4 text-center">
+                        ${escapeHtml(item.verifier_name)}
+                    </td>
+
+                    <td class="px-3 py-4 text-center font-semibold">
+                        ${escapeHtml(formatRupiah(item.amount))}
+                    </td>
+
+                    <td class="px-2 py-4 text-center">
 
                         <a
                             href="/manager/detailpengajuan/${encodeURIComponent(item.id)}"
@@ -546,43 +567,53 @@
 
         }
 
-        function renderPendingTransfers(items) {
-            const rows = document.getElementById('pendingTransferRows');
+        function renderPendingProofs(items) {
+            const rows = document.getElementById('proofVerificationRows');
 
             if (!items.length) {
                 rows.innerHTML = `
-                    <tr><td colspan="5" class="px-6 py-7 text-center text-gray-500">Tidak ada transfer yang menunggu dicatat.</td></tr>
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                            Belum ada bukti penyaluran yang menunggu keputusan manager.
+                        </td>
+                    </tr>
                 `;
                 return;
             }
 
-            rows.innerHTML = items.map((item) => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="px-4 py-4">${escapeHtml(item.organization_name)}</td>
-                    <td class="px-4 py-4">${escapeHtml(item.campaign_title)}</td>
-                    <td class="px-4 py-4 text-center">${formatRupiah(item.amount)}</td>
-                    <td class="px-4 py-4 text-center">${escapeHtml(item.approved_at)}</td>
-                    <td class="px-4 py-4 text-center">
-                        <a href="/manager/transfer/${encodeURIComponent(item.id)}"
-                            class="inline-block rounded-lg bg-rangkul-green px-4 py-2 text-xs font-semibold text-white hover:bg-opacity-90">
-                            Transfer / Catat Bukti
+            rows.innerHTML = items.map((item, index) => `
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="px-2 py-4 text-center">${index + 1}.</td>
+                    <td class="px-2 py-4 text-center">${escapeHtml(item.uploaded_at)}</td>
+                    <td class="px-3 py-4">${escapeHtml(item.organization_name)}</td>
+                    <td class="px-3 py-4">${escapeHtml(item.campaign_title)}</td>
+                    <td class="px-3 py-4 text-center">${escapeHtml(item.staff_reviewer_name)}</td>
+                    <td class="px-3 py-4 text-center font-semibold">${escapeHtml(formatRupiah(item.amount))}</td>
+                    <td class="px-2 py-4 text-center">
+                        <a href="${escapeHtml(MANAGER_PROOF_URL.replace('__ID__', encodeURIComponent(item.id)))}"
+                            class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90">
+                            Tinjau
                         </a>
                     </td>
                 </tr>
             `).join('');
         }
 
-        async function loadPendingTransfers() {
-            const error = document.getElementById('pendingTransferError');
+        async function loadPendingProofs() {
+            const error = document.getElementById('proof-queue-error');
 
             try {
-                const { data } = await request('/api/admin/disbursements/manual-transfer/pending');
+                const { data } = await request('/api/admin/proof-verifications/pending');
                 error.classList.add('hidden');
-                renderPendingTransfers(data);
+                renderPendingProofs(data);
             } catch (exception) {
                 error.textContent = exception.message;
                 error.classList.remove('hidden');
-                document.getElementById('pendingTransferRows').innerHTML = '';
+                document.getElementById('proofVerificationRows').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">Bukti penyaluran gagal dimuat.</td>
+                    </tr>
+                `;
             }
         }
 
@@ -635,7 +666,7 @@
         tanggalSelesai.addEventListener('change', loadDashboard);
 
         loadDashboard();
-        loadPendingTransfers();
+        loadPendingProofs();
 
     </script>
 

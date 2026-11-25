@@ -19,12 +19,12 @@
         <p>
             Permohonan pencairan dana untuk campaign
             <strong>{{ $disbursement->campaign?->judul }}</strong>
-            telah diterima admin dan sedang menunggu transfer ke rekening organisasi Anda.
+            telah disetujui manager dan sedang menunggu transfer oleh staff ke rekening organisasi Anda.
         </p>
         <p>
             Nominal yang dicairkan: <strong>Rp {{ number_format($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan, 0, ',', '.') }}</strong>
         </p>
-        <p>Status pengajuan pencairan akan berubah menjadi Disetujui setelah admin menyelesaikan transfer.</p>
+        <p>Staff akan mencatat transfer setelah dana dikirim. Status pengajuan pencairan berubah menjadi Disetujui setelah transfer selesai.</p>
     @else
         <p>
             Permohonan pencairan dana untuk campaign

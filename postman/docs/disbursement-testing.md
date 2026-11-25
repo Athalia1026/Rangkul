@@ -70,7 +70,7 @@ id_campaign: <id_campaign>
 alokasi_dana: "Dana operasional"
 nominal_diajukan: 2500000
 alasan: "Dana untuk kebutuhan program bulanan"
-lampiran: file pdf/jpg/png (opsional)
+lampiran: file pdf/jpg/png (wajib, maksimal 2 MB)
 ```
 
 Contoh response sukses:
@@ -98,7 +98,35 @@ Pengajuan diproses bergantian per organisasi, sehingga dua pengajuan yang dikiri
 
 ---
 
-## 4) Admin melihat daftar pencairan yang menunggu
+## 4) Staff memeriksa bukti pengajuan dan meneruskan ke manager
+
+Organisasi harus melampirkan bukti pendukung. Staff memeriksa lampiran dan rincian pengajuan sebelum meneruskan atau menolaknya.
+
+### Endpoint
+
+```http
+PUT http://127.0.0.1:8000/api/admin/staff/disbursements/{id}/review
+```
+
+Header:
+
+```text
+Authorization: Bearer <token-staff>
+```
+
+Untuk meneruskan ke manager:
+
+```json
+{ "status": "diterima" }
+```
+
+Untuk menolak:
+
+```json
+{ "status": "ditolak", "alasan_tolak": "Bukti pendukung tidak sesuai" }
+```
+
+## 5) Manager memeriksa pengajuan yang sudah lolos review staff
 
 ### Endpoint
 
@@ -109,10 +137,10 @@ GET http://127.0.0.1:8000/api/admin/disbursements/pending
 Header:
 
 ```text
-Authorization: Bearer <token-admin>
+Authorization: Bearer <token-manager>
 ```
 
-Detail satu pengajuan (dipakai halaman detail pengajuan manajer):
+Endpoint daftar hanya menampilkan pengajuan yang sudah diteruskan staff. Detail satu pengajuan:
 
 ```http
 GET http://127.0.0.1:8000/api/admin/disbursements/{id}
@@ -138,9 +166,9 @@ Selain data pengajuan, respons memuat saldo kampanye dan rekening tujuan agar ma
 
 ---
 
-## 5) Manajer menyetujui / menolak pencairan dana
+## 6) Manajer menyetujui / menolak pencairan dana
 
-Hanya akun admin dengan role `manager` yang bisa memutuskan pencairan dana (`staff` mendapat `403`).
+Hanya akun admin dengan role `manager` yang bisa memutuskan pencairan dana. Persetujuan manager membuat pengajuan masuk ke antrian transfer staff.
 
 ### Endpoint
 
@@ -180,37 +208,37 @@ Aturan persetujuan:
 
 ---
 
-## 5b) Manajer mencatat transfer manual
+## 7) Staff mencatat transfer manual
 
-Setelah dana ditransfer ke rekening tujuan, manajer mencatat transfernya.
+Setelah manager menyetujui pengajuan, staff mentransfer dana ke rekening tujuan lalu mencatat transfernya.
 
 ### Endpoint
 
 ```http
-POST http://127.0.0.1:8000/api/admin/disbursements/{id}/manual-transfer
+POST http://127.0.0.1:8000/api/admin/staff/disbursements/{id}/manual-transfer
 ```
 
 Header:
 
 ```text
-Authorization: Bearer <token-manager>
+Authorization: Bearer <token-staff>
 ```
 
-Body (form-data, semuanya opsional):
+Body (form-data):
 
 ```text
-bukti_transfer: file pdf/jpg/png (maks. 2 MB)
+bukti_transfer: file pdf/jpg/png (wajib, maks. 2 MB)
 referensi_transfer: TRF-20261026-001
 catatan: Transfer via BCA
 ```
 
 Catatan:
-- Hanya untuk pencairan berstatus `diterima`.
+- Hanya untuk pencairan yang sudah disetujui manager dan menunggu transfer.
 - Transfer hanya bisa dicatat sekali. Pemanggilan berikutnya mendapat `409` dan data transfer (tanggal bayar, referensi, bukti) tidak berubah.
 
 ---
 
-## 6) Organisasi upload bukti pengeluaran setelah pencairan disetujui
+## 8) Organisasi upload bukti pengeluaran setelah pencairan disetujui
 
 ### Endpoint
 
@@ -236,9 +264,17 @@ deskripsi: Pembelian alat kebutuhan program
 
 ---
 
-## 7) Admin staff dan manager verifikasi bukti pengeluaran
+## 9) Staff dan manager verifikasi bukti penyaluran berlapis
 
 ### Endpoint
+
+Manager mengambil bukti yang sudah diteruskan staff:
+
+```http
+GET http://127.0.0.1:8000/api/admin/proof-verifications/pending
+```
+
+Staff dan manager membuka detail, lalu mengirim keputusan melalui endpoint yang sama:
 
 ```http
 PUT http://127.0.0.1:8000/api/admin/proof-verifications/{proofId}/verify
@@ -269,12 +305,16 @@ Untuk tolak:
 ```
 
 Catatan penting:
-- `staff` bisa memproses dulu, lalu `manager` baru final.
-- `manager` tidak bisa langsung approve jika `staff` belum menilai.
+- Setelah organisasi mengunggah bukti, bukti masuk ke antrean staff.
+- Staff memeriksa bukti terlebih dahulu. Jika diterima, bukti diteruskan ke manager dan tetap berstatus menunggu.
+- Manager hanya melihat bukti yang sudah diteruskan staff melalui endpoint `GET .../proof-verifications/pending`.
+- Manager menyetujui bukti untuk menyimpannya sebagai arsip, atau menolaknya dengan mengisi `catatan`.
+- Penolakan staff maupun manager wajib menyertakan `catatan`.
+- Manager tidak bisa membuka detail atau memutuskan bukti yang belum disetujui staff.
 
 ---
 
-## 8) Email Mailtrap akan terkirim otomatis
+## 10) Email Mailtrap akan terkirim otomatis
 
 Saat status final berubah menjadi:
 - pencairan dana -> `diterima` atau `ditolak`
@@ -286,7 +326,7 @@ Pastikan `.env` sudah diisi dengan kredensial Mailtrap.
 
 ---
 
-## 9) Cara import ke Postman
+## 11) Cara import ke Postman
 
 Jika Anda ingin import request dari file workspace, gunakan request sample yang sudah ada di:
 
@@ -298,16 +338,19 @@ Request di collection memakai variabel `{{auth_token}}`, bukan token asli. Isi v
 
 ---
 
-## 10) Link cepat yang bisa dipakai
+## 12) Link cepat yang bisa dipakai
 
 - Base URL API: http://127.0.0.1:8000/api
 - Login: http://127.0.0.1:8000/api/login
 - Ajukan pencairan: http://127.0.0.1:8000/api/organizations/disbursements
 - List pending admin: http://127.0.0.1:8000/api/admin/disbursements/pending
+- Dashboard staff (termasuk ajuan dan transfer): http://127.0.0.1:8000/api/admin/staff/dashboard
 - Detail pengajuan: http://127.0.0.1:8000/api/admin/disbursements/{id}
 - Verifikasi manajer dana: http://127.0.0.1:8000/api/admin/disbursements/{id}/verify
-- Catat transfer manual: http://127.0.0.1:8000/api/admin/disbursements/{id}/manual-transfer
+- Review staff: http://127.0.0.1:8000/api/admin/staff/disbursements/{id}/review
+- Catat transfer manual oleh staff: http://127.0.0.1:8000/api/admin/staff/disbursements/{id}/manual-transfer
 - Upload bukti: http://127.0.0.1:8000/api/organizations/disbursements/{disbursementId}/proofs
+- Daftar bukti penyaluran untuk manager: http://127.0.0.1:8000/api/admin/proof-verifications/pending
 - Verifikasi bukti admin: http://127.0.0.1:8000/api/admin/proof-verifications/{proofId}/verify
 
 Jika Anda mau, saya bisa lanjutkan ke tahap berikutnya dengan membuatkan file collection Postman yang siap di-import lengkap untuk semua endpoint ini.

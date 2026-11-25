@@ -233,8 +233,10 @@ Route::prefix('manager')->name('manager.')->group(function () {
     Route::view('/laporantransaksi', 'manager.laporantransaksi')->name('laporantransaksi');
     Route::get('/detailpengajuan/{disbursement}', fn (string $disbursement) => view('manager.detailpengajuan', ['disbursementId' => $disbursement]))
         ->name('detailpengajuan');
-    Route::get('/transfer/{disbursement}', fn (string $disbursement) => view('manager.transferpengajuan', ['disbursementId' => $disbursement]))
-        ->name('transfer');
+    Route::get('/bukti-penyaluran/{proof}', fn (string $proof) => view('staff.ajuanpencairandana', [
+        'proofId' => $proof,
+        'isManagerReview' => true,
+    ]))->name('buktipenyaluran');
 });
 
 
@@ -421,6 +423,14 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
 // Seperti halaman manajer, datanya dimuat dari /api/admin/* memakai token login staf.
 Route::prefix('staff')->name('staff.')->group(function () {
     Route::view('/beranda', 'staff.beranda')->name('beranda');
+    Route::get('/ajuanpencairan/{disbursement}', fn (string $disbursement) => view('manager.detailpengajuan', [
+        'disbursementId' => $disbursement,
+        'isStaffReview' => true,
+    ]))->name('ajuanpencairan');
+    Route::get('/transfer/{disbursement}', fn (string $disbursement) => view('manager.transferpengajuan', [
+        'disbursementId' => $disbursement,
+        'isStaff' => true,
+    ]))->name('transfer');
     Route::get('/pengajuandanauser/{organization}', fn (string $organization) => view('staff.pengajuandanauser', ['organizationId' => $organization]))
         ->name('pengajuandanauser');
     Route::get('/ajuanpencairandana/{proof}', fn (string $proof) => view('staff.ajuanpencairandana', ['proofId' => $proof]))

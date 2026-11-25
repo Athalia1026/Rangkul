@@ -119,7 +119,7 @@
                         <td>{{ OrgFormat::date($disbursement->created_at, 'd/m/Y') }}</td>
                         <td>{{ OrgFormat::date($disbursement->paid_at, 'd/m/Y') }}</td>
                         <td>{{ OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan) }}</td>
-                        <td>{{ OrgFormat::statusLabel('disbursement', OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status)) }}</td>
+                        <td>{{ OrgFormat::statusLabel('disbursement', OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status, $disbursement->review_stage)) }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="5" class="empty">Belum ada riwayat pencairan pada periode ini.</td></tr>

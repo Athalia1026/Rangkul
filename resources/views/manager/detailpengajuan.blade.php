@@ -38,7 +38,12 @@
 
 <body class="text-black-800">
 
-@include('manager.layouts.navbar')
+@php($isStaffReview = $isStaffReview ?? false)
+@if ($isStaffReview)
+    @include('staff.layouts.navbar')
+@else
+    @include('manager.layouts.navbar')
+@endif
 
     <!-- CONTENT SECTION -->
     <div class="w-full max-w-[1200px] mx-auto px-8 py-5 space-y-6">
@@ -46,7 +51,7 @@
         <!-- TOMBOL KEMBALI -->
         <div>
             <a
-                href="/manager/home"
+                href="{{ $isStaffReview ? route('staff.beranda') : route('manager.home') }}"
                 class="inline-flex items-center gap-2 bg-[#d1e7dd] hover:bg-green-200 text-gray-800 px-6 py-2 rounded-lg shadow-sm font-bold text-sm transition active:scale-95"
             >
                 <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -78,6 +83,7 @@
                         </span>
 
                         <p id="alasanTolakInfo" class="hidden text-sm text-gray-600 mt-1"></p>
+                        <p id="staffReviewInfo" class="hidden text-sm text-gray-600 mt-1"></p>
                     </div>
 
                     <div>
@@ -156,16 +162,14 @@
             <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
 
                 <div class="bg-rangkul-green text-white text-center py-3 font-semibold text-lg">
-                    Bukti Pembelian
+                    Lampiran Pendukung Pengajuan
                 </div>
 
                 <div class="p-8 h-full">
                     <div id="buktiPreview" class="border-2 border-dashed border-gray-300 rounded-lg h-[350px] flex flex-col items-center justify-center text-gray-400 overflow-hidden">
                         <i class="fa-regular fa-image text-6xl mb-3"></i>
 
-                        <p class="font-medium">
-                            Pratinjau Gambar
-                        </p>
+                        <p class="font-medium">Pratinjau lampiran</p>
                     </div>
                 </div>
 
@@ -174,34 +178,36 @@
         </div>
 
         <!-- Tombol Aksi di Bawah -->
-        <div id="aksiPengajuan" class="hidden w-[590px] flex gap-6 mt-10">
+        <div id="aksiPengajuan" class="hidden w-full md:w-1/2 md:pr-4 flex flex-col sm:flex-row gap-3 mt-6">
 
             <!-- SETUJUI -->
             <button
                 id="btnSetujui"
-                class="flex-1 bg-rangkul-green hover:bg-green-900 text-white font-bold py-4 rounded-xl shadow-md transition transform active:scale-95"
+                class="flex-1 min-h-12 bg-rangkul-green hover:bg-green-900 text-white font-semibold px-5 py-3 rounded-lg shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rangkul-green focus-visible:ring-offset-2 disabled:opacity-60"
             >
-                Setujui
+                <span id="btnSetujuiLabel">Setujui</span>
             </button>
 
             <!-- TOLAK -->
             <button
                 id="btnTolak"
-                class="flex-1 bg-rangkul-red hover:bg-red-900 text-white font-bold py-4 rounded-xl shadow-md transition transform active:scale-95"
+                class="flex-1 min-h-12 bg-rangkul-red hover:bg-red-900 text-white font-semibold px-5 py-3 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rangkul-red focus-visible:ring-offset-2 disabled:opacity-60"
             >
                 Tolak
             </button>
 
         </div>
 
-        <div id="aksiTransfer" class="hidden mt-10">
-            <a
-                href="{{ route('manager.transfer', $disbursementId) }}"
-                class="inline-flex items-center gap-2 bg-rangkul-green hover:bg-green-900 text-white font-bold py-4 px-8 rounded-xl shadow-md transition"
-            >
-                Catat Transfer Dana
-            </a>
-        </div>
+        @if ($isStaffReview)
+            <div id="aksiTransfer" class="hidden mt-10">
+                <a
+                    href="{{ route('staff.transfer', $disbursementId) }}"
+                    class="inline-flex items-center gap-2 bg-rangkul-green hover:bg-green-900 text-white font-bold py-4 px-8 rounded-xl shadow-md transition"
+                >
+                    Catat Transfer Dana
+                </a>
+            </div>
+        @endif
 
     </div>
 
@@ -354,10 +360,15 @@
 
         const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
         const disbursementId = @json($disbursementId);
-        const transferUrl = @json(route('manager.transfer', $disbursementId));
+        const isStaffReview = @json($isStaffReview);
+        const returnUrl = isStaffReview
+            ? @json(route('staff.beranda'))
+            : @json(route('manager.home'));
 
         const STATUS_TAMPIL = {
             menunggu: { label: 'Menunggu', className: 'text-orange-400' },
+            menunggu_verifikasi_staff: { label: 'Menunggu Verifikasi Staff', className: 'text-orange-400' },
+            menunggu_verifikasi_manager: { label: 'Menunggu Verifikasi Manager', className: 'text-orange-400' },
             diterima: { label: 'Disetujui', className: 'text-rangkul-green' },
             ditolak: { label: 'Ditolak', className: 'text-rangkul-red' }
         };
@@ -402,15 +413,23 @@
 
         function renderPengajuan(data) {
 
-            const status = STATUS_TAMPIL[data.status] || { label: data.status, className: 'text-gray-700' };
+            const statusKey = data.status === 'menunggu'
+                ? `menunggu_verifikasi_${data.review_stage}`
+                : data.status;
+            const status = STATUS_TAMPIL[statusKey] || STATUS_TAMPIL[data.status] || { label: data.status, className: 'text-gray-700' };
             const statusElement = document.getElementById('statusPengajuan');
             const alasanTolakInfo = document.getElementById('alasanTolakInfo');
+            const staffReviewInfo = document.getElementById('staffReviewInfo');
 
             statusElement.textContent = status.label;
             statusElement.className = status.className + ' font-bold text-xl';
 
             alasanTolakInfo.textContent = data.alasan_tolak ? 'Alasan penolakan: ' + data.alasan_tolak : '';
             alasanTolakInfo.classList.toggle('hidden', !data.alasan_tolak);
+            staffReviewInfo.textContent = data.staff_reviewed_at
+                ? `Sudah diperiksa staff${data.staff_reviewer_name ? ' (' + data.staff_reviewer_name + ')' : ''} pada ${data.staff_reviewed_at}.`
+                : '';
+            staffReviewInfo.classList.toggle('hidden', !data.staff_reviewed_at);
 
             document.getElementById('namaOrganisasi').value = data.organization_name;
             document.getElementById('jumlahDiajukan').value = formatRupiah(data.amount);
@@ -428,11 +447,17 @@
             renderBukti(data.attachment);
 
             // Tampilkan aksi sesuai tahap pengajuan dan transfer manual.
-            document.getElementById('aksiPengajuan').classList.toggle('hidden', data.status !== 'menunggu');
-            document.getElementById('aksiTransfer').classList.toggle(
-                'hidden',
-                data.status !== 'diterima' || data.transfer_status !== 'menunggu_transfer_manual'
-            );
+            const canReview = data.status === 'menunggu'
+                && data.review_stage === (isStaffReview ? 'staff' : 'manager');
+            document.getElementById('aksiPengajuan').classList.toggle('hidden', !canReview);
+            const transferAction = document.getElementById('aksiTransfer');
+            if (transferAction) {
+                transferAction.classList.toggle(
+                    'hidden',
+                    data.status !== 'diterima' || data.transfer_status !== 'menunggu_transfer_manual'
+                );
+            }
+            document.getElementById('btnSetujuiLabel').textContent = isStaffReview ? 'Ajukan ke Manager' : 'Setujui Pencairan';
 
         }
 
@@ -453,7 +478,10 @@
         }
 
         async function verifikasiPengajuan(body) {
-            return request('/api/admin/disbursements/' + encodeURIComponent(disbursementId) + '/verify', {
+            const endpoint = isStaffReview
+                ? '/api/admin/staff/disbursements/' + encodeURIComponent(disbursementId) + '/review'
+                : '/api/admin/disbursements/' + encodeURIComponent(disbursementId) + '/verify';
+            return request(endpoint, {
                 method: 'PUT',
                 body
             });
@@ -482,14 +510,14 @@
 
         const btnSetujui = document.getElementById('btnSetujui');
 
-        // Persetujuan langsung mengarahkan manajer ke form pencatatan transfer.
+        // Staff forwards a checked application; the manager makes the final decision.
         btnSetujui.addEventListener('click', async () => {
 
             btnSetujui.disabled = true;
 
             try {
                 await verifikasiPengajuan({ status: 'diterima' });
-                window.location.href = transferUrl;
+                window.location.href = returnUrl;
             } catch (exception) {
                 tampilkanPeringatan('Gagal Menyetujui', exception.message);
             } finally {

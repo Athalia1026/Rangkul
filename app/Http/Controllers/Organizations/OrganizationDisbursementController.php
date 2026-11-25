@@ -99,7 +99,7 @@ class OrganizationDisbursementController extends Controller
             'alokasi_dana'     => 'required|string',
             'nominal_diajukan' => 'required|numeric|min:10000',
             'alasan'           => 'required|string',
-            'lampiran'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048'
+            'lampiran'         => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048'
         ]);
 
         $bankAccount = BankAccount::where('id_organisasi', $organizationId)
@@ -140,7 +140,8 @@ class OrganizationDisbursementController extends Controller
                 'nominal_diajukan'   => $request->nominal_diajukan,
                 'alasan'             => $request->alasan,
                 'lampiran_pendukung' => $lampiranPath,
-                'status'             => 'menunggu'
+                'status'             => 'menunggu',
+                'review_stage'       => FundDisbursement::REVIEW_STAGE_STAFF,
             ]);
 
             app(NotificationService::class)->disbursementRequested($disbursement);

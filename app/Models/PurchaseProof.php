@@ -44,4 +44,13 @@ class PurchaseProof extends Model
         return $query->where('status', 'menunggu')
             ->whereDoesntHave('proofVerification', fn ($verification) => $verification->whereNotNull('staff_id'));
     }
+
+    public function scopeMenungguManager($query)
+    {
+        return $query->where('status', 'menunggu')
+            ->whereHas('proofVerification', fn ($verification) => $verification
+                ->whereNotNull('staff_id')
+                ->whereNull('manager_id')
+                ->where('status', 'menunggu'));
+    }
 }

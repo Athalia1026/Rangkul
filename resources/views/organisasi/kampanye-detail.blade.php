@@ -412,7 +412,7 @@
                     @php
                         $labelClass = 'text-[20px] text-gray-500';
                         $valueClass = 'mt-2 text-[26px] font-semibold text-gray-950 break-words';
-                        $disbursementStatus = OrgFormat::disbursementStatus($latestDisbursement->status, $latestDisbursement->transfer_status);
+                        $disbursementStatus = OrgFormat::disbursementStatus($latestDisbursement->status, $latestDisbursement->transfer_status, $latestDisbursement->review_stage);
                     @endphp
 
                     <dl class="mt-9 grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
@@ -460,7 +460,7 @@
 
                         @if ($latestDisbursement->status === 'diterima' && $latestDisbursement->transfer_status === 'menunggu_transfer_manual')
                             <div class="sm:col-span-2 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-[18px] leading-7 text-amber-900">
-                                Pengajuan Anda telah diterima admin dan sedang menunggu transfer. Status akan berubah menjadi <strong>Disetujui</strong> setelah admin menyelesaikan transfer ke rekening tujuan.
+                                Pengajuan Anda telah disetujui manager dan sedang menunggu transfer oleh staff. Status akan berubah menjadi <strong>Disetujui</strong> setelah transfer ke rekening tujuan dicatat.
                             </div>
                         @endif
 
@@ -641,13 +641,13 @@
                                             class="inline-flex
                                                    min-w-[135px]
                                                    justify-center
-                                                   {{ OrgFormat::statusBadge('disbursement', OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status)) }}
+                                                   {{ OrgFormat::statusBadge('disbursement', OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status, $disbursement->review_stage)) }}
                                                    px-6 py-3
                                                    rounded-full
                                                    text-[20px]
                                                    font-semibold"
                                         >
-                                            {{ OrgFormat::statusLabel('disbursement', OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status)) }}
+                                            {{ OrgFormat::statusLabel('disbursement', OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status, $disbursement->review_stage)) }}
                                         </span>
 
                                     </td>

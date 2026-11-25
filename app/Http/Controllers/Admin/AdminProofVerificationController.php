@@ -15,12 +15,46 @@ use Illuminate\Support\Str;
 
 class AdminProofVerificationController extends Controller
 {
-    // Detail satu bukti penyaluran untuk halaman detail ajuan staf
+    public function pendingForManager()
+    {
+        $proofs = PurchaseProof::with([
+            'fundDisbursement.campaign.organization',
+            'proofVerification.staff.user',
+        ])
+            ->menungguManager()
+            ->orderBy('uploaded_at')
+            ->get()
+            ->map(fn (PurchaseProof $proof) => [
+                'id' => $proof->id,
+                'organization_name' => $proof->fundDisbursement?->campaign?->organization?->nama_lembaga ?? '-',
+                'campaign_title' => $proof->fundDisbursement?->campaign?->judul ?? '-',
+                'description' => $proof->deskripsi ?: ($proof->fundDisbursement?->alokasi_dana ?? '-'),
+                'amount' => (float) $proof->nominal,
+                'staff_reviewer_name' => $proof->proofVerification?->staff?->user?->nama ?? '-',
+                'uploaded_at' => $proof->uploaded_at ? Carbon::parse($proof->uploaded_at)->format('d/m/Y') : '-',
+            ])
+            ->values();
+
+        return response()->json(['status' => 'success', 'data' => $proofs]);
+    }
+
+    // Detail bukti penyaluran untuk review staff maupun keputusan akhir manager.
     public function show($proofId)
     {
-        $proof = PurchaseProof::with(['fundDisbursement.campaign.organization', 'proofVerification'])->findOrFail($proofId);
+        $proof = PurchaseProof::with([
+            'fundDisbursement.campaign.organization',
+            'proofVerification.staff.user',
+        ])->findOrFail($proofId);
         $disbursement = $proof->fundDisbursement;
         $verification = $proof->proofVerification;
+        $role = auth()->user()?->adminProfile?->tipe;
+
+        if ($role === 'manager' && $proof->status === 'menunggu' && !$verification?->staff_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Bukti penyaluran belum diteruskan oleh staff.',
+            ], 403);
+        }
 
         // Tahap verifikasi: staf memeriksa lebih dulu, lalu manajer memberi keputusan akhir.
         $stage = match (true) {
@@ -41,6 +75,7 @@ class AdminProofVerificationController extends Controller
                 'deskripsi' => $proof->deskripsi,
                 'amount' => (float) $proof->nominal,
                 'alasan_tolak' => $proof->alasan_tolak,
+                'staff_reviewer_name' => $verification?->staff?->user?->nama,
                 'uploaded_at' => $proof->uploaded_at ? Carbon::parse($proof->uploaded_at)->format('d/m/Y') : null,
                 'attachment' => $proof->lokasi_file ? [
                     'url' => asset('storage/' . ltrim($proof->lokasi_file, '/')),
@@ -55,7 +90,7 @@ class AdminProofVerificationController extends Controller
     {
         $request->validate([
             'status'  => 'required|in:diterima,ditolak',
-            'catatan' => 'nullable|string'
+            'catatan' => 'required_if:status,ditolak|nullable|string|max:2000'
         ]);
 
         $admin = auth()->user();
@@ -63,7 +98,9 @@ class AdminProofVerificationController extends Controller
         $role = $adminProfile?->tipe;
 
         return DB::transaction(function () use ($request, $proofId, $adminProfile, $role) {
-            $proof = PurchaseProof::with(['fundDisbursement.campaign.organization.user'])->findOrFail($proofId);
+            $proof = PurchaseProof::with(['fundDisbursement.campaign.organization.user'])
+                ->lockForUpdate()
+                ->findOrFail($proofId);
 
             $verification = ProofVerification::firstOrCreate(
                 ['id_bukti' => $proofId],
@@ -94,9 +131,16 @@ class AdminProofVerificationController extends Controller
                     ]);
 
                     app(NotificationService::class)->proofVerified($proof);
+                } else {
+                    app(NotificationService::class)->proofForwardedToManager($proof);
                 }
 
-                return response()->json(['status' => 'success', 'message' => 'Verifikasi Staff berhasil disimpan. Menunggu Manajer.']);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $request->status === 'ditolak'
+                        ? 'Bukti penyaluran ditolak oleh staff.'
+                        : 'Bukti penyaluran lolos verifikasi staff dan diteruskan ke manager.',
+                ]);
             }
 
             if ($role === 'manager') {
@@ -131,7 +175,12 @@ class AdminProofVerificationController extends Controller
                     }
                 }
 
-                return response()->json(['status' => 'success', 'message' => 'Verifikasi Final Manager berhasil disimpan.']);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $request->status === 'ditolak'
+                        ? 'Bukti penyaluran ditolak oleh manager.'
+                        : 'Bukti penyaluran disetujui manager dan disimpan sebagai arsip.',
+                ]);
             }
 
             return response()->json(['status' => 'error', 'message' => 'Role admin tidak dikenali.'], 403);

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Campaign;
+use App\Models\Admin;
 use App\Models\Donation;
 use App\Models\FundDisbursement;
 use App\Models\Notification;
@@ -171,10 +172,26 @@ class NotificationService
     {
         $disbursement->loadMissing('campaign.organization');
 
-        $this->sendToAdmins(
-            'Pengajuan Pencairan Dana Baru',
+        $this->sendToAdminRole(
+            Admin::TIPE_STAFF,
+            'Pengajuan Pencairan Dana Menunggu Verifikasi Staff',
             ($disbursement->campaign?->organization?->nama_lembaga ?? 'Organisasi') . ' mengajukan pencairan '
                 . OrgFormat::rupiah($disbursement->nominal_diajukan) . ' untuk kampanye "'
+                . ($disbursement->campaign?->judul ?? '-') . '".',
+            'fund_disbursement',
+            $disbursement->id
+        );
+    }
+
+    public function disbursementForwardedToManager(FundDisbursement $disbursement): void
+    {
+        $disbursement->loadMissing('campaign.organization');
+
+        $this->sendToAdminRole(
+            Admin::TIPE_MANAGER,
+            'Pengajuan Pencairan Dana Menunggu Verifikasi Manager',
+            ($disbursement->campaign?->organization?->nama_lembaga ?? 'Organisasi') . ' telah lolos verifikasi staff untuk pencairan '
+                . OrgFormat::rupiah($disbursement->nominal_diajukan) . ' pada kampanye "'
                 . ($disbursement->campaign?->judul ?? '-') . '".',
             'fund_disbursement',
             $disbursement->id
@@ -192,7 +209,7 @@ class NotificationService
             $approved
                 ? 'Pencairan "' . $disbursement->alokasi_dana . '" sebesar '
                     . OrgFormat::rupiah($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan)
-                    . ' telah diterima dan sedang menunggu transfer oleh admin. Status pengajuan pencairan akan berubah menjadi Disetujui setelah transfer selesai.'
+                    . ' telah disetujui manager dan sedang menunggu transfer oleh staff. Status pengajuan pencairan akan berubah menjadi Disetujui setelah transfer selesai.'
                 : 'Pencairan "' . $disbursement->alokasi_dana . '" ditolak. Alasan: ' . ($disbursement->alasan_tolak ?: '-'),
             'fund_disbursement',
             $disbursement->id
@@ -222,10 +239,26 @@ class NotificationService
         $proof->loadMissing('fundDisbursement.campaign.organization');
         $campaign = $proof->fundDisbursement?->campaign;
 
-        $this->sendToAdmins(
+        $this->sendToAdminRole(
+            Admin::TIPE_STAFF,
             'Bukti Penyaluran Baru',
             ($campaign?->organization?->nama_lembaga ?? 'Organisasi') . ' mengunggah bukti penyaluran '
                 . OrgFormat::rupiah($proof->nominal) . ' untuk kampanye "' . ($campaign?->judul ?? '-') . '".',
+            'purchase_proof',
+            $proof->id
+        );
+    }
+
+    public function proofForwardedToManager(PurchaseProof $proof): void
+    {
+        $proof->loadMissing('fundDisbursement.campaign.organization');
+        $campaign = $proof->fundDisbursement?->campaign;
+
+        $this->sendToAdminRole(
+            Admin::TIPE_MANAGER,
+            'Bukti Penyaluran Menunggu Keputusan Manager',
+            ($campaign?->organization?->nama_lembaga ?? 'Organisasi') . ' telah lolos verifikasi staff untuk bukti penyaluran '
+                . OrgFormat::rupiah($proof->nominal) . ' pada kampanye "' . ($campaign?->judul ?? '-') . '".',
             'purchase_proof',
             $proof->id
         );
@@ -374,6 +407,17 @@ class NotificationService
         User::where('account_type', 'admin')
             ->where('status', 'aktif')
             ->whereDoesntHave('adminProfile', fn ($q) => $q->where('status_akun', '!=', 'aktif'))
+            ->pluck('id')
+            ->each(fn ($userId) => $this->send($userId, $judul, $deskripsi, $referenceType, $referenceId));
+    }
+
+    private function sendToAdminRole(string $role, string $judul, string $deskripsi, string $referenceType, string $referenceId): void
+    {
+        User::where('account_type', 'admin')
+            ->where('status', 'aktif')
+            ->whereHas('adminProfile', fn ($query) => $query
+                ->where('tipe', $role)
+                ->where('status_akun', 'aktif'))
             ->pluck('id')
             ->each(fn ($userId) => $this->send($userId, $judul, $deskripsi, $referenceType, $referenceId));
     }

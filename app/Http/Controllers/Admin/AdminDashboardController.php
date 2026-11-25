@@ -30,7 +30,11 @@ class AdminDashboardController extends Controller
             ->get();
 
         $disbursementQuery = FundDisbursement::query()
-            ->with(['campaign.organization', 'verifier.user']);
+            ->with(['campaign.organization', 'verifier.user'])
+            ->where(function ($query) {
+                $query->where('review_stage', FundDisbursement::REVIEW_STAGE_MANAGER)
+                    ->orWhereNotNull('verified_at');
+            });
 
         if ($hasDateFilter) {
             $disbursementQuery->where(function ($query) use ($startDate, $endDate) {

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <x-auth-session-guard />
-    <title>Detail Pengajuan</title>
+    <title>Detail Bukti Penyaluran</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -40,7 +40,12 @@
 
 <body class="text-gray-800 pb-16">
 
-    @include('staff.layouts.navbar')
+    @php($isManagerReview = $isManagerReview ?? false)
+    @if ($isManagerReview)
+        @include('manager.layouts.navbar')
+    @else
+        @include('staff.layouts.navbar')
+    @endif
     
     <!-- TOAST NOTIFIKASI -->
     <div
@@ -61,7 +66,7 @@
         <!-- TOMBOL KEMBALI -->
         <div>
             <a
-                href="{{ route('staff.beranda') }}"
+                href="{{ $isManagerReview ? route('manager.home') : route('staff.beranda') }}"
                 class="inline-flex items-center gap-2 bg-[#d1e7dd] hover:bg-green-200 text-gray-800 px-6 py-2 rounded-lg shadow-sm font-bold text-sm transition active:scale-95"
             >
                 <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -86,7 +91,7 @@
                 <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 w-full">
 
                     <div class="bg-rangkul-green text-white text-center py-3 font-semibold text-lg">
-                        Informasi Pengajuan
+                        Informasi Bukti Penyaluran
                     </div>
 
                     <div class="px-6 pt-3 pb-6 space-y-4">
@@ -101,6 +106,7 @@
                                 -
                             </span>
                             <p id="alasanTolakInfo" class="hidden text-sm text-rangkul-red mt-1"></p>
+                            <p id="staffReviewInfo" class="hidden text-sm text-gray-600 mt-1"></p>
                         </div>
 
                         <!-- NAMA ORGANISASI -->
@@ -121,7 +127,7 @@
                         <!-- JUMLAH DIAJUKAN -->
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">
-                                Jumlah Diajukan
+                                Nominal Penyaluran
                             </label>
 
                             <input
@@ -136,7 +142,7 @@
                         <!-- DESKRIPSI -->
                         <div class="py-3">
                             <label class="block text-sm font-bold text-gray-700 mb-1">
-                                Deskripsi
+                                Rincian Penyaluran
                             </label>
 
                             <textarea
@@ -163,7 +169,7 @@
 
                         <!-- TOMBOL BATAL -->
                         <a
-                            href="{{ route('staff.beranda') }}"
+                            href="{{ $isManagerReview ? route('manager.home') : route('staff.beranda') }}"
                             class="w-full min-w-0 flex items-center justify-center py-3 px-3 bg-[#D9D9D9] hover:bg-gray-300 text-gray-900 font-bold rounded-xl text-center text-sm shadow-sm transition active:scale-95"
                         >
                             Batal
@@ -175,7 +181,7 @@
                             id="btnSetujui"
                             class="w-full min-w-0 py-3 px-3 bg-rangkul-green hover:bg-[#064e2b] text-white font-bold rounded-xl text-center text-sm shadow-sm transition active:scale-95 cursor-pointer"
                         >
-                            Setujui
+                            {{ $isManagerReview ? 'Setujui & Arsipkan' : 'Teruskan ke Manager' }}
                         </button>
 
                         <!-- TOMBOL TOLAK -->
@@ -197,13 +203,13 @@
 
 
             <!-- ====================================== -->
-            <!-- KOLOM KANAN: BUKTI PEMBELIAN -->
+            <!-- KOLOM KANAN: LAMPIRAN -->
             <!-- ====================================== -->
 
             <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 w-full min-w-0">
 
                 <div class="bg-rangkul-green text-white text-center py-3 font-semibold text-lg">
-                    Bukti Pembelian
+                    Bukti Penyaluran
                 </div>
 
                 <div class="p-8">
@@ -247,7 +253,7 @@
                 </h2>
 
                 <p class="text-sm text-gray-600 mb-6">
-                    Apakah Anda yakin ingin menolak permohonan pencairan dana ini?
+                    Apakah Anda yakin ingin menolak bukti penyaluran ini?
                 </p>
 
                 <!-- ALASAN PENOLAKAN -->
@@ -303,12 +309,13 @@
 
     const { request, formatRupiah, escapeHtml } = window.RangkulAdmin;
     const proofId = @json($proofId);
-    const BERANDA_URL = @json(route('staff.beranda'));
+    const IS_MANAGER_REVIEW = @json($isManagerReview);
+    const BERANDA_URL = @json($isManagerReview ? route('manager.home') : route('staff.beranda'));
+    const PENDING_STAGE = IS_MANAGER_REVIEW ? 'menunggu_manajer' : 'menunggu_staf';
 
-    // Bukti diperiksa staf lebih dulu, lalu diteruskan ke manajer untuk keputusan akhir
     const STATUS_TAMPIL = {
-        menunggu_staf: { label: 'Menunggu', className: 'text-orange-400' },
-        menunggu_manajer: { label: 'Diteruskan ke Manajer', className: 'text-orange-400' },
+        menunggu_staf: { label: 'Menunggu Verifikasi Staff', className: 'text-orange-400' },
+        menunggu_manajer: { label: 'Menunggu Keputusan Manager', className: 'text-orange-400' },
         diterima: { label: 'Disetujui', className: 'text-rangkul-green' },
         ditolak: { label: 'Ditolak', className: 'text-rangkul-red' }
     };
@@ -336,7 +343,7 @@
         if (attachment.is_image) {
             preview.innerHTML = `
                 <a href="${escapeHtml(attachment.url)}" target="_blank" rel="noopener" class="w-full h-full">
-                    <img src="${escapeHtml(attachment.url)}" alt="Bukti Pembelian" class="w-full h-full object-contain">
+                    <img src="${escapeHtml(attachment.url)}" alt="Bukti Penyaluran" class="w-full h-full object-contain">
                 </a>
             `;
             return;
@@ -369,11 +376,15 @@
         document.getElementById('deskripsiPengajuan').value = [data.alokasi_dana, data.deskripsi]
             .filter(Boolean)
             .join('\n\n') || '-';
+        const staffReviewInfo = document.getElementById('staffReviewInfo');
+        staffReviewInfo.textContent = data.staff_reviewer_name
+            ? 'Diperiksa oleh staff: ' + data.staff_reviewer_name
+            : '';
+        staffReviewInfo.classList.toggle('hidden', !IS_MANAGER_REVIEW || !data.staff_reviewer_name);
 
         renderBukti(data.attachment);
 
-        // Tombol aksi hanya untuk bukti yang belum diperiksa staf
-        document.getElementById('aksiPengajuan').classList.toggle('hidden', data.stage !== 'menunggu_staf');
+        document.getElementById('aksiPengajuan').classList.toggle('hidden', data.stage !== PENDING_STAGE);
 
     }
 
@@ -408,7 +419,6 @@
 
             showToast(result.message, body.status === 'diterima' ? 'success' : 'danger');
 
-            // Kembali ke Beranda Staff
             setTimeout(() => {
                 window.location.href = BERANDA_URL;
             }, 1800);
@@ -486,7 +496,6 @@
 
     btnSetujui.addEventListener('click', function () {
 
-        // Setujui → bukti diteruskan ke manajer untuk verifikasi akhir
         verifikasiBukti({ status: 'diterima' });
 
     });

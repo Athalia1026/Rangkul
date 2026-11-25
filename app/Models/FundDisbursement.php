@@ -12,6 +12,12 @@ class FundDisbursement extends Model
 {
     use LogsActivity;
 
+    public const REVIEW_STAGE_STAFF = 'staff';
+    public const REVIEW_STAGE_MANAGER = 'manager';
+    public const REVIEW_STAGE_TRANSFER = 'transfer';
+    public const REVIEW_STAGE_COMPLETED = 'completed';
+    public const REVIEW_STAGE_REJECTED = 'rejected';
+
     protected string $activityModule = 'fund_disbursement';
 
     protected $table = 'fund_disbursements';
@@ -24,8 +30,8 @@ class FundDisbursement extends Model
 
     protected $fillable = [
         'id', 'id_campaign', 'id_bank_account', 'rekening_bank', 'rekening_nomor', 'rekening_pemilik', 'alokasi_dana',
-        'nominal_diajukan', 'alasan', 'lampiran_pendukung', 'status',
-        'alasan_tolak', 'verified_by', 'verified_at', 'nominal_dicairkan',
+        'nominal_diajukan', 'alasan', 'lampiran_pendukung', 'status', 'review_stage',
+        'alasan_tolak', 'verified_by', 'verified_at', 'staff_reviewed_by', 'staff_reviewed_at', 'nominal_dicairkan',
         'transaction_id', 'transfer_method', 'transfer_status',
         'manual_transfer_proof', 'paid_at', 'transfer_note'
     ];
@@ -78,10 +84,13 @@ class FundDisbursement extends Model
         // withTrashed: akun admin yang dihapus tetap tampil sebagai verifikator di riwayat.
         return $this->belongsTo(Admin::class, 'verified_by', 'id')->withTrashed();
     }
+    public function staffReviewer() {
+        return $this->belongsTo(Admin::class, 'staff_reviewed_by', 'id')->withTrashed();
+    }
 
     /**
      * Pencairan milik organisasi yang menghalangi pengajuan pencairan baru:
-     * - pengajuannya masih menunggu verifikasi admin, atau
+     * - pengajuannya masih menunggu verifikasi staff atau manager, atau
      * - sudah disetujui tetapi bukti penyalurannya belum diverifikasi admin, yaitu belum ada bukti
      *   yang diterima atau masih ada bukti yang menunggu verifikasi. Bukti yang ditolak harus diganti
      *   dengan unggahan baru yang kemudian diterima admin.
@@ -123,7 +132,7 @@ class FundDisbursement extends Model
         $campaign = $this->campaign?->judul ? ' pada kampanye "' . $this->campaign->judul . '"' : '';
 
         return match ($this->newRequestBlockReason()) {
-            'pengajuan_menunggu' => 'Anda masih memiliki pengajuan pencairan dana' . $campaign . ' yang menunggu verifikasi admin. Tunggu hingga pengajuan tersebut diproses sebelum mengajukan pencairan baru.',
+            'pengajuan_menunggu' => 'Anda masih memiliki pengajuan pencairan dana' . $campaign . ' yang menunggu verifikasi staff atau manager. Tunggu hingga pengajuan tersebut diproses sebelum mengajukan pencairan baru.',
             'bukti_menunggu_verifikasi' => 'Bukti penyaluran untuk pencairan dana' . $campaign . ' masih menunggu verifikasi admin. Pencairan baru dapat diajukan setelah bukti tersebut diverifikasi.',
             default => 'Anda belum mengunggah bukti penyaluran yang disetujui admin untuk pencairan dana' . $campaign . '. Unggah bukti penyaluran dan tunggu verifikasi admin sebelum mengajukan pencairan dana baru.',
         };

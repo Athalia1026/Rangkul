@@ -19,6 +19,7 @@ class AdminDisbursementVerificationController extends Controller
     {
         $disbursements = FundDisbursement::with(['campaign.organization.user', 'bankAccount'])
             ->where('status', 'menunggu')
+            ->where('review_stage', FundDisbursement::REVIEW_STAGE_MANAGER)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -32,6 +33,7 @@ class AdminDisbursementVerificationController extends Controller
     {
         $disbursements = FundDisbursement::with('campaign.organization')
             ->where('status', 'diterima')
+            ->where('review_stage', FundDisbursement::REVIEW_STAGE_TRANSFER)
             ->where('transfer_status', 'menunggu_transfer_manual')
             ->latest('verified_at')
             ->get()
@@ -49,7 +51,7 @@ class AdminDisbursementVerificationController extends Controller
     // Detail satu pengajuan pencairan untuk halaman detail pengajuan manajer
     public function show($id)
     {
-        $disbursement = FundDisbursement::with(['campaign.organization', 'verifier.user', 'purchaseProofs', 'bankAccount'])
+        $disbursement = FundDisbursement::with(['campaign.organization', 'verifier.user', 'staffReviewer.user', 'purchaseProofs', 'bankAccount'])
             ->findOrFail($id);
         $campaignBalance = Campaign::withFinancialSummary()->find($disbursement->id_campaign)?->saldoTersisa() ?? 0;
 
@@ -65,6 +67,7 @@ class AdminDisbursementVerificationController extends Controller
             'data' => [
                 'id' => $disbursement->id,
                 'status' => $disbursement->status,
+                'review_stage' => $disbursement->review_stage,
                 'transfer_status' => $disbursement->transfer_status,
                 'organization_name' => $disbursement->campaign?->organization?->nama_lembaga ?? '-',
                 'campaign_title' => $disbursement->campaign?->judul,
@@ -79,6 +82,8 @@ class AdminDisbursementVerificationController extends Controller
                 'alasan' => $disbursement->alasan,
                 'alasan_tolak' => $disbursement->alasan_tolak,
                 'verifier_name' => $disbursement->verifier?->user?->nama,
+                'staff_reviewer_name' => $disbursement->staffReviewer?->user?->nama,
+                'staff_reviewed_at' => optional($disbursement->staff_reviewed_at)->format('d/m/Y H:i'),
                 'submitted_at' => optional($disbursement->created_at)->format('d/m/Y'),
                 'attachment' => $attachment ? [
                     'url' => $attachment['url'],
@@ -86,6 +91,56 @@ class AdminDisbursementVerificationController extends Controller
                 ] : null,
             ],
         ]);
+    }
+
+    public function staffReview(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:diterima,ditolak',
+            'alasan_tolak' => 'required_if:status,ditolak|nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request, $id) {
+            $disbursement = FundDisbursement::with(['campaign.organization'])->lockForUpdate()->findOrFail($id);
+
+            if ($disbursement->status !== 'menunggu' || $disbursement->review_stage !== FundDisbursement::REVIEW_STAGE_STAFF) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pengajuan ini sudah diproses oleh staff atau bukan dalam tahap verifikasi staff.',
+                ], 409);
+            }
+
+            if ($request->status === 'diterima' && !$disbursement->lampiran_pendukung) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Pengajuan tidak dapat diteruskan ke manager tanpa lampiran pendukung.',
+                ], 422);
+            }
+
+            $disbursement->update([
+                'review_stage' => $request->status === 'diterima'
+                    ? FundDisbursement::REVIEW_STAGE_MANAGER
+                    : FundDisbursement::REVIEW_STAGE_REJECTED,
+                'status' => $request->status === 'ditolak' ? 'ditolak' : 'menunggu',
+                'alasan_tolak' => $request->status === 'ditolak' ? $request->alasan_tolak : null,
+                'staff_reviewed_by' => auth()->user()->adminProfile?->id,
+                'staff_reviewed_at' => now(),
+            ]);
+
+            if ($request->status === 'diterima') {
+                app(NotificationService::class)->disbursementForwardedToManager($disbursement);
+            } else {
+                app(NotificationService::class)->disbursementVerified($disbursement);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $request->status === 'diterima'
+                    ? 'Pengajuan lolos verifikasi staff dan diteruskan ke manager.'
+                    : 'Pengajuan pencairan ditolak oleh staff.',
+                'data' => $disbursement->fresh(),
+            ]);
+        });
     }
 
     public function verify(Request $request, $id)
@@ -101,10 +156,10 @@ class AdminDisbursementVerificationController extends Controller
             $disbursement = FundDisbursement::with(['campaign.organization.user', 'bankAccount'])->lockForUpdate()->findOrFail($id);
             $adminId = auth()->user()->adminProfile?->id;
 
-            if ($disbursement->status !== 'menunggu') {
+            if ($disbursement->status !== 'menunggu' || $disbursement->review_stage !== FundDisbursement::REVIEW_STAGE_MANAGER) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Pencairan dana ini sudah pernah diverifikasi sebelumnya.'
+                    'message' => 'Pengajuan ini belum disetujui staff untuk diteruskan ke manager, atau sudah pernah diverifikasi.'
                 ], 409);
             }
 
@@ -126,6 +181,9 @@ class AdminDisbursementVerificationController extends Controller
                 'rekening_nomor' => $request->status === 'diterima' ? $account?->no_rekening : null,
                 'rekening_pemilik' => $request->status === 'diterima' ? $account?->pemilik_rekening : null,
                 'status' => $request->status,
+                'review_stage' => $request->status === 'diterima'
+                    ? FundDisbursement::REVIEW_STAGE_TRANSFER
+                    : FundDisbursement::REVIEW_STAGE_REJECTED,
                 'alasan_tolak' => $request->status === 'ditolak' ? $request->alasan_tolak : null,
                 'verified_by' => $adminId,
                 'verified_at' => now(),
@@ -148,7 +206,7 @@ class AdminDisbursementVerificationController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Status pencairan dana berhasil diperbarui. Proses transfer manual menunggu admin untuk dicatat setelah transfer rekening dilakukan.',
+                'message' => 'Pengajuan pencairan disetujui manager. Staff dapat melakukan transfer dan mencatat bukti transfer.',
                 'data' => $disbursement->fresh(),
             ]);
         });
@@ -165,10 +223,11 @@ class AdminDisbursementVerificationController extends Controller
         return DB::transaction(function () use ($request, $id) {
             $disbursement = FundDisbursement::lockForUpdate()->findOrFail($id);
 
-            if ($disbursement->status !== 'diterima') {
+            if ($disbursement->status !== 'diterima'
+                || $disbursement->review_stage !== FundDisbursement::REVIEW_STAGE_TRANSFER) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Transfer manual hanya bisa dicatat untuk pencairan yang sudah disetujui admin.'
+                    'message' => 'Transfer manual hanya bisa dicatat oleh staff untuk pencairan yang sudah disetujui manager.'
                 ], 409);
             }
 
@@ -185,6 +244,7 @@ class AdminDisbursementVerificationController extends Controller
             $disbursement->update([
                 'transfer_method' => 'manual_bank',
                 'transfer_status' => 'selesai',
+                'review_stage' => FundDisbursement::REVIEW_STAGE_COMPLETED,
                 'manual_transfer_proof' => $proofPath,
                 'transaction_id' => $request->filled('referensi_transfer')
                     ? $request->referensi_transfer

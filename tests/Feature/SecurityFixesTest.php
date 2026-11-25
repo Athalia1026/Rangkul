@@ -10,6 +10,7 @@ use App\Models\Donation;
 use App\Models\Donor;
 use App\Models\FundDisbursement;
 use App\Models\Organization;
+use App\Models\PurchaseProof;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\PremiumService;
@@ -119,8 +120,29 @@ class SecurityFixesTest extends TestCase
             'alokasi_dana' => 'Beli sembako',
             'nominal_diajukan' => $amount,
             'alasan' => 'Kebutuhan bulanan',
+            'lampiran_pendukung' => 'disbursements/lampiran/test.pdf',
             'status' => 'menunggu',
         ]);
+    }
+
+    private function purchaseProof(FundDisbursement $disbursement): PurchaseProof
+    {
+        return PurchaseProof::create([
+            'id_pencairan' => $disbursement->id,
+            'lokasi_file' => 'purchase-proofs/uji.pdf',
+            'nominal' => 10000,
+            'deskripsi' => 'Pembelian kebutuhan',
+            'status' => 'menunggu',
+            'uploaded_at' => now(),
+        ]);
+    }
+
+    private function approveDisbursementAsStaff(FundDisbursement $disbursement): void
+    {
+        Sanctum::actingAs($this->admin(Admin::TIPE_STAFF));
+        $this->putJson('/api/admin/staff/disbursements/' . $disbursement->id . '/review', [
+            'status' => 'diterima',
+        ])->assertOk();
     }
 
     private function resubmit(string $email, string $password, int $ip)
@@ -198,28 +220,48 @@ class SecurityFixesTest extends TestCase
         [$user, $organization] = $this->organization();
         $campaign = $this->campaign($organization, 500000);
         Sanctum::actingAs($user);
+        \Illuminate\Support\Facades\Storage::fake(FundDisbursement::DISK);
 
-        $this->postJson('/api/organizations/disbursements', [
+        $this->post('/api/organizations/disbursements', [
             'id_campaign' => $campaign->id,
             'alokasi_dana' => 'Beli sembako',
             'nominal_diajukan' => 500001,
             'alasan' => 'Kebutuhan bulanan',
-        ])->assertStatus(422)->assertJsonPath('status', 'error');
+            'lampiran' => \Illuminate\Http\UploadedFile::fake()->create('lampiran.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertStatus(422)->assertJsonPath('status', 'error');
 
-        $this->postJson('/api/organizations/disbursements', [
+        $this->post('/api/organizations/disbursements', [
             'id_campaign' => $campaign->id,
             'alokasi_dana' => 'Beli sembako',
             'nominal_diajukan' => 500000,
             'alasan' => 'Kebutuhan bulanan',
-        ])->assertCreated();
+            'lampiran' => \Illuminate\Http\UploadedFile::fake()->create('lampiran.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertCreated();
 
         // Pengajuan kedua tertahan karena yang pertama masih menunggu verifikasi.
-        $this->postJson('/api/organizations/disbursements', [
+        $this->post('/api/organizations/disbursements', [
             'id_campaign' => $campaign->id,
             'alokasi_dana' => 'Beli sembako',
             'nominal_diajukan' => 10000,
             'alasan' => 'Kebutuhan bulanan',
-        ])->assertForbidden();
+            'lampiran' => \Illuminate\Http\UploadedFile::fake()->create('lampiran.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertForbidden();
+    }
+
+    public function test_disbursement_request_requires_supporting_attachment(): void
+    {
+        [$user, $organization] = $this->organization();
+        $campaign = $this->campaign($organization, 500000);
+        Sanctum::actingAs($user);
+
+        $this->post('/api/organizations/disbursements', [
+            'id_campaign' => $campaign->id,
+            'alokasi_dana' => 'Beli sembako',
+            'nominal_diajukan' => 100000,
+            'alasan' => 'Kebutuhan bulanan',
+        ], ['Accept' => 'application/json'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('lampiran');
     }
 
     public function test_unverified_organization_cannot_request_disbursement_through_api(): void
@@ -241,6 +283,7 @@ class SecurityFixesTest extends TestCase
         [$organizationUser, $organization, $bank] = $this->organization();
         $campaign = $this->campaign($organization, 300000);
         $disbursement = $this->disbursement($campaign, $bank, 200000);
+        $this->approveDisbursementAsStaff($disbursement);
         Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
         $url = '/api/admin/disbursements/' . $disbursement->id;
 
@@ -264,16 +307,18 @@ class SecurityFixesTest extends TestCase
         $this->assertSame('1111111111', $fresh->rekening_nomor);
         $this->assertSame('1111111111', $fresh->destinationAccount()['no_rekening']);
 
-        $this->postJson($url . '/manual-transfer', ['referensi_transfer' => 'TRF-1'])
+        Sanctum::actingAs($this->admin(Admin::TIPE_STAFF));
+        $transferUrl = '/api/admin/staff/disbursements/' . $disbursement->id . '/manual-transfer';
+        $this->postJson($transferUrl, ['referensi_transfer' => 'TRF-1'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('bukti_transfer');
 
         \Illuminate\Support\Facades\Storage::fake(FundDisbursement::DISK);
-        $this->post($url . '/manual-transfer', [
+        $this->post($transferUrl, [
             'referensi_transfer' => 'TRF-1',
             'bukti_transfer' => \Illuminate\Http\UploadedFile::fake()->create('bukti.pdf', 10, 'application/pdf'),
         ], ['Accept' => 'application/json'])->assertOk();
-        $this->post($url . '/manual-transfer', [
+        $this->post($transferUrl, [
             'referensi_transfer' => 'TRF-2',
             'bukti_transfer' => \Illuminate\Http\UploadedFile::fake()->create('bukti-kedua.pdf', 10, 'application/pdf'),
         ], ['Accept' => 'application/json'])->assertStatus(409);
@@ -287,13 +332,144 @@ class SecurityFixesTest extends TestCase
         ]);
     }
 
-    public function test_manager_can_reach_transfer_page_and_queue_after_approval(): void
+    public function test_disbursement_must_pass_staff_review_before_manager_approval_and_staff_transfer(): void
+    {
+        [, $organization, $bank] = $this->organization();
+        $disbursement = $this->disbursement($this->campaign($organization, 300000), $bank, 200000);
+        \Illuminate\Support\Facades\Storage::fake(FundDisbursement::DISK);
+
+        Sanctum::actingAs($this->admin(Admin::TIPE_STAFF));
+        $this->getJson('/api/admin/staff/dashboard')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $disbursement->id]);
+        $this->get(route('staff.ajuanpencairan', $disbursement->id))
+            ->assertOk()
+            ->assertSee('Teruskan ke Manager');
+        $this->getJson('/api/admin/disbursements/pending')->assertForbidden();
+
+        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
+        $this->putJson('/api/admin/disbursements/' . $disbursement->id . '/verify', [
+            'status' => 'diterima',
+        ])->assertStatus(409);
+
+        Sanctum::actingAs($this->admin(Admin::TIPE_STAFF));
+        $this->putJson('/api/admin/staff/disbursements/' . $disbursement->id . '/review', [
+            'status' => 'diterima',
+        ])->assertOk();
+        $this->assertSame(FundDisbursement::REVIEW_STAGE_MANAGER, $disbursement->fresh()->review_stage);
+
+        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
+        $this->getJson('/api/admin/disbursements/pending')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $disbursement->id]);
+        $this->putJson('/api/admin/disbursements/' . $disbursement->id . '/verify', [
+            'status' => 'diterima',
+        ])->assertOk();
+        $this->assertSame(FundDisbursement::REVIEW_STAGE_TRANSFER, $disbursement->fresh()->review_stage);
+
+        $transferUrl = '/api/admin/staff/disbursements/' . $disbursement->id . '/manual-transfer';
+        $this->post($transferUrl, [
+            'bukti_transfer' => \Illuminate\Http\UploadedFile::fake()->create('bukti.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertForbidden();
+
+        Sanctum::actingAs($this->admin(Admin::TIPE_STAFF));
+        $this->getJson('/api/admin/staff/dashboard')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $disbursement->id, 'amount' => 200000]);
+        $this->post($transferUrl, [
+            'bukti_transfer' => \Illuminate\Http\UploadedFile::fake()->create('bukti.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertOk();
+        $this->assertSame(FundDisbursement::REVIEW_STAGE_COMPLETED, $disbursement->fresh()->review_stage);
+    }
+
+    public function test_purchase_proof_must_pass_staff_review_before_manager_can_archive_or_reject_it(): void
+    {
+        [, $organization, $bank] = $this->organization();
+        $campaign = $this->campaign($organization, 100000);
+        $disbursement = $this->disbursement($campaign, $bank, 50000);
+        $approvedProof = $this->purchaseProof($disbursement);
+        $rejectedProof = $this->purchaseProof($disbursement);
+        $staffPendingProof = $this->purchaseProof($disbursement);
+        $staffUser = $this->admin(Admin::TIPE_STAFF);
+
+        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
+        $this->getJson('/api/admin/proof-verifications/pending')
+            ->assertOk()
+            ->assertJsonMissing(['id' => $approvedProof->id]);
+        $this->getJson('/api/admin/proof-verifications/' . $approvedProof->id)->assertForbidden();
+        $this->putJson('/api/admin/proof-verifications/' . $approvedProof->id . '/verify', [
+            'status' => 'diterima',
+        ])->assertStatus(403);
+
+        Sanctum::actingAs($staffUser);
+        $this->getJson('/api/admin/proof-verifications/pending')->assertForbidden();
+        foreach ([$approvedProof, $rejectedProof] as $proof) {
+            $this->putJson('/api/admin/proof-verifications/' . $proof->id . '/verify', [
+                'status' => 'diterima',
+            ])->assertOk();
+        }
+
+        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
+        $this->getJson('/api/admin/proof-verifications/pending')
+            ->assertOk()
+            ->assertJsonFragment([
+                'id' => $approvedProof->id,
+                'staff_reviewer_name' => $staffUser->nama,
+            ])
+            ->assertJsonFragment(['id' => $rejectedProof->id])
+            ->assertJsonMissing(['id' => $staffPendingProof->id]);
+        $this->get(route('manager.home'))
+            ->assertOk()
+            ->assertSee('Verifikasi Bukti Penyaluran');
+        $this->get(route('manager.buktipenyaluran', $approvedProof->id))
+            ->assertOk()
+            ->assertSee('Setujui &amp; Arsipkan', false);
+
+        $this->putJson('/api/admin/proof-verifications/' . $approvedProof->id . '/verify', [
+            'status' => 'diterima',
+        ])->assertOk()->assertJsonPath('message', 'Bukti penyaluran disetujui manager dan disimpan sebagai arsip.');
+        $this->putJson('/api/admin/proof-verifications/' . $rejectedProof->id . '/verify', [
+            'status' => 'ditolak',
+        ])->assertJsonValidationErrors('catatan');
+        $this->putJson('/api/admin/proof-verifications/' . $rejectedProof->id . '/verify', [
+            'status' => 'ditolak',
+            'catatan' => 'Bukti belum menunjukkan rincian penyaluran.',
+        ])->assertOk();
+
+        $this->assertSame('diterima', $approvedProof->fresh()->status);
+        $this->assertSame('ditolak', $rejectedProof->fresh()->status);
+        $this->assertSame('Bukti belum menunjukkan rincian penyaluran.', $rejectedProof->fresh()->alasan_tolak);
+        $this->getJson('/api/admin/proof-verifications/pending')
+            ->assertOk()
+            ->assertJsonMissing(['id' => $approvedProof->id])
+            ->assertJsonMissing(['id' => $rejectedProof->id]);
+    }
+
+    public function test_staff_dashboard_has_separate_disbursement_and_expense_proof_tabs(): void
+    {
+        Sanctum::actingAs($this->admin(Admin::TIPE_STAFF));
+
+        $this->get(route('staff.beranda'))
+            ->assertOk()
+            ->assertSee('id="section-table-pencairan"', false)
+            ->assertSee('id="section-table-bukti"', false)
+            ->assertDontSee('<h3 class="font-bold text-sm text-gray-900">Ajuan Pencairan</h3>', false)
+            ->assertDontSee('<h3 class="font-bold text-sm text-gray-900">Bukti Penyaluran</h3>', false)
+            ->assertSee('onclick="switchTab(\'pencairan\')"', false)
+            ->assertSee('onclick="switchTab(\'bukti\')"', false)
+            ->assertSee('class="py-8 text-center text-xs text-gray-400">Belum ada ajuan pencairan yang menunggu verifikasi staff.', false)
+            ->assertSee('class="py-8 text-center text-xs text-gray-400">Belum ada bukti penyaluran yang menunggu verifikasi.', false)
+            ->assertDontSee('Transfer Disetujui Manager, Menunggu Dicatat');
+    }
+
+    public function test_staff_can_reach_transfer_page_and_queue_after_manager_approval(): void
     {
         [, $organization, $bank] = $this->organization();
         $campaign = $this->campaign($organization, 300000);
         $waiting = $this->disbursement($campaign, $bank, 200000);
         $waiting->update([
             'status' => 'diterima',
+            'review_stage' => FundDisbursement::REVIEW_STAGE_TRANSFER,
             'transfer_status' => 'menunggu_transfer_manual',
             'rekening_bank' => 'BCA',
             'rekening_nomor' => '1111111111',
@@ -301,16 +477,20 @@ class SecurityFixesTest extends TestCase
             'nominal_dicairkan' => 200000,
         ]);
         $completed = $this->disbursement($campaign, $bank, 50000);
-        $completed->update(['status' => 'diterima', 'transfer_status' => 'selesai']);
+        $completed->update([
+            'status' => 'diterima',
+            'review_stage' => FundDisbursement::REVIEW_STAGE_COMPLETED,
+            'transfer_status' => 'selesai',
+        ]);
 
-        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
+        Sanctum::actingAs($this->admin(Admin::TIPE_STAFF));
 
-        $this->getJson('/api/admin/disbursements/manual-transfer/pending')
+        $this->getJson('/api/admin/staff/disbursements/manual-transfer/pending')
             ->assertOk()
             ->assertJsonFragment(['id' => $waiting->id, 'amount' => 200000])
             ->assertJsonMissing(['id' => $completed->id]);
 
-        $this->get(route('manager.transfer', $waiting->id))
+        $this->get(route('staff.transfer', $waiting->id))
             ->assertOk()
             ->assertSee('Simpan Bukti dan Selesaikan Transfer')
             ->assertSee('Rekening tujuan yang disetujui');
@@ -329,7 +509,7 @@ class SecurityFixesTest extends TestCase
         $this->actingAs($user, 'web')
             ->get(route('organisasi.kampanye.detail', $campaign->id))
             ->assertOk()
-            ->assertSee('Menunggu Transfer Admin')
+            ->assertSee('Menunggu Transfer Staff')
             ->assertSee('Status akan berubah menjadi');
 
         $disbursement->update(['transfer_status' => 'selesai']);
@@ -362,15 +542,20 @@ class SecurityFixesTest extends TestCase
     {
         [, $organization, $bank] = $this->organization();
         $campaign = $this->campaign($organization, 100000);
-        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
 
         // Pengajuan lama yang melebihi saldo (dibuat sebelum ada batas) tetap tidak bisa disetujui.
         $tooLarge = $this->disbursement($campaign, $bank, 150000);
+        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
+        $this->putJson('/api/admin/disbursements/' . $tooLarge->id . '/verify', ['status' => 'diterima'])->assertStatus(409);
+        $this->approveDisbursementAsStaff($tooLarge);
+        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
         $this->putJson('/api/admin/disbursements/' . $tooLarge->id . '/verify', ['status' => 'diterima'])->assertStatus(422);
 
         $tooLarge->update(['status' => 'ditolak']);
         $bank->update(['status_verifikasi' => 'menunggu']);
         $pendingBank = $this->disbursement($campaign, $bank, 50000);
+        $this->approveDisbursementAsStaff($pendingBank);
+        Sanctum::actingAs($this->admin(Admin::TIPE_MANAGER));
         $this->putJson('/api/admin/disbursements/' . $pendingBank->id . '/verify', ['status' => 'diterima'])->assertStatus(409);
 
         // Penolakan tetap bisa dilakukan.

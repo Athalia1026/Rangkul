@@ -13,9 +13,7 @@
            pt-16 pb-24"
 >
 
-    {{-- =====================================================
-        HEADER
-    ===================================================== --}}
+    {{-- HEADER --}}
     <section
         class="flex flex-col
                lg:flex-row
@@ -342,7 +340,7 @@
                            font-semibold
                            text-[#08703F]"
                 >
-                    Lampiran Pendukung ( Opsional )
+                    Lampiran Pendukung <span class="text-red-600">*</span>
                 </label>
 
 
@@ -404,6 +402,7 @@
                         name="lampiran"
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png"
+                        aria-required="true"
                         class="hidden"
                         onchange="document.getElementById('lampiranName').textContent = this.files[0]?.name ?? ''"
                     >
@@ -494,7 +493,8 @@
         formData.set('nominal_diajukan', (formData.get('nominal_diajukan') || '').replace(/\D/g, ''));
 
         if (!formData.get('lampiran')?.size) {
-            formData.delete('lampiran');
+            orgFlash('Lampiran pendukung wajib diunggah untuk pengajuan pencairan.', 'error');
+            return;
         }
 
         button.disabled = true;

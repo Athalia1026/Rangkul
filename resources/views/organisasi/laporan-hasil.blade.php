@@ -325,7 +325,7 @@
                 <tbody class="text-[23px] text-gray-900">
 
                     @forelse ($disbursements as $disbursement)
-                        @php $disbursementStatus = OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status); @endphp
+                        @php $disbursementStatus = OrgFormat::disbursementStatus($disbursement->status, $disbursement->transfer_status, $disbursement->review_stage); @endphp
                         <tr class="hover:bg-[#F0F8F4] transition">
                             <td class="px-4 py-6 text-center">{{ $loop->iteration }}</td>
                             <td class="px-4 py-6 text-center">{{ OrgFormat::date($disbursement->created_at, 'd/m/Y') }}</td>

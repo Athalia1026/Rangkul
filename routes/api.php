@@ -109,25 +109,30 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . 
     Route::get('/campaigns/pending', [AdminCampaignVerificationController::class, 'index']);
     Route::put('/campaigns/{id}/verify', [AdminCampaignVerificationController::class, 'verify'])
         ->middleware('throttle:10,1,verify-campaign');
-    Route::get('/disbursements/pending', [AdminDisbursementVerificationController::class, 'index']);
+    Route::get('/disbursements/pending', [AdminDisbursementVerificationController::class, 'index'])
+        ->middleware(CheckAdminRole::class . ':' . Admin::TIPE_MANAGER);
     Route::get('/disbursements/{id}', [AdminDisbursementVerificationController::class, 'show']);
+    Route::get('/proof-verifications/pending', [AdminProofVerificationController::class, 'pendingForManager'])
+        ->middleware(CheckAdminRole::class . ':' . Admin::TIPE_MANAGER);
     Route::get('/proof-verifications/{proofId}', [AdminProofVerificationController::class, 'show']);
     Route::put('/proof-verifications/{proofId}/verify', [AdminProofVerificationController::class, 'verifyProof'])
         ->middleware('throttle:10,1,verify-proof');
 });
 
-// Keputusan pencairan dana & pencatatan transfer: khusus manajer (staf hanya memverifikasi bukti & pendaftaran).
+// Keputusan final pencairan dana: khusus manager.
 Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_MANAGER])->prefix('admin')->group(function () {
-    Route::get('/disbursements/manual-transfer/pending', [AdminDisbursementVerificationController::class, 'pendingManualTransfers']);
     Route::put('/disbursements/{id}/verify', [AdminDisbursementVerificationController::class, 'verify'])
         ->middleware('throttle:10,1,verify-disbursement');
-    Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer'])
-        ->middleware('throttle:10,1,manual-transfer');
 });
 
-// Beranda staf: antrian verifikasi pendaftaran organisasi & bukti penyaluran.
+// Antrian review pengajuan, pencatatan transfer, dan verifikasi awal bukti ada di sisi staff.
 Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . ':' . Admin::TIPE_STAFF])->prefix('admin/staff')->group(function () {
     Route::get('/dashboard', [AdminStaffDashboardController::class, 'index']);
+    Route::put('/disbursements/{id}/review', [AdminDisbursementVerificationController::class, 'staffReview'])
+        ->middleware('throttle:10,1,verify-disbursement-staff');
+    Route::get('/disbursements/manual-transfer/pending', [AdminDisbursementVerificationController::class, 'pendingManualTransfers']);
+    Route::post('/disbursements/{id}/manual-transfer', [AdminDisbursementVerificationController::class, 'completeManualTransfer'])
+        ->middleware('throttle:10,1,manual-transfer');
 });
 
 // Kelola akun staf & manajer: khusus super admin.

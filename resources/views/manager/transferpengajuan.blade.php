@@ -12,17 +12,22 @@
     </style>
 </head>
 <body class="min-h-screen text-gray-800">
-    @include('manager.layouts.navbar')
+    @php($isStaff = $isStaff ?? false)
+    @if ($isStaff)
+        @include('staff.layouts.navbar')
+    @else
+        @include('manager.layouts.navbar')
+    @endif
 
     <main class="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6">
-        <a href="{{ route('manager.home') }}" class="inline-flex items-center gap-2 font-semibold text-[#086538] hover:underline">
+        <a href="{{ $isStaff ? route('staff.beranda') : route('manager.home') }}" class="inline-flex items-center gap-2 font-semibold text-[#086538] hover:underline">
             <span aria-hidden="true">&larr;</span> Kembali ke beranda
         </a>
 
         <header>
             <p class="text-sm font-bold uppercase tracking-wide text-[#086538]">Pencairan dana</p>
             <h1 class="mt-1 text-3xl font-bold">Transfer ke rekening organisasi</h1>
-            <p class="mt-2 text-gray-600">Periksa rekening tujuan, lakukan transfer melalui bank, lalu catat bukti transfer di halaman ini.</p>
+            <p class="mt-2 text-gray-600">Setelah manager menyetujui pengajuan, lakukan transfer melalui bank lalu catat bukti transfer di halaman ini.</p>
         </header>
 
         <div id="pageError" role="alert" class="hidden rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-700"></div>
@@ -55,7 +60,7 @@
 
         <section id="transferFormSection" class="hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
             <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                Catat transfer hanya setelah transaksi berhasil di bank. Setelah disimpan, status pengajuan pencairan akan berubah menjadi <strong>Disetujui</strong> dan organisasi akan menerima notifikasi.
+                Catat transfer hanya setelah transaksi berhasil di bank. Setelah disimpan, organisasi akan menerima notifikasi bahwa dana telah ditransfer.
             </div>
 
             <form id="transferForm" class="space-y-5">
@@ -91,7 +96,8 @@
     <script>
         const { request, formatRupiah } = window.RangkulAdmin;
         const disbursementId = @json($disbursementId);
-        const detailUrl = @json(route('manager.detailpengajuan', $disbursementId));
+        const isStaff = @json($isStaff);
+        const detailUrl = @json($isStaff ? route('staff.beranda') : route('manager.detailpengajuan', $disbursementId));
         const endpoint = '/api/admin/disbursements/' + encodeURIComponent(disbursementId);
         const errorBox = document.getElementById('pageError');
         const noticeBox = document.getElementById('pageNotice');
@@ -137,11 +143,13 @@
                 noticeBox.className = 'rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900';
                 noticeBox.classList.remove('hidden');
                 if (data.status === 'menunggu') {
-                    const link = document.createElement('a');
-                    link.href = detailUrl;
-                    link.textContent = 'Kembali ke detail pengajuan untuk memverifikasi';
-                    link.className = 'mt-3 inline-block font-semibold underline';
-                    noticeBox.appendChild(link);
+                    if (!isStaff) {
+                        const link = document.createElement('a');
+                        link.href = detailUrl;
+                        link.textContent = 'Kembali ke detail pengajuan untuk memverifikasi';
+                        link.className = 'mt-3 inline-block font-semibold underline';
+                        noticeBox.appendChild(link);
+                    }
                 }
             } catch (error) {
                 showError(error.message);
@@ -164,7 +172,7 @@
                 document.getElementById('transferStatus').className = 'inline-flex w-fit rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-800';
                 document.getElementById('completedSummary').textContent = result.message;
                 document.getElementById('completedTransfer').classList.remove('hidden');
-                noticeBox.textContent = 'Status pengajuan pencairan sekarang Disetujui. Organisasi telah menerima notifikasi.';
+                noticeBox.textContent = 'Transfer telah dicatat. Organisasi sudah menerima notifikasi.';
                 noticeBox.className = 'rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900';
                 noticeBox.classList.remove('hidden');
                 button.textContent = 'Transfer tersimpan';
