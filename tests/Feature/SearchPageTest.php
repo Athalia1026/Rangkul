@@ -126,5 +126,31 @@ class SearchPageTest extends TestCase
         $this->assertNotEmpty($campaignCount);
         $this->assertSame($organizationCount[1], $campaignCount[1]);
     }
-}
 
+    public function test_donor_search_result_tabs_show_zero_when_no_results_match(): void
+    {
+        config(['scout.driver' => 'null']);
+
+        $response = $this->get('/donatur/hasil-pencarian?q=tidak-ada-hasil-' . uniqid());
+
+        $response->assertStatus(200);
+        $response->assertSee('aria-label="Jumlah hasil penggalangan dana: 0">0</span>', false);
+        $response->assertSee('aria-label="Jumlah hasil organisasi: 0">0</span>', false);
+    }
+
+    public function test_donor_search_page_allows_empty_search_to_open_results_for_both_categories(): void
+    {
+        config(['scout.driver' => 'null']);
+
+        $searchPage = $this->get('/donatur/cari');
+        $searchPage->assertStatus(200);
+        $searchPage->assertSee('data-allow-empty-search', false);
+
+        $resultsPage = $this->get('/donatur/hasil-pencarian');
+        $resultsPage->assertStatus(200);
+        $resultsPage->assertSee('Penggalangan Dana');
+        $resultsPage->assertSee('Organisasi');
+        $resultsPage->assertSee('aria-label="Jumlah hasil penggalangan dana:', false);
+        $resultsPage->assertSee('aria-label="Jumlah hasil organisasi:', false);
+    }
+}
