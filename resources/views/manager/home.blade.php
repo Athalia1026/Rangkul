@@ -285,7 +285,7 @@
                             </th>
 
                             <th class="px-3 py-4 font-bold">
-                                Verifikator
+                                Staff Verifikator
                             </th>
 
                             <th class="px-3 py-4 font-bold">
@@ -314,6 +314,36 @@
 
             </div>
 
+        </section>
+
+        <div id="transfer-queue-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
+
+        <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="bg-rangkul-green text-white px-6 py-4 flex items-center gap-2">
+                <span>🏦</span>
+                <h2 class="font-bold">Status Transfer Dana</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[960px] table-fixed text-left border-collapse">
+                    <thead>
+                        <tr class="text-black text-sm border-b text-center">
+                            <th class="px-2 py-4 font-bold w-[6%]">No.</th>
+                            <th class="px-2 py-4 font-bold w-[14%]">Tanggal Persetujuan</th>
+                            <th class="px-3 py-4 font-bold w-[25%]">Organisasi</th>
+                            <th class="px-3 py-4 font-bold w-[22%]">Kampanye</th>
+                            <th class="px-3 py-4 font-bold w-[15%]">Nominal</th>
+                            <th class="px-3 py-4 font-bold w-[10%]">Status</th>
+                            <th class="px-2 py-4 font-bold w-[8%]">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="managerTransferRows" class="text-sm">
+                        <tr>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">Memuat status transfer...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <div id="proof-queue-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-700"></div>
@@ -363,6 +393,7 @@
         const tanggalMulai = document.getElementById('tanggalMulai');
         const tanggalSelesai = document.getElementById('tanggalSelesai');
         const MANAGER_PROOF_URL = @json(route('manager.buktipenyaluran', ['proof' => '__ID__']));
+        const MANAGER_TRANSFER_URL = @json(route('manager.transfer', ['disbursement' => '__ID__']));
 
         let trenChart;
         let gaugeChart;
@@ -544,7 +575,7 @@
                     </td>
 
                     <td class="px-3 py-4 text-center">
-                        ${escapeHtml(item.verifier_name)}
+                        ${escapeHtml(item.staff_reviewer_name)}
                     </td>
 
                     <td class="px-3 py-4 text-center font-semibold">
@@ -597,6 +628,65 @@
                     </td>
                 </tr>
             `).join('');
+        }
+
+        function renderManagerTransfers(items) {
+            const rows = document.getElementById('managerTransferRows');
+
+            if (!items.length) {
+                rows.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                            Belum ada transfer yang menunggu atau sudah dicatat staff.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            rows.innerHTML = items.map((item, index) => {
+                const status = item.transfer_status === 'selesai' ? 'Selesai' : 'Menunggu staff';
+                const statusClass = item.transfer_status === 'selesai'
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : 'bg-amber-100 text-amber-800';
+
+                return `
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="px-2 py-4 text-center">${index + 1}.</td>
+                        <td class="px-2 py-4 text-center">${escapeHtml(item.approved_at || '-')}</td>
+                        <td class="px-3 py-4">${escapeHtml(item.organization_name)}</td>
+                        <td class="px-3 py-4">${escapeHtml(item.campaign_title)}</td>
+                        <td class="px-3 py-4 text-center font-semibold">${escapeHtml(formatRupiah(item.amount))}</td>
+                        <td class="px-3 py-4 text-center">
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusClass}">${status}</span>
+                        </td>
+                        <td class="px-2 py-4 text-center">
+                            <a href="${escapeHtml(MANAGER_TRANSFER_URL.replace('__ID__', encodeURIComponent(item.id)))}"
+                                class="inline-block bg-rangkul-green text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-opacity-90">
+                                Lihat
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadManagerTransfers() {
+            const error = document.getElementById('transfer-queue-error');
+
+            try {
+                const { data } = await request('/api/admin/disbursements/transfers');
+                error.classList.add('hidden');
+                renderManagerTransfers(data);
+            } catch (exception) {
+                error.textContent = exception.message;
+                error.classList.remove('hidden');
+                document.getElementById('managerTransferRows').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">Status transfer gagal dimuat.</td>
+                    </tr>
+                `;
+            }
         }
 
         async function loadPendingProofs() {
@@ -667,6 +757,7 @@
 
         loadDashboard();
         loadPendingProofs();
+        loadManagerTransfers();
 
     </script>
 

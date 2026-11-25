@@ -29,7 +29,7 @@
         <section class="space-y-4">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Ringkasan Antrian</h1>
-                <p class="mt-1 text-sm text-gray-500">Jumlah berkas yang menunggu pemeriksaan staff.</p>
+                <p class="mt-1 text-sm text-gray-500">Antrian pemeriksaan dan tindak lanjut staff.</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -98,6 +98,23 @@
                         </span>
                     </span>
                     <span id="summary-pending-campaigns" class="ml-3 text-3xl font-semibold leading-none tabular-nums text-[#0e4b33]">0</span>
+                </button>
+
+                <button id="summary-card-transfer" type="button" aria-pressed="false" onclick="switchTab('transfer')"
+                        class="w-full min-h-[112px] rounded-lg border border-gray-200 bg-white px-5 py-4 text-left flex items-center justify-between shadow-sm hover:border-[#0e4b33] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0e4b33] transition-all">
+                    <span class="flex items-center gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[#dce9df] bg-[#f5f8f5] text-[#0e4b33]" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                                <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
+                                <path d="M3.5 9.5h17M7 14h4" />
+                            </svg>
+                        </span>
+                        <span>
+                            <span class="block text-base font-semibold text-gray-800">Transfer Dana</span>
+                            <span class="mt-1 block text-sm text-gray-500">Menunggu bukti transfer</span>
+                        </span>
+                    </span>
+                    <span id="summary-pending-transfers" class="ml-3 text-3xl font-semibold leading-none tabular-nums text-[#0e4b33]">0</span>
                 </button>
 
                 <div class="w-full min-h-[112px] rounded-lg border border-gray-200 bg-white px-5 py-4 flex items-center justify-between shadow-sm">
@@ -233,6 +250,30 @@
                     Belum ada kampanye yang menunggu verifikasi.
                 </div>
             </div>
+
+            <!-- 5. TABEL TRANSFER DANA -->
+            <div id="section-table-transfer" class="hidden overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-sm font-bold text-gray-900 bg-white text-center">
+                            <th class="py-3 px-6 w-16 text-center">No.</th>
+                            <th class="py-3 px-5">Tanggal Persetujuan</th>
+                            <th class="py-3 px-5">Organisasi</th>
+                            <th class="py-3 px-5">Kampanye</th>
+                            <th class="py-3 px-5">Nominal</th>
+                            <th class="py-3 px-5">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-transfer" class="divide-y divide-gray-200/80 text-sm">
+                        <tr class="transfer-empty-row">
+                            <td colspan="6" class="py-8 text-center text-xs text-gray-400">Memuat transfer dana...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="empty-state-transfer" class="hidden py-8 text-center text-gray-400 text-xs">
+                    Tidak ada transfer yang cocok dengan pencarian.
+                </div>
+            </div>
         </div>
 
     </main>
@@ -331,6 +372,16 @@
                     countText: () => `${totalData.kampanye} Data Ditampilkan`,
                     emptyState: 'empty-state-kampanye',
                     emptyCount: () => totalData.kampanye
+                },
+                transfer: {
+                    button: 'summary-card-transfer',
+                    section: 'section-table-transfer',
+                    title: 'Transfer Dana',
+                    placeholder: 'Cari organisasi, kampanye, atau nominal transfer...',
+                    rowClass: 'transfer-row',
+                    countText: () => `${totalData.transfers} Transfer`,
+                    emptyState: 'empty-state-transfer',
+                    emptyCount: () => totalData.transfers || 1
                 }
             };
             const selectedTab = tabs[tab];
@@ -425,6 +476,28 @@
 
                 countBadge.textContent = `${visibleCount} Ajuan`;
                 toggleEmptyState('empty-state-disbursement', visibleCount || (!query && emptyRow ? 1 : 0), query);
+            } else if (currentTab === 'transfer') {
+                const rows = document.querySelectorAll('.transfer-row');
+                let visibleCount = 0;
+                rows.forEach(row => {
+                    const organization = row.querySelector('.transfer-org').textContent.toLowerCase();
+                    const campaign = row.querySelector('.transfer-campaign').textContent.toLowerCase();
+                    const nominal = row.querySelector('.transfer-nominal').textContent.toLowerCase();
+
+                    if (organization.includes(query) || campaign.includes(query) || nominal.includes(query)) {
+                        row.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+                const emptyRow = document.querySelector('.transfer-empty-row');
+                if (emptyRow) {
+                    emptyRow.classList.toggle('hidden', Boolean(query));
+                }
+
+                countBadge.textContent = `${visibleCount} Transfer`;
+                toggleEmptyState('empty-state-transfer', visibleCount || (!query && emptyRow ? 1 : 0), query);
             } else {
                 const rows = document.querySelectorAll('.campaign-row');
                 let visibleCount = 0;
@@ -449,7 +522,8 @@
             'empty-state-org': ['Tidak ada data organisasi yang cocok dengan pencarian.', 'Belum ada pendaftaran organisasi yang menunggu verifikasi.'],
             'empty-state-disbursement': ['Tidak ada ajuan pencairan yang cocok dengan pencarian.', 'Belum ada ajuan pencairan yang menunggu verifikasi staff.'],
             'empty-state-bukti': ['Tidak ada data verifikasi bukti yang cocok dengan pencarian.', 'Belum ada bukti penyaluran yang menunggu verifikasi.'],
-            'empty-state-kampanye': ['Tidak ada kampanye yang cocok dengan pencarian.', 'Belum ada kampanye yang menunggu verifikasi.']
+            'empty-state-kampanye': ['Tidak ada kampanye yang cocok dengan pencarian.', 'Belum ada kampanye yang menunggu verifikasi.'],
+            'empty-state-transfer': ['Tidak ada transfer yang cocok dengan pencarian.', 'Belum ada transfer yang menunggu dicatat staff.']
         };
 
         function toggleEmptyState(id, visibleCount, query = '') {
@@ -465,7 +539,8 @@
             document.getElementById('empty-state-disbursement').classList.add('hidden');
             document.getElementById('empty-state-bukti').classList.add('hidden');
             document.getElementById('empty-state-kampanye').classList.add('hidden');
-            document.querySelectorAll('.proof-empty-row, .disbursement-empty-row').forEach(row => row.classList.remove('hidden'));
+            document.getElementById('empty-state-transfer').classList.add('hidden');
+            document.querySelectorAll('.proof-empty-row, .disbursement-empty-row, .transfer-empty-row').forEach(row => row.classList.remove('hidden'));
         }
 
         // ==========================
@@ -476,7 +551,8 @@
         const DETAIL_ORGANISASI_URL = @json(route('staff.pengajuandanauser', ['organization' => '__ID__']));
         const DETAIL_BUKTI_URL = @json(route('staff.ajuanpencairandana', ['proof' => '__ID__']));
         const DISBURSEMENT_REVIEW_URL = @json(route('staff.ajuanpencairan', ['disbursement' => '__ID__']));
-        const totalData = { organisasi: 0, bukti: 0, disbursements: 0, kampanye: 0 };
+        const TRANSFER_URL = @json(route('staff.transfer', ['disbursement' => '__ID__']));
+        const totalData = { organisasi: 0, bukti: 0, disbursements: 0, kampanye: 0, transfers: 0 };
 
         function detailButton(url, id) {
             return `
@@ -538,6 +614,30 @@
             `;
             totalData.disbursements = items.length;
             toggleEmptyState('empty-state-disbursement', items.length || 1);
+        }
+
+        function renderTransfers(items) {
+            const rows = document.getElementById('tbody-transfer');
+            document.getElementById('summary-pending-transfers').textContent = items.length;
+
+            rows.innerHTML = items.length ? items.map((item, index) => `
+                <tr class="transfer-row hover:bg-gray-50/70 transition-colors">
+                    <td class="py-3.5 px-6 w-16 text-gray-800 text-center whitespace-nowrap">${index + 1}.</td>
+                    <td class="py-3.5 px-5 text-center">${escapeHtml(item.approved_at || '-')}</td>
+                    <td class="py-3.5 px-5 font-medium transfer-org">${escapeHtml(item.organization_name)}</td>
+                    <td class="py-3.5 px-5 transfer-campaign">${escapeHtml(item.campaign_title)}</td>
+                    <td class="py-3.5 px-5 text-center font-semibold transfer-nominal">${escapeHtml(formatRupiah(item.amount))}</td>
+                    <td class="py-3.5 px-5 text-center">
+                        ${detailButton(TRANSFER_URL, item.id)}
+                    </td>
+                </tr>
+            `).join('') : `
+                <tr class="transfer-empty-row">
+                    <td colspan="6" class="py-8 text-center text-xs text-gray-400">Belum ada transfer yang menunggu dicatat staff.</td>
+                </tr>
+            `;
+            totalData.transfers = items.length;
+            toggleEmptyState('empty-state-transfer', items.length || 1);
         }
 
         function formatCampaignDate(value) {
@@ -700,6 +800,7 @@
                 renderOrganisasi(data.organizations);
                 renderBukti(data.proofs);
                 renderDisbursements(data.disbursements);
+                renderTransfers(data.pending_transfers);
                 handleSearch();
             } catch (exception) {
                 error.textContent = exception.message;

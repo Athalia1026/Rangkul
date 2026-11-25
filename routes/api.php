@@ -111,6 +111,8 @@ Route::middleware(['auth:sanctum', CheckIsAdmin::class, CheckAdminRole::class . 
         ->middleware('throttle:10,1,verify-campaign');
     Route::get('/disbursements/pending', [AdminDisbursementVerificationController::class, 'index'])
         ->middleware(CheckAdminRole::class . ':' . Admin::TIPE_MANAGER);
+    Route::get('/disbursements/transfers', [AdminDisbursementVerificationController::class, 'managerTransfers'])
+        ->middleware(CheckAdminRole::class . ':' . Admin::TIPE_MANAGER);
     Route::get('/disbursements/{id}', [AdminDisbursementVerificationController::class, 'show']);
     Route::get('/proof-verifications/pending', [AdminProofVerificationController::class, 'pendingForManager'])
         ->middleware(CheckAdminRole::class . ':' . Admin::TIPE_MANAGER);

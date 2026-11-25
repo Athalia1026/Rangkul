@@ -457,15 +457,18 @@ class SecurityFixesTest extends TestCase
             ->assertDontSee('<h3 class="font-bold text-sm text-gray-900">Bukti Penyaluran</h3>', false)
             ->assertSee('onclick="switchTab(\'pencairan\')"', false)
             ->assertSee('onclick="switchTab(\'bukti\')"', false)
+            ->assertSee('onclick="switchTab(\'transfer\')"', false)
+            ->assertSee('id="section-table-transfer"', false)
             ->assertSee('class="py-8 text-center text-xs text-gray-400">Belum ada ajuan pencairan yang menunggu verifikasi staff.', false)
             ->assertSee('class="py-8 text-center text-xs text-gray-400">Belum ada bukti penyaluran yang menunggu verifikasi.', false)
-            ->assertDontSee('Transfer Disetujui Manager, Menunggu Dicatat');
+            ->assertSee('Menunggu bukti transfer');
     }
 
     public function test_staff_can_reach_transfer_page_and_queue_after_manager_approval(): void
     {
         [, $organization, $bank] = $this->organization();
         $campaign = $this->campaign($organization, 300000);
+        $duplicateReference = 'DUP-' . uniqid();
         $waiting = $this->disbursement($campaign, $bank, 200000);
         $waiting->update([
             'status' => 'diterima',
@@ -481,9 +484,29 @@ class SecurityFixesTest extends TestCase
             'status' => 'diterima',
             'review_stage' => FundDisbursement::REVIEW_STAGE_COMPLETED,
             'transfer_status' => 'selesai',
+            'manual_transfer_proof' => 'disbursements/manual-transfer/bukti.pdf',
+            'transaction_id' => $duplicateReference,
+            'paid_at' => now(),
         ]);
+        \Illuminate\Support\Facades\Storage::fake(FundDisbursement::DISK);
+        \Illuminate\Support\Facades\Storage::disk(FundDisbursement::DISK)
+            ->put('disbursements/manual-transfer/bukti.pdf', 'bukti transfer');
 
-        Sanctum::actingAs($this->admin(Admin::TIPE_STAFF));
+        $staffUser = $this->admin(Admin::TIPE_STAFF);
+        $managerUser = $this->admin(Admin::TIPE_MANAGER);
+        $staffProfile = Admin::where('user_id', $staffUser->id)->firstOrFail();
+        $managerProfile = Admin::where('user_id', $managerUser->id)->firstOrFail();
+        $waiting->update([
+            'staff_reviewed_by' => $staffProfile->id,
+            'staff_reviewed_at' => now(),
+            'verified_by' => $managerProfile->id,
+            'verified_at' => now(),
+        ]);
+        Sanctum::actingAs($staffUser);
+
+        $this->getJson('/api/admin/staff/dashboard')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $waiting->id, 'amount' => 200000]);
 
         $this->getJson('/api/admin/staff/disbursements/manual-transfer/pending')
             ->assertOk()
@@ -493,7 +516,39 @@ class SecurityFixesTest extends TestCase
         $this->get(route('staff.transfer', $waiting->id))
             ->assertOk()
             ->assertSee('Simpan Bukti dan Selesaikan Transfer')
-            ->assertSee('Rekening tujuan yang disetujui');
+            ->assertSee('Rekening tujuan yang disetujui')
+            ->assertSee("const manualTransferEndpoint = '/api/admin/staff/disbursements/'", false);
+        $this->post('/api/admin/staff/disbursements/' . $waiting->id . '/manual-transfer', [
+            'referensi_transfer' => $duplicateReference,
+            'bukti_transfer' => \Illuminate\Http\UploadedFile::fake()->create('bukti.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('referensi_transfer');
+        $this->assertSame('menunggu_transfer_manual', $waiting->fresh()->transfer_status);
+        $this->assertNull($waiting->fresh()->manual_transfer_proof);
+
+        Sanctum::actingAs($managerUser);
+        $this->getJson('/api/admin/disbursements/transfers')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $waiting->id, 'transfer_status' => 'menunggu_transfer_manual'])
+            ->assertJsonFragment(['id' => $completed->id, 'transfer_status' => 'selesai']);
+        $this->getJson('/api/admin/dashboard')
+            ->assertOk()
+            ->assertJsonFragment(['id' => $waiting->id, 'staff_reviewer_name' => $staffUser->nama]);
+
+        $this->get(route('manager.transfer', $waiting->id))
+            ->assertOk()
+            ->assertSee('Lihat status transfer dan bukti yang telah dicatat oleh staff.')
+            ->assertDontSee('name="bukti_transfer"', false)
+            ->assertDontSee('id="transferFormSection"', false);
+
+        $detail = $this->getJson('/api/admin/disbursements/' . $completed->id)->assertOk();
+        $this->assertNotEmpty($detail->json('data.manual_transfer_proof_url'));
+        $this->get($detail->json('data.manual_transfer_proof_url'))->assertOk();
+
+        $this->post('/api/admin/staff/disbursements/' . $waiting->id . '/manual-transfer', [
+            'bukti_transfer' => \Illuminate\Http\UploadedFile::fake()->create('bukti.pdf', 10, 'application/pdf'),
+        ], ['Accept' => 'application/json'])->assertForbidden();
     }
 
     public function test_organization_sees_pending_transfer_until_admin_completes_it(): void

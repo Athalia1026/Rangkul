@@ -27,7 +27,11 @@
         <header>
             <p class="text-sm font-bold uppercase tracking-wide text-[#086538]">Pencairan dana</p>
             <h1 class="mt-1 text-3xl font-bold">Transfer ke rekening organisasi</h1>
-            <p class="mt-2 text-gray-600">Setelah manager menyetujui pengajuan, lakukan transfer melalui bank lalu catat bukti transfer di halaman ini.</p>
+            <p class="mt-2 text-gray-600">
+                {{ $isStaff
+                    ? 'Setelah manager menyetujui pengajuan, lakukan transfer melalui bank lalu catat bukti transfer di halaman ini.'
+                    : 'Lihat status transfer dan bukti yang telah dicatat oleh staff.' }}
+            </p>
         </header>
 
         <div id="pageError" role="alert" class="hidden rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-700"></div>
@@ -58,6 +62,7 @@
             </dl>
         </section>
 
+        @if ($isStaff)
         <section id="transferFormSection" class="hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
             <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
                 Catat transfer hanya setelah transaksi berhasil di bank. Setelah disimpan, organisasi akan menerima notifikasi bahwa dana telah ditransfer.
@@ -86,10 +91,14 @@
                 </button>
             </form>
         </section>
+        @endif
 
         <section id="completedTransfer" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-emerald-900">
             <h2 class="text-lg font-bold">Transfer sudah dicatat</h2>
             <p id="completedSummary" class="mt-2 text-sm leading-6"></p>
+            <a id="completedProof" class="mt-4 hidden font-semibold text-[#086538] underline" target="_blank" rel="noopener noreferrer">
+                Lihat bukti transfer
+            </a>
         </section>
     </main>
 
@@ -99,6 +108,7 @@
         const isStaff = @json($isStaff);
         const detailUrl = @json($isStaff ? route('staff.beranda') : route('manager.detailpengajuan', $disbursementId));
         const endpoint = '/api/admin/disbursements/' + encodeURIComponent(disbursementId);
+        const manualTransferEndpoint = '/api/admin/staff/disbursements/' + encodeURIComponent(disbursementId) + '/manual-transfer';
         const errorBox = document.getElementById('pageError');
         const noticeBox = document.getElementById('pageNotice');
 
@@ -123,15 +133,29 @@
 
                 if (data.status === 'diterima' && data.transfer_status === 'menunggu_transfer_manual') {
                     document.getElementById('transferStatus').textContent = 'Menunggu transfer';
-                    document.getElementById('transferFormSection').classList.remove('hidden');
+                    if (isStaff) {
+                        document.getElementById('transferFormSection').classList.remove('hidden');
+                    } else {
+                        noticeBox.textContent = 'Transfer menunggu dicatat oleh staff.';
+                        noticeBox.className = 'rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900';
+                        noticeBox.classList.remove('hidden');
+                    }
                     return;
                 }
 
                 if (data.status === 'diterima' && data.transfer_status === 'selesai') {
                     document.getElementById('transferStatus').textContent = 'Transfer selesai';
                     document.getElementById('transferStatus').className = 'inline-flex w-fit rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-800';
-                    document.getElementById('completedSummary').textContent =
-                        `Transfer ${formatRupiah(data.approved_amount)} sudah tercatat.`;
+                    const summary = [`Transfer ${formatRupiah(data.approved_amount)} sudah tercatat.`];
+                    if (data.transaction_id) summary.push(`Referensi: ${data.transaction_id}.`);
+                    if (data.paid_at) summary.push(`Tanggal: ${data.paid_at}.`);
+                    if (data.transfer_note) summary.push(`Catatan: ${data.transfer_note}`);
+                    document.getElementById('completedSummary').textContent = summary.join(' ');
+                    if (data.manual_transfer_proof_url) {
+                        const proofLink = document.getElementById('completedProof');
+                        proofLink.href = data.manual_transfer_proof_url;
+                        proofLink.classList.remove('hidden');
+                    }
                     document.getElementById('completedTransfer').classList.remove('hidden');
                     return;
                 }
@@ -156,32 +180,34 @@
             }
         }
 
-        document.getElementById('transferForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            errorBox.classList.add('hidden');
+        if (isStaff) {
+            document.getElementById('transferForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                errorBox.classList.add('hidden');
 
-            const button = document.getElementById('submitTransfer');
-            button.disabled = true;
-            button.textContent = 'Menyimpan...';
+                const button = document.getElementById('submitTransfer');
+                button.disabled = true;
+                button.textContent = 'Menyimpan...';
 
-            try {
-                const body = new FormData(event.currentTarget);
-                const result = await request(endpoint + '/manual-transfer', { method: 'POST', body });
-                document.getElementById('transferFormSection').classList.add('hidden');
-                document.getElementById('transferStatus').textContent = 'Transfer selesai';
-                document.getElementById('transferStatus').className = 'inline-flex w-fit rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-800';
-                document.getElementById('completedSummary').textContent = result.message;
-                document.getElementById('completedTransfer').classList.remove('hidden');
-                noticeBox.textContent = 'Transfer telah dicatat. Organisasi sudah menerima notifikasi.';
-                noticeBox.className = 'rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900';
-                noticeBox.classList.remove('hidden');
-                button.textContent = 'Transfer tersimpan';
-            } catch (error) {
-                showError(error.message);
-                button.disabled = false;
-                button.textContent = 'Simpan Bukti dan Selesaikan Transfer';
-            }
-        });
+                try {
+                    const body = new FormData(event.currentTarget);
+                    const result = await request(manualTransferEndpoint, { method: 'POST', body });
+                    document.getElementById('transferFormSection').classList.add('hidden');
+                    document.getElementById('transferStatus').textContent = 'Transfer selesai';
+                    document.getElementById('transferStatus').className = 'inline-flex w-fit rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-800';
+                    document.getElementById('completedSummary').textContent = result.message;
+                    document.getElementById('completedTransfer').classList.remove('hidden');
+                    noticeBox.textContent = 'Transfer telah dicatat. Organisasi sudah menerima notifikasi.';
+                    noticeBox.className = 'rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900';
+                    noticeBox.classList.remove('hidden');
+                    button.textContent = 'Transfer tersimpan';
+                } catch (error) {
+                    showError(error.message);
+                    button.disabled = false;
+                    button.textContent = 'Simpan Bukti dan Selesaikan Transfer';
+                }
+            });
+        }
 
         loadDisbursement();
     </script>

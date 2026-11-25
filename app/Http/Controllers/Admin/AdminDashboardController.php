@@ -30,7 +30,7 @@ class AdminDashboardController extends Controller
             ->get();
 
         $disbursementQuery = FundDisbursement::query()
-            ->with(['campaign.organization', 'verifier.user'])
+            ->with(['campaign.organization', 'staffReviewer.user'])
             ->where(function ($query) {
                 $query->where('review_stage', FundDisbursement::REVIEW_STAGE_MANAGER)
                     ->orWhereNotNull('verified_at');
@@ -86,7 +86,7 @@ class AdminDashboardController extends Controller
                     'id' => $item->id,
                     'organization_name' => $item->campaign?->organization?->nama_lembaga ?? '-',
                     'amount' => (float) ($item->nominal_dicairkan ?? $item->nominal_diajukan),
-                    'verifier_name' => $item->verifier?->user?->nama ?? '-',
+                    'staff_reviewer_name' => $item->staffReviewer?->user?->nama ?? '-',
                     'submitted_at' => optional($item->created_at)->format('d/m/Y'),
                     'paid_at' => optional($item->paid_at ?? $item->verified_at)->format('d/m/Y'),
                     'status' => $item->status,

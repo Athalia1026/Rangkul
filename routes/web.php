@@ -233,6 +233,9 @@ Route::prefix('manager')->name('manager.')->group(function () {
     Route::view('/laporantransaksi', 'manager.laporantransaksi')->name('laporantransaksi');
     Route::get('/detailpengajuan/{disbursement}', fn (string $disbursement) => view('manager.detailpengajuan', ['disbursementId' => $disbursement]))
         ->name('detailpengajuan');
+    Route::get('/transfer/{disbursement}', fn (string $disbursement) => view('manager.transferpengajuan', [
+        'disbursementId' => $disbursement,
+    ]))->name('transfer');
     Route::get('/bukti-penyaluran/{proof}', fn (string $proof) => view('staff.ajuanpencairandana', [
         'proofId' => $proof,
         'isManagerReview' => true,

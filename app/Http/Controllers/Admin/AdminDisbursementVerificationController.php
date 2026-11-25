@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 
 class AdminDisbursementVerificationController extends Controller
 {
@@ -43,6 +44,30 @@ class AdminDisbursementVerificationController extends Controller
                 'campaign_title' => $disbursement->campaign?->judul ?? '-',
                 'amount' => (float) ($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan),
                 'approved_at' => optional($disbursement->verified_at)->format('d/m/Y'),
+            ]);
+
+        return response()->json(['status' => 'success', 'data' => $disbursements]);
+    }
+
+    public function managerTransfers()
+    {
+        $disbursements = FundDisbursement::with('campaign.organization')
+            ->where('status', 'diterima')
+            ->whereIn('review_stage', [
+                FundDisbursement::REVIEW_STAGE_TRANSFER,
+                FundDisbursement::REVIEW_STAGE_COMPLETED,
+            ])
+            ->whereIn('transfer_status', ['menunggu_transfer_manual', 'selesai'])
+            ->latest('verified_at')
+            ->get()
+            ->map(fn (FundDisbursement $disbursement) => [
+                'id' => $disbursement->id,
+                'organization_name' => $disbursement->campaign?->organization?->nama_lembaga ?? '-',
+                'campaign_title' => $disbursement->campaign?->judul ?? '-',
+                'amount' => (float) ($disbursement->nominal_dicairkan ?? $disbursement->nominal_diajukan),
+                'transfer_status' => $disbursement->transfer_status,
+                'approved_at' => optional($disbursement->verified_at)->format('d/m/Y'),
+                'paid_at' => optional($disbursement->paid_at)->format('d/m/Y H:i'),
             ]);
 
         return response()->json(['status' => 'success', 'data' => $disbursements]);
@@ -85,6 +110,12 @@ class AdminDisbursementVerificationController extends Controller
                 'staff_reviewer_name' => $disbursement->staffReviewer?->user?->nama,
                 'staff_reviewed_at' => optional($disbursement->staff_reviewed_at)->format('d/m/Y H:i'),
                 'submitted_at' => optional($disbursement->created_at)->format('d/m/Y'),
+                'manual_transfer_proof_url' => $disbursement->manual_transfer_proof
+                    ? $disbursement->fileUrl('bukti-transfer')
+                    : null,
+                'transaction_id' => $disbursement->transaction_id,
+                'paid_at' => optional($disbursement->paid_at)->format('d/m/Y H:i'),
+                'transfer_note' => $disbursement->transfer_note,
                 'attachment' => $attachment ? [
                     'url' => $attachment['url'],
                     'is_image' => (bool) preg_match('/\.(jpe?g|png|gif|webp)$/i', $attachment['path']),
@@ -217,7 +248,12 @@ class AdminDisbursementVerificationController extends Controller
         $request->validate([
             'bukti_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'catatan' => 'nullable|string',
-            'referensi_transfer' => 'nullable|string|max:255',
+            'referensi_transfer' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('fund_disbursements', 'transaction_id')->ignore($id, 'id'),
+            ],
         ]);
 
         return DB::transaction(function () use ($request, $id) {
