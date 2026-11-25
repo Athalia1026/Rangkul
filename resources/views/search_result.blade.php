@@ -58,7 +58,7 @@
                 Hasil Pencarian
             </h1>
             <p class="text-[14px] sm:text-[15px] text-gray-700 mt-1.5">
-                Menampilkan hasil untuk <span class="font-bold text-gray-950">&ldquo;{{ request('q', $query ?: 'Penggalangan Dana') }}&rdquo;</span>
+                Menampilkan {{ $campaigns->count() + $organizations->count() }} hasil untuk <span class="font-bold text-gray-950">&ldquo;{{ request('q', $query ?: 'Penggalangan Dana') }}&rdquo;</span>
             </p>
         </div>
 

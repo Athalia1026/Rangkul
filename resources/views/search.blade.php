@@ -222,9 +222,22 @@
                 </div>
             </div>
 
+            @if ($hasQuery && !$isDonorSearch)
+                <p class="-mt-3 mb-6 text-sm text-gray-600">
+                    Menampilkan {{ $resultCount }} hasil untuk <strong class="text-gray-900">&ldquo;{{ $query }}&rdquo;</strong>
+                </p>
+            @endif
+
             @if ($isDonorSearch && ($hasFilters || $isUrgent))
                 <div class="-mt-2 mb-6 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
-                    <p>{{ $campaigns->count() }} kampanye ditampilkan{{ request('category') ? ' · ' . ($categories->firstWhere('id', request('category'))?->name ?? 'Kategori tidak ditemukan') : '' }}</p>
+                    <p>
+                        @if ($hasQuery)
+                            Menampilkan {{ $resultCount }} hasil untuk <strong class="text-gray-900">&ldquo;{{ $query }}&rdquo;</strong>
+                        @else
+                            {{ $campaigns->count() }} kampanye ditampilkan
+                        @endif
+                        {{ request('category') ? ' · ' . ($categories->firstWhere('id', request('category'))?->name ?? 'Kategori tidak ditemukan') : '' }}
+                    </p>
                     <a href="{{ route('donatur.cari') }}" class="font-semibold text-[#05522d] underline">Reset pencarian & filter</a>
                 </div>
             @endif

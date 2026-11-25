@@ -105,6 +105,26 @@ class SearchPageTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Hasil Pencarian');
         $response->assertSee('Bantuan Sembako Anak Asuh');
+        $this->assertMatchesRegularExpression(
+            '/Menampilkan\s+\d+\s+hasil untuk/',
+            strip_tags($response->getContent())
+        );
+    }
+
+    public function test_donor_search_results_count_is_the_same_for_both_tabs(): void
+    {
+        $this->keepSembakoCampaignRunning();
+        $organizationTabResponse = $this->get('/donatur/hasil-pencarian?q=sembako&tab=organisasi');
+        $campaignTabResponse = $this->get('/donatur/hasil-pencarian?q=sembako&tab=penggalangan');
+
+        $organizationTabResponse->assertOk();
+        $campaignTabResponse->assertOk();
+        preg_match('/Menampilkan\s+(\d+)\s+hasil untuk/', strip_tags($organizationTabResponse->getContent()), $organizationCount);
+        preg_match('/Menampilkan\s+(\d+)\s+hasil untuk/', strip_tags($campaignTabResponse->getContent()), $campaignCount);
+
+        $this->assertNotEmpty($organizationCount);
+        $this->assertNotEmpty($campaignCount);
+        $this->assertSame($organizationCount[1], $campaignCount[1]);
     }
 }
 
