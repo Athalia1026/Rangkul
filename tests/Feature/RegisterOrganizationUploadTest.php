@@ -32,7 +32,7 @@ class RegisterOrganizationUploadTest extends TestCase
             'tipe' => 'Panti Asuhan',
             'no_telp' => '081234567890',
             'deskripsi' => 'Deskripsi uji.',
-            'kota' => 'Jakarta',
+            'kota' => 'Kota Administrasi Jakarta Barat',
             'alamat' => 'Jl. Uji No. 1',
             'bank' => 'BCA',
             'no_rekening' => '1234567890',
@@ -53,6 +53,25 @@ class RegisterOrganizationUploadTest extends TestCase
             ->assertJsonValidationErrors('profile_photo');
 
         $this->assertSame([], Storage::disk('public')->allFiles());
+    }
+
+    public function test_organization_city_must_be_selected_from_the_shared_city_list(): void
+    {
+        $this->postJson('/api/register/organization', $this->payload(['kota' => 'Kota Tidak Terdaftar']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('kota');
+    }
+
+    public function test_donor_and_organization_registration_share_the_city_picker(): void
+    {
+        foreach (['/register-donors', '/register-organizations'] as $path) {
+            $this->get($path)
+                ->assertOk()
+                ->assertSee('id="cityDropdown"', false)
+                ->assertSee('data-cities-url=', false)
+                ->assertSee('id="citySearch"', false)
+                ->assertSee('Ketik untuk mencari kota/kabupaten');
+        }
     }
 
     public function test_organization_document_over_size_limit_is_rejected(): void
