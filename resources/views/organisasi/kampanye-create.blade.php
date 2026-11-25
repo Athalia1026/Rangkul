@@ -156,6 +156,7 @@
                     class="block w-full text-[20px] text-gray-700 file:mr-5 file:rounded-[12px] file:border-0 file:bg-[#DDF0E9] file:px-5 file:py-3 file:font-semibold file:text-[#08703F] hover:file:bg-[#C8E8D9]"
                 >
                 <p class="mt-2 text-[18px] text-gray-500">Format JPG atau PNG, maksimal 2 MB.</p>
+                <p id="foto_cover_error" class="mt-2 hidden text-red-600" role="alert" aria-live="polite"></p>
                 @error('foto_cover')
                     <p class="mt-2 text-red-600" role="alert">{{ $message }}</p>
                 @enderror
@@ -180,3 +181,20 @@
 </main>
 
 @endsection
+
+@push('scripts')
+<script>
+    const coverInput = document.getElementById('foto_cover');
+    const coverError = document.getElementById('foto_cover_error');
+    const maxCoverSize = 2 * 1024 * 1024;
+
+    coverInput.addEventListener('change', function () {
+        const file = this.files[0];
+        const isTooLarge = file && file.size > maxCoverSize;
+
+        coverError.textContent = isTooLarge ? 'Ukuran foto cover maksimal 2 MB.' : '';
+        coverError.classList.toggle('hidden', !isTooLarge);
+        this.setCustomValidity(isTooLarge ? 'Ukuran foto cover maksimal 2 MB.' : '');
+    });
+</script>
+@endpush
