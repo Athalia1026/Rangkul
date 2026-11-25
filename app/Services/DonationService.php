@@ -16,7 +16,7 @@ class DonationService
     public const PAYMENT_FEE = 3000;
 
     /** Batas waktu menyelesaikan pembayaran (juga dikirim ke Midtrans sebagai expiry Snap). */
-    public const PAYMENT_WINDOW_HOURS = 24;
+    public const PAYMENT_WINDOW_MINUTES = 5;
 
     /**
      * Cocokkan status donasi belum_bayar dengan Midtrans, lalu tandai gagal (kedaluwarsa) donasi
@@ -79,7 +79,7 @@ class DonationService
 
     private function paymentWindowPassed(Donation $donation): bool
     {
-        return $donation->created_at->lte(now()->subHours(self::PAYMENT_WINDOW_HOURS));
+        return $donation->created_at->lte(now()->subMinutes(self::PAYMENT_WINDOW_MINUTES));
     }
     public function __construct()
     {
@@ -117,7 +117,7 @@ class DonationService
                 ],
                 'enabled_payments' => ['gopay', 'qris'],
                 // Sesi pembayaran ditutup Midtrans setelah batas waktu yang sama dengan pengecekan kedaluwarsa.
-                'expiry' => ['unit' => 'hours', 'duration' => self::PAYMENT_WINDOW_HOURS],
+                'expiry' => ['unit' => 'minutes', 'duration' => self::PAYMENT_WINDOW_MINUTES],
                 // Setelah bayar, Midtrans mengarahkan kembali ke halaman status donasi (bukan Finish URL di dashboard Midtrans).
                 'callbacks' => ['finish' => route('donatur.pembayaran', $donation->id)],
             ];
@@ -166,7 +166,7 @@ class DonationService
             }
 
             if (!$this->isValidSignature($payload, $orderId)) {
-                return $this->buildErrorResponse(401, 'Signature callback tidak valid.');
+                return $this->buildErrorResponse(403, 'Signature callback tidak valid.');
             }
 
             if (!Config::$serverKey) return $this->buildErrorResponse(503, 'Pembayaran belum dikonfigurasi.');

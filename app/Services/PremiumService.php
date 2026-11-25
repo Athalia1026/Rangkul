@@ -83,7 +83,7 @@ class PremiumService
                     'phone' => $data['nomor_pic'],
                 ],
                 'enabled_payments' => ['gopay', 'qris'],
-                'expiry' => ['unit' => 'hours', 'duration' => DonationService::PAYMENT_WINDOW_HOURS],
+                'expiry' => ['unit' => 'minutes', 'duration' => DonationService::PAYMENT_WINDOW_MINUTES],
                 // Setelah bayar, Midtrans mengarahkan kembali ke halaman hasil premium (bukan Finish URL di dashboard Midtrans).
                 'callbacks' => ['finish' => route('donatur.premium.berhasil', $subscription->id)],
             ];
@@ -114,7 +114,7 @@ class PremiumService
         }
 
         if (!$this->isValidSignature($payload, $orderId)) {
-            return ['statusCode' => 401, 'response' => ['status' => 'error', 'message' => 'Signature callback tidak valid.']];
+            return ['statusCode' => 403, 'response' => ['status' => 'error', 'message' => 'Signature callback tidak valid.']];
         }
 
         $subscription = Subscription::where('transaction_id', $orderId)->first();
@@ -167,7 +167,7 @@ class PremiumService
         // "menunggu pembayaran" selamanya (Midtrans tidak mengirim status bila metode belum dipilih).
         $subscription->refresh();
         if ($subscription->status === 'menunggu_bayar' && !$pending
-            && $subscription->created_at->lte(now()->subHours(DonationService::PAYMENT_WINDOW_HOURS))) {
+            && $subscription->created_at->lte(now()->subMinutes(DonationService::PAYMENT_WINDOW_MINUTES))) {
             $subscription->update(['status' => 'nonaktif']);
         }
 
