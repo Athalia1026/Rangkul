@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Support\IndonesianCities;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RegisterOrganizationRequest extends FormRequest
 {
@@ -38,7 +40,7 @@ class RegisterOrganizationRequest extends FormRequest
             'tipe' => 'required|string', // Panti Asuhan, Yayasan, Sekolah, dll.
             'no_telp' => 'required|string|max:255',
             'deskripsi' => 'required|string',
-            'kota' => 'required|string|max:255',
+            'kota' => ['required', 'string', 'max:255', Rule::in(IndonesianCities::all())],
             'alamat' => 'required|string',
             'link_maps' => 'nullable|string|max:500',
             'jumlah_anak' => 'nullable|integer',
@@ -56,6 +58,13 @@ class RegisterOrganizationRequest extends FormRequest
             'ktp_pj' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
             'foto_bangunan' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
             'foto_kegiatan' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'kota.in' => 'Pilih kota dari daftar yang tersedia.',
         ];
     }
 }

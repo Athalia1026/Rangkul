@@ -12,6 +12,11 @@ const form = document.getElementById('checkout-form');
 if (form) {
     const amount = document.getElementById('checkout-amount');
     function update() {
+        const amountHelp = document.getElementById('checkout-amount-help');
+        const value = amount.valueAsNumber;
+        const isOutOfRange = amount.value !== '' && Number.isFinite(value)
+            && (value < Number(amount.min) || value > Number(amount.max));
+        amountHelp.classList.toggle('checkout-help-invalid', isOutOfRange);
         document.getElementById('checkout-subtotal').textContent = money(amount.value);
         document.getElementById('checkout-total').textContent = money(Number(amount.value) + Number(form.dataset.fee));
         form.querySelectorAll('[data-amount]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.amount) === Number(amount.value))));

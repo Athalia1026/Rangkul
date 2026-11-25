@@ -34,7 +34,7 @@
 
             <!-- Search Bar Input -->
             <div class="w-full max-w-[580px] mt-6 relative">
-                <form action="{{ route($isDonorSearch ? 'donatur.search.results' : 'search.results') }}" method="GET" role="search" data-search-form class="relative flex items-center bg-white/90 backdrop-blur-md hover:bg-white focus-within:bg-white rounded-xl shadow-lg border border-white/40 transition-all">
+                <form action="{{ route($isDonorSearch ? 'donatur.search.results' : 'search.results') }}" method="GET" role="search" data-search-form @if($isDonorSearch) data-allow-empty-search @endif class="relative flex items-center bg-white/90 backdrop-blur-md hover:bg-white focus-within:bg-white rounded-xl shadow-lg border border-white/40 transition-all">
                     <svg class="w-5 h-5 text-gray-500 ml-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8" stroke-width="2"/>
                         <path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round"/>
@@ -222,9 +222,22 @@
                 </div>
             </div>
 
+            @if ($hasQuery && !$isDonorSearch)
+                <p class="-mt-3 mb-6 text-sm text-gray-600">
+                    Menampilkan {{ $resultCount }} hasil untuk <strong class="text-gray-900">&ldquo;{{ $query }}&rdquo;</strong>
+                </p>
+            @endif
+
             @if ($isDonorSearch && ($hasFilters || $isUrgent))
                 <div class="-mt-2 mb-6 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
-                    <p>{{ $campaigns->count() }} kampanye ditampilkan{{ request('category') ? ' · ' . ($categories->firstWhere('id', request('category'))?->name ?? 'Kategori tidak ditemukan') : '' }}</p>
+                    <p>
+                        @if ($hasQuery)
+                            Menampilkan {{ $resultCount }} hasil untuk <strong class="text-gray-900">&ldquo;{{ $query }}&rdquo;</strong>
+                        @else
+                            {{ $campaigns->count() }} kampanye ditampilkan
+                        @endif
+                        {{ request('category') ? ' · ' . ($categories->firstWhere('id', request('category'))?->name ?? 'Kategori tidak ditemukan') : '' }}
+                    </p>
                     <a href="{{ route('donatur.cari') }}" class="font-semibold text-[#05522d] underline">Reset pencarian & filter</a>
                 </div>
             @endif

@@ -84,7 +84,51 @@
                 <div>
                     <label class="block text-[13.5px] font-medium text-gray-950 mb-1.5">Lokasi/Kota</label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" name="kota" required value="{{ old('kota') }}" placeholder="Kota" class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 text-[14px] bg-white transition-all shadow-2xs">
+                        <div class="relative" id="cityDropdown" data-cities-url="{{ asset('data/kota-indonesia.json') }}">
+                            <input type="hidden" name="kota" id="cityInput" value="{{ old('kota') }}">
+                            <input
+                                type="text"
+                                id="citySearch"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-controls="cityList"
+                                aria-expanded="false"
+                                autocomplete="off"
+                                required
+                                value="{{ old('kota') }}"
+                                placeholder="Ketik untuk mencari kota/kabupaten"
+                                onfocus="toggleCityList(true)"
+                                oninput="filterCities()"
+                                class="w-full px-4 py-2.5 sm:py-3 pr-10 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 placeholder-gray-500 text-[14px] bg-white transition-all shadow-2xs"
+                            >
+                            <button
+                                type="button"
+                                tabindex="-1"
+                                aria-label="Tampilkan daftar kota"
+                                onmousedown="event.preventDefault()"
+                                onclick="toggleCityList(); document.getElementById('citySearch').focus()"
+                                class="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-1 text-gray-600 text-xs cursor-pointer"
+                            >
+                                &#9662;
+                            </button>
+                            <div
+                                id="cityList"
+                                role="listbox"
+                                class="hidden absolute z-30 left-0 right-0 mt-2 max-h-72 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg p-1.5 space-y-0.5"
+                            >
+                                <p id="cityEmpty" class="hidden px-4 py-3 text-[14px] text-gray-500">Kota tidak ditemukan</p>
+                            </div>
+                            <template id="cityOptionTemplate">
+                                <button
+                                    type="button"
+                                    tabindex="-1"
+                                    role="option"
+                                    onmousedown="event.preventDefault()"
+                                    onclick="selectCity(this.dataset.value)"
+                                    class="city-option w-full text-left px-4 py-3 rounded-lg text-[14px] text-gray-950 outline-none cursor-pointer aria-selected:font-semibold data-[active=true]:bg-[#d6f0e2]"
+                                ></button>
+                            </template>
+                        </div>
                         <input type="text" name="alamat" required value="{{ old('alamat') }}" placeholder="Alamat lengkap" class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-300 focus:border-[#05522d] focus:ring-2 focus:ring-[#05522d]/15 outline-none text-gray-950 text-[14px] bg-white transition-all shadow-2xs">
                     </div>
                 </div>
@@ -351,5 +395,6 @@
             });
         });
     </script>
+    <script src="{{ asset('js/city-select.js') }}" defer></script>
 </body>
 </html>

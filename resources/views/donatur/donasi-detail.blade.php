@@ -16,7 +16,7 @@
         </div></fieldset>
         <label for="checkout-amount">Nominal Donasi Lainnya</label>
         <div class="checkout-input"><span>Rp</span><input id="checkout-amount" type="number" inputmode="numeric" min="10000" max="10000000" step="1" value="100000" required aria-describedby="checkout-amount-help"></div>
-        <p id="checkout-amount-help" class="checkout-help">Nominal donasi mulai Rp10.000 hingga Rp10.000.000.</p>
+        <p id="checkout-amount-help" class="checkout-help" role="alert" aria-live="polite">Nominal donasi mulai Rp10.000 hingga Rp10.000.000.</p>
         <label for="checkout-note">Doa atau Catatan</label><textarea id="checkout-note" maxlength="255" rows="5" placeholder="Tuliskan doa atau pesan Anda di sini..."></textarea>
         <div class="checkout-breakdown"><h2>Detail Pembayaran</h2><dl>
             <div><dt>Donasi</dt><dd id="checkout-subtotal">Rp100.000</dd></div>

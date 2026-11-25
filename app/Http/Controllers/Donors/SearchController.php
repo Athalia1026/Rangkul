@@ -24,6 +24,7 @@ class SearchController extends Controller
 
         return view('search', [
             'campaigns' => collect($payload['data']['campaigns'] ?? []),
+            'resultCount' => count($payload['data']['campaigns'] ?? []) + count($payload['data']['organizations'] ?? []),
             'query' => $payload['data']['query'] ?? '',
             'sort' => $payload['data']['sort'] ?? 'latest',
             'categories' => $request->routeIs('donatur.cari') ? Category::orderBy('name')->get() : collect(),

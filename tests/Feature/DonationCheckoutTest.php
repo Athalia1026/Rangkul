@@ -62,11 +62,18 @@ class DonationCheckoutTest extends TestCase
         $donation = $result['data']['donation'];
         $this->assertSame(1, $service->calls);
         $this->assertSame(103000, $service->payload['transaction_details']['gross_amount']);
+        $this->assertSame(['unit' => 'minutes', 'duration' => 5], $service->payload['expiry']);
         $this->assertSame('test-snap', $donation->fresh()->snap_token);
         $this->assertSame('belum_bayar', $donation->fresh()->status);
         $payload = ['order_id' => $donation->id, 'status_code' => '200', 'gross_amount' => '103000.00', 'transaction_status' => 'settlement'];
-        $this->assertSame(401, $service->handleCallback($payload)['statusCode']);
-        $payload['signature_key'] = hash('sha512', $donation->id.'200103000.00checkout-test-secret');
+        $beforeInvalidCallback = $donation->fresh()->status;
+        $this->assertSame(403, $service->handleCallback($payload)['statusCode']);
+        $this->assertSame($beforeInvalidCallback, $donation->fresh()->status);
+        $validSignature = hash('sha512', $donation->id.'200103000.00checkout-test-secret');
+        $payload['signature_key'] = ($validSignature[0] === '0' ? '1' : '0') . substr($validSignature, 1);
+        $this->assertSame(403, $service->handleCallback($payload)['statusCode']);
+        $this->assertSame($beforeInvalidCallback, $donation->fresh()->status);
+        $payload['signature_key'] = $validSignature;
 
         // Notifikasi bertanda tangan sah tetapi Midtrans menyatakan transaksi masih pending:
         // transaction_status di notifikasi tidak ditandatangani, jadi donasi belum boleh lunas.

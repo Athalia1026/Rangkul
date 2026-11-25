@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\IndonesianCities;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -36,7 +37,7 @@ class RegisterDonorRequest extends FormRequest
             // Data Profil Donatur (Table: donors)
             'tipe' => 'required|in:individu,komunitas,perusahaan',
             'no_telp' => 'required|string|max:255',
-            'kota' => ['required', 'string', 'max:255', Rule::in($this->indonesianCities())],
+            'kota' => ['required', 'string', 'max:255', Rule::in(IndonesianCities::all())],
         ];
     }
 
@@ -45,15 +46,5 @@ class RegisterDonorRequest extends FormRequest
         return [
             'kota.in' => 'Pilih kota dari daftar yang tersedia.',
         ];
-    }
-
-    /**
-     * Daftar kabupaten/kota yang sama dengan sumber dropdown di form register.
-     *
-     * @return array<int, string>
-     */
-    private function indonesianCities(): array
-    {
-        return json_decode(file_get_contents(public_path('data/kota-indonesia.json')), true) ?? [];
     }
 }

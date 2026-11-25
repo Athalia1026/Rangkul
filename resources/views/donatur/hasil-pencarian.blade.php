@@ -2,20 +2,29 @@
 @section('title', 'Hasil Pencarian - Rangkul')
 
 @section('content')
-@php $organizationTab = request('tab') === 'organisasi'; @endphp
+@php
+    $organizationTab = request('tab') === 'organisasi';
+    $resultCount = $campaigns->count() + $organizations->count();
+@endphp
 <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-20 sm:pb-24">
     <h1 class="text-[28px] sm:text-[32px] font-bold tracking-tight text-gray-950">Hasil Pencarian</h1>
     <p class="mt-3 text-[15px] text-gray-700">
         @if($query !== '')
-            Menampilkan hasil untuk <strong class="text-gray-950">&ldquo;{{ $query }}&rdquo;</strong>
+            Menampilkan {{ $resultCount }} hasil untuk <strong class="text-gray-950">&ldquo;{{ $query }}&rdquo;</strong>
         @else
             Jelajahi penggalangan dana dan organisasi pilihan Rangkul.
         @endif
     </p>
 
     <nav class="donor-results-tabs" aria-label="Jenis hasil pencarian">
-        <a href="{{ request()->fullUrlWithQuery(['tab' => 'penggalangan']) }}" @if(!$organizationTab) aria-current="page" @endif>Penggalangan Dana</a>
-        <a href="{{ request()->fullUrlWithQuery(['tab' => 'organisasi']) }}" @if($organizationTab) aria-current="page" @endif>Organisasi</a>
+        <a href="{{ request()->fullUrlWithQuery(['tab' => 'penggalangan']) }}" @if(!$organizationTab) aria-current="page" @endif>
+            Penggalangan Dana
+            <span class="ml-6 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#05522d] px-2 text-sm font-semibold text-white" aria-label="Jumlah hasil penggalangan dana: {{ $campaigns->count() }}">{{ $campaigns->count() }}</span>
+        </a>
+        <a href="{{ request()->fullUrlWithQuery(['tab' => 'organisasi']) }}" @if($organizationTab) aria-current="page" @endif>
+            Organisasi
+            <span class="ml-6 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#05522d] px-2 text-sm font-semibold text-white" aria-label="Jumlah hasil organisasi: {{ $organizations->count() }}">{{ $organizations->count() }}</span>
+        </a>
     </nav>
 
     @if(!$organizationTab)

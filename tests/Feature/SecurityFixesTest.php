@@ -614,7 +614,11 @@ class SecurityFixesTest extends TestCase
         };
         $total = $service->pricing()['total'];
         $payload = ['order_id' => $orderId, 'status_code' => '200', 'gross_amount' => $total . '.00', 'transaction_status' => 'settlement'];
-        $payload['signature_key'] = hash('sha512', $orderId . '200' . $total . '.00premium-test-secret');
+        $validSignature = hash('sha512', $orderId . '200' . $total . '.00premium-test-secret');
+        $payload['signature_key'] = ($validSignature[0] === '0' ? '1' : '0') . substr($validSignature, 1);
+        $this->assertSame(403, $service->handleCallback($payload)['statusCode']);
+        $this->assertSame('menunggu_bayar', $subscription->fresh()->status);
+        $payload['signature_key'] = $validSignature;
 
         // Notifikasi menyebut settlement, tetapi Midtrans menyatakan pending: belum aktif.
         $service->gatewayStatus = ['order_id' => $orderId, 'gross_amount' => $total . '.00', 'transaction_status' => 'pending'];

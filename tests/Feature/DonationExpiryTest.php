@@ -74,7 +74,7 @@ class DonationExpiryTest extends TestCase
     public function test_unpaid_donation_past_payment_window_expires_even_with_snap_token(): void
     {
         $donation = $this->donation($this->campaign(now()->addDays(10)->toDateString()), [
-            'snap_token' => 'token-uji', 'created_at' => now()->subHours(25),
+            'snap_token' => 'token-uji', 'created_at' => now()->subMinutes(6),
         ]);
 
         $this->artisan('donations:sync-midtrans')->assertSuccessful();
@@ -84,7 +84,9 @@ class DonationExpiryTest extends TestCase
 
     public function test_recent_unpaid_donation_for_running_campaign_stays_pending(): void
     {
-        $donation = $this->donation($this->campaign(now()->addDays(10)->toDateString()), ['snap_token' => 'token-uji']);
+        $donation = $this->donation($this->campaign(now()->addDays(10)->toDateString()), [
+            'snap_token' => 'token-uji', 'created_at' => now()->subMinutes(4),
+        ]);
 
         $this->artisan('donations:sync-midtrans')->assertSuccessful();
 
@@ -140,7 +142,7 @@ class DonationExpiryTest extends TestCase
         if (!$subscription) $this->markTestSkipped('Requires Rangkul demo seed.');
 
         $stale = Subscription::create(['id_perusahaan' => $subscription->id_perusahaan, 'status' => 'menunggu_bayar', 'transaction_id' => 'PREM-UJI' . uniqid()]);
-        $stale->forceFill(['created_at' => now()->subHours(25)])->saveQuietly();
+        $stale->forceFill(['created_at' => now()->subMinutes(6)])->saveQuietly();
         $fresh = Subscription::create(['id_perusahaan' => $subscription->id_perusahaan, 'status' => 'menunggu_bayar', 'transaction_id' => 'PREM-UJI' . uniqid()]);
 
         $this->artisan('donations:sync-midtrans')->assertSuccessful();
