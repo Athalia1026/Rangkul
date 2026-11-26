@@ -127,6 +127,28 @@ class SearchPageTest extends TestCase
         $this->assertSame($organizationCount[1], $campaignCount[1]);
     }
 
+    public function test_donor_search_defaults_to_organizations_when_campaigns_are_empty(): void
+    {
+        $response = $this->view('donatur.hasil-pencarian', [
+            'campaigns' => collect(),
+            'organizations' => collect([[
+                'id' => 'organization-id',
+                'image_url' => null,
+                'nama_lembaga' => 'Panti Kasih',
+                'deskripsi' => 'Lembaga uji',
+                'kota' => 'Bandung',
+            ]]),
+            'query' => 'kasih',
+        ]);
+
+        $this->assertMatchesRegularExpression(
+            '/<a href="[^"]*tab=organisasi"\s+aria-current="page"/',
+            (string) $response
+        );
+        $response->assertSee('Panti Kasih');
+        $response->assertDontSee('Kampanye belum ditemukan');
+    }
+
     public function test_donor_search_result_tabs_show_zero_when_no_results_match(): void
     {
         config(['scout.driver' => 'null']);

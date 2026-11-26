@@ -3,7 +3,9 @@
 
 @section('content')
 @php
-    $organizationTab = request('tab') === 'organisasi';
+    $requestedTab = request('tab');
+    $organizationTab = $requestedTab === 'organisasi'
+        || ($requestedTab !== 'penggalangan' && $campaigns->isEmpty() && $organizations->isNotEmpty());
     $resultCount = $campaigns->count() + $organizations->count();
 @endphp
 <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-20 sm:pb-24">
