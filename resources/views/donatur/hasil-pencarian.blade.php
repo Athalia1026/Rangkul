@@ -19,11 +19,11 @@
     <nav class="donor-results-tabs" aria-label="Jenis hasil pencarian">
         <a href="{{ request()->fullUrlWithQuery(['tab' => 'penggalangan']) }}" @if(!$organizationTab) aria-current="page" @endif>
             Penggalangan Dana
-            <span class="ml-6 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#05522d] px-2 text-sm font-semibold text-white" aria-label="Jumlah hasil penggalangan dana: {{ $campaigns->count() }}">{{ $campaigns->count() }}</span>
+            <span class="ml-4 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#05522d] px-2 text-sm font-semibold text-white" aria-label="Jumlah hasil penggalangan dana: {{ $campaigns->count() }}">{{ $campaigns->count() }}</span>
         </a>
         <a href="{{ request()->fullUrlWithQuery(['tab' => 'organisasi']) }}" @if($organizationTab) aria-current="page" @endif>
             Organisasi
-            <span class="ml-6 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#05522d] px-2 text-sm font-semibold text-white" aria-label="Jumlah hasil organisasi: {{ $organizations->count() }}">{{ $organizations->count() }}</span>
+            <span class="ml-4 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#05522d] px-2 text-sm font-semibold text-white" aria-label="Jumlah hasil organisasi: {{ $organizations->count() }}">{{ $organizations->count() }}</span>
         </a>
     </nav>
 

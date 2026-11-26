@@ -42,7 +42,7 @@
                     <input
                         type="text"
                         name="q"
-                        aria-label="Cari kampanye atau organisasi"
+                        aria-label="Cari organisasi atau campaign"
                         value="{{ request('q') }}"
                         placeholder="Cari organisasi atau campaign..."
                         class="w-full py-3 sm:py-3.5 pl-3 pr-10 text-gray-900 placeholder-gray-500 text-[14px] sm:text-[15px] outline-none bg-transparent"
